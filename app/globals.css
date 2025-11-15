@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark theme as default - Blue theme matching logo */
+    --background: 220 30% 8%;
+    --foreground: 0 0% 100%;
+    --card: 220 25% 12%;
+    --card-foreground: 0 0% 100%;
+    --popover: 220 25% 12%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 210 100% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 20% 18%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 210 100% 56%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 20% 20%;
+    --input: 220 20% 18%;
+    --ring: 210 100% 56%;
+    --radius: 1rem;
+  }
+
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 210 100% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 100% 56%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 210 100% 56%;
+    --radius: 1rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .dark body {
+    background: linear-gradient(to bottom, hsl(220 30% 8%), hsl(220 30% 6%));
+  }
+  
+  .light body {
+    background: linear-gradient(to bottom, hsl(0 0% 100%), hsl(210 40% 98%));
+  }
+  
+  /* Enhanced card styling for dark theme */
+  .card {
+    @apply bg-card/50 backdrop-blur-sm;
+  }
+  
+  /* Blue gradient buttons - matching logo */
+  .btn-gradient {
+    background: linear-gradient(135deg, hsl(210 100% 56%), hsl(200 100% 50%));
+  }
+  
+  /* Optimized padding for mobile */
+  .container {
+    @apply px-2 sm:px-3 md:px-4 lg:px-6;
+  }
+  
+  /* Optimized responsive spacing */
+  .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+  }
+  
+  @media (min-width: 640px) {
+    .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(1rem * var(--tw-space-y-reverse));
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+      margin-top: calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));
+      margin-bottom: calc(1.25rem * var(--tw-space-y-reverse));
+    }
+  }
+  
+  /* Rounded corners everywhere */
+  button, input, textarea, select {
+    @apply rounded-lg sm:rounded-xl;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-600;
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors;
+}
+

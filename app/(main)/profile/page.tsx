@@ -1,0 +1,776 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Edit2,
+  Check,
+  X,
+  Sparkles,
+  ImageIcon,
+  Heart,
+  Crown,
+  Settings,
+  HelpCircle,
+  LogOut,
+  Shield,
+  Bell,
+  Moon,
+  Globe,
+  ArrowLeft,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuthStore } from "@/store/authStore";
+import { useGenerationStore } from "@/store/generationStore";
+import { useThemeStore } from "@/store/themeStore";
+import { useToast } from "@/hooks/use-toast";
+import { DataExport } from "@/components/backup/DataExport";
+import { PasswordStrength } from "@/components/security/PasswordStrength";
+import { VersionInfo } from "@/components/version/VersionInfo";
+import { FeedbackButton } from "@/components/feedback/FeedbackButton";
+
+export default function ProfilePage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const {
+    user,
+    logout,
+    updateUser,
+    loginAsCreator,
+    creatorApplication,
+    submitCreatorApplication,
+    setCreatorApplicationStatus,
+  } = useAuthStore();
+  const { generations } = useGenerationStore();
+  const { theme, toggleTheme } = useThemeStore();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [showCreatorModal, setShowCreatorModal] = useState(false);
+  const [showCreatorLoginModal, setShowCreatorLoginModal] = useState(false);
+  const [editedUser, setEditedUser] = useState(user);
+  const [newPassword, setNewPassword] = useState("");
+  const [creatorCredentials, setCreatorCredentials] = useState({
+    id: "",
+    password: ""
+  });
+
+  // Creator application form state
+  const [creatorUsername, setCreatorUsername] = useState("");
+  const [creatorBio, setCreatorBio] = useState("");
+  const [socialInstagram, setSocialInstagram] = useState("");
+  const [socialYouTube, setSocialYouTube] = useState("");
+  const [demo1Image, setDemo1Image] = useState<string>("");
+  const [demo1Prompt, setDemo1Prompt] = useState("");
+  const [demo2Image, setDemo2Image] = useState<string>("");
+  const [demo2Prompt, setDemo2Prompt] = useState("");
+
+  // Notify on application status change
+  useEffect(() => {
+    if (creatorApplication?.status === 'approved') {
+      toast({ title: "✅ बधाई हो! अब आप Creator बन गए हैं।" });
+    }
+    if (creatorApplication?.status === 'rejected') {
+      toast({ title: "❌ आपकी Application अस्वीकृत की गई है", description: creatorApplication?.rejectionReason });
+    }
+  }, [creatorApplication?.status]);
+
+  const handleSave = () => {
+    if (editedUser) {
+      updateUser(editedUser);
+      setIsEditing(false);
+      toast({
+        title: "Profile updated",
+        description: "Your changes have been saved",
+      });
+    }
+  };
+
+  const handleCreatorLogin = () => {
+    // Use the auth store function to login as creator
+    const success = loginAsCreator(creatorCredentials.id, creatorCredentials.password);
+    if (success) {
+      setShowCreatorLoginModal(false);
+      toast({
+        title: "Creator Access Granted!",
+        description: "You now have creator privileges. Redirecting to creator dashboard...",
+      });
+      // Redirect to creator dashboard after a short delay
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1500);
+    } else {
+      toast({
+        title: "Login Failed",
+        description: "Invalid creator credentials. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSubmitCreatorApplication = async () => {
+    try {
+      if (!creatorUsername) {
+        toast({ title: "Username required", description: "Please enter a creator username.", variant: "destructive" });
+        return;
+      }
+      if (!demo1Image || !demo2Image) {
+        toast({ title: "Upload required", description: "Please upload two demo images.", variant: "destructive" });
+        return;
+      }
+      const app = submitCreatorApplication({
+        username: creatorUsername.startsWith("@") ? creatorUsername : `@${creatorUsername}`,
+        bio: creatorBio,
+        socialLinks: {
+          instagram: socialInstagram,
+          youtube: socialYouTube,
+        },
+        demoTemplates: [
+          { image: demo1Image, prompt: demo1Prompt || "" },
+          { image: demo2Image, prompt: demo2Prompt || "" },
+        ],
+      });
+      setShowCreatorModal(false);
+      toast({
+        title: "🎉 आपकी Application भेज दी गई है",
+        description: "हम 48 घंटे के अंदर समीक्षा करेंगे",
+      });
+    } catch (e) {
+      toast({ title: "Failed to submit", description: (e as Error).message, variant: "destructive" });
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/welcome");
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully",
+    });
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="w-full max-w-5xl py-2 sm:py-3 md:py-4 space-y-3 sm:space-y-4">
+      <div className="flex items-center gap-2 sm:gap-4">
+        <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-xl sm:text-2xl font-bold">Profile</h1>
+      </div>
+
+      <Card>
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4">
+            <Avatar className="h-24 w-24 sm:h-32 sm:w-32 ring-4 ring-primary/20">
+              <AvatarImage src={user.profilePicture} alt={user.fullName} />
+              <AvatarFallback className="text-3xl bg-teal-500/20 text-teal-400">
+                {user.fullName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="space-y-1">
+              <h1 className="text-xl sm:text-2xl font-bold">{user.fullName}</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                {user.email} | {user.phone}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Member since {new Date(user.memberSince).toLocaleDateString("default", { month: "short", year: "numeric" })}
+              </p>
+              <div className="flex items-center justify-center gap-2 pt-1">
+                {user.isCreator && (
+                  <Badge variant="default" className="flex items-center gap-1">
+                    <Crown className="h-3 w-3" /> Creator
+                  </Badge>
+                )}
+                {!user.isCreator && creatorApplication?.status === 'pending' && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Sparkles className="h-3 w-3" /> Application Under Review
+                  </Badge>
+                )}
+                {!user.isCreator && creatorApplication?.status === 'rejected' && (
+                  <Badge variant="destructive" className="flex items-center gap-1">
+                    <X className="h-3 w-3" /> Rejected
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <Button
+              onClick={() => setIsEditing(true)}
+              className="bg-gradient-to-r from-blue-600 to-blue-500"
+            >
+              <Edit2 className="h-4 w-4 mr-2" />
+              Edit Profile
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+        <Card>
+          <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-1">Total Generations</p>
+            <p className="text-2xl sm:text-3xl font-bold">{generations.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-1">Points Balance</p>
+            <p className="text-2xl sm:text-3xl font-bold">5,800</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-1">Templates Used</p>
+            <p className="text-2xl sm:text-3xl font-bold">85</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-1">Favorites Saved</p>
+            <p className="text-2xl sm:text-3xl font-bold">112</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {!user.isCreator && !creatorApplication && (
+        <Card className="relative overflow-hidden border-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 opacity-90" />
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')" }} />
+          <CardContent className="p-4 sm:p-6 relative z-10">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+              <div className="space-y-2">
+                <h3 className="text-lg sm:text-xl font-bold text-white">Become a Creator</h3>
+                <p className="text-sm sm:text-base text-white/90">
+                  Start monetizing your unique templates and share your creativity with the world.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={() => setShowCreatorModal(true)}
+                  className="bg-white text-purple-600 hover:bg-white/90 text-sm sm:text-base px-3 sm:px-4 whitespace-nowrap"
+                >
+                  Apply for Creator
+                </Button>
+                <Button
+                  onClick={() => setShowCreatorLoginModal(true)}
+                  variant="secondary"
+                  className="bg-white/20 text-white hover:bg-white/30 border border-white/30 text-sm sm:text-base px-3 sm:px-4 whitespace-nowrap"
+                >
+                  Login as Creator
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!user.isCreator && creatorApplication?.status === 'pending' && (
+        <Card className="relative overflow-hidden border-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-500 via-orange-500 to-pink-500 opacity-90" />
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')" }} />
+          <CardContent className="p-4 sm:p-6 relative z-10">
+            <div className="flex items-center justify-between gap-3 sm:gap-4">
+              <div className="space-y-1">
+                <h3 className="text-lg sm:text-xl font-bold text-white">Application Under Review</h3>
+                <p className="text-sm sm:text-base text-white/90">हमारी टीम आपकी रिक्वेस्ट की समीक्षा कर रही है। मंजूरी मिलते ही आपको नोटिफिकेशन मिलेगा।</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!user.isCreator && creatorApplication?.status === 'rejected' && (
+        <Card className="relative overflow-hidden border-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-pink-600 to-purple-600 opacity-90" />
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')" }} />
+          <CardContent className="p-4 sm:p-6 relative z-10">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+              <div className="space-y-1 text-center sm:text-left">
+                <h3 className="text-lg sm:text-xl font-bold text-white">❌ Rejected</h3>
+                <p className="text-sm sm:text-base text-white/90">कारण: {creatorApplication?.rejectionReason || 'कृपया डेमो क्वालिटी और लिंक जाँचें।'}</p>
+              </div>
+              <Button
+                onClick={() => setShowCreatorModal(true)}
+                className="bg-white text-purple-600 hover:bg-white/90 text-sm sm:text-base px-3 sm:px-4 whitespace-nowrap"
+              >
+                Apply Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {user.isCreator && (
+        <Card className="relative overflow-hidden border-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 opacity-90" />
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage:
+                "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')",
+            }}
+          />
+          <CardContent className="p-4 sm:p-6 relative z-10">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+              <div className="space-y-2">
+                <h3 className="text-lg sm:text-xl font-bold text-white">Creator App</h3>
+                <p className="text-sm sm:text-base text-white/90">
+                  Access your creator dashboard, templates, and earnings.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={() => router.push('/dashboard')}
+                  className="bg-white text-purple-600 hover:bg-white/90 text-sm sm:text-base px-3 sm:px-4 whitespace-nowrap"
+                >
+                  Go to Creator App
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Tabs defaultValue="account" className="space-y-3 sm:space-y-4 w-full overflow-hidden">
+        <TabsList className="grid w-full grid-cols-3 h-9 sm:h-10 overflow-x-auto scrollbar-hide">
+          <TabsTrigger value="account" className="text-xs sm:text-sm">Account</TabsTrigger>
+          <TabsTrigger value="preferences" className="text-xs sm:text-sm">Preferences</TabsTrigger>
+          <TabsTrigger value="support" className="text-xs sm:text-sm">Support</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="account" className="space-y-3 sm:space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="text-sm">Full Name</Label>
+                  <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-muted">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm sm:text-base">{user.fullName}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="text-sm">Email</Label>
+                  <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-muted">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm sm:text-base">{user.email}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="text-sm">Phone</Label>
+                  <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-muted">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm sm:text-base">{user.phone}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label className="text-sm">Location</Label>
+                  <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-muted">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm sm:text-base">{user.location?.city || "Not set"}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Security</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label>Change Password</Label>
+                <Input
+                  type="password"
+                  placeholder="New password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <Input type="password" placeholder="Confirm password" />
+                {newPassword && <PasswordStrength password={newPassword} />}
+              </div>
+              <Button variant="outline" className="w-full justify-start">
+                <Shield className="h-4 w-4 mr-2" />
+                Two-Factor Authentication
+              </Button>
+            </CardContent>
+          </Card>
+
+          <DataExport />
+        </TabsContent>
+
+        <TabsContent value="preferences" className="space-y-3 sm:space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>App Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Dark Mode</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Enable dark theme
+                  </p>
+                </div>
+                <Switch 
+                  checked={theme === 'dark'} 
+                  onCheckedChange={toggleTheme}
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label>Language</Label>
+                <Select defaultValue="en">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="hi">Hindi</SelectItem>
+                    <SelectItem value="mr">Marathi</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Notifications</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Generation Complete</Label>
+                  <p className="text-sm text-muted-foreground">
+                    When your image is ready
+                  </p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Points Earned</Label>
+                  <p className="text-sm text-muted-foreground">
+                    When you earn points
+                  </p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Promotional</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Offers and updates
+                  </p>
+                </div>
+                <Switch />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="support" className="space-y-3 sm:space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Help & Support</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <FeedbackButton inline />
+              <Button variant="outline" className="w-full justify-start">
+                <HelpCircle className="h-4 w-4 mr-2" />
+                FAQs
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Mail className="h-4 w-4 mr-2" />
+                Contact Support
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Shield className="h-4 w-4 mr-2" />
+                Privacy Policy
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Shield className="h-4 w-4 mr-2" />
+                Terms of Service
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>About</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Rupantar AI v1.0.0
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Made with ❤️ in India
+              </p>
+              <div className="pt-2">
+                <VersionInfo />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      <Card className="border-destructive">
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="w-full justify-start text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Delete Account
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Update your personal information
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                value={editedUser?.fullName || ""}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser!, fullName: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={editedUser?.email || ""}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser!, email: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                value={editedUser?.phone || ""}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser!, phone: e.target.value })
+                }
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCreatorModal} onOpenChange={setShowCreatorModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Become a Creator</DialogTitle>
+            <DialogDescription>
+              Apply to become a creator and start earning from your templates
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Creator Username</Label>
+              <Input
+                id="username"
+                placeholder="@username"
+                value={creatorUsername}
+                onChange={(e) => setCreatorUsername(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bio">Short Bio</Label>
+              <Input
+                id="bio"
+                placeholder="Tell us about your style and niche"
+                value={creatorBio}
+                onChange={(e) => setCreatorBio(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Social Media Links</Label>
+              <Input
+                placeholder="Instagram URL (optional)"
+                value={socialInstagram}
+                onChange={(e) => setSocialInstagram(e.target.value)}
+              />
+              <Input
+                placeholder="YouTube URL (optional)"
+                className="mt-2"
+                value={socialYouTube}
+                onChange={(e) => setSocialYouTube(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Demo Template 1</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const url = URL.createObjectURL(file);
+                    setDemo1Image(url);
+                  }
+                }}
+              />
+              <Input
+                placeholder="Prompt used for this template"
+                className="mt-2"
+                value={demo1Prompt}
+                onChange={(e) => setDemo1Prompt(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Demo Template 2</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const url = URL.createObjectURL(file);
+                    setDemo2Image(url);
+                  }
+                }}
+              />
+              <Input
+                placeholder="Prompt used for this template"
+                className="mt-2"
+                value={demo2Prompt}
+                onChange={(e) => setDemo2Prompt(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreatorModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitCreatorApplication}>Submit Application</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCreatorLoginModal} onOpenChange={setShowCreatorLoginModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Login as Creator</DialogTitle>
+            <DialogDescription>
+              Enter your creator credentials to access creator features
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="creatorId">Creator ID</Label>
+              <Input
+                id="creatorId"
+                placeholder="Enter your creator ID"
+                value={creatorCredentials.id}
+                onChange={(e) => setCreatorCredentials({...creatorCredentials, id: e.target.value})}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="creatorPassword">Password</Label>
+              <Input
+                id="creatorPassword"
+                type="password"
+                placeholder="Enter your password"
+                value={creatorCredentials.password}
+                onChange={(e) => setCreatorCredentials({...creatorCredentials, password: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreatorLoginModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreatorLogin}>
+              Login as Creator
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

@@ -1,0 +1,31 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Stylized R with thumbs-up appearance - Blue gradient -->
+  <!-- Vertical bar (left side) -->
+  <rect x="6" y="4" width="4" height="24" rx="1" fill="url(#blue1)"/>
+  <!-- Top rounded bulbous shape (thumb-like, top-right of vertical bar) -->
+  <circle cx="14" cy="8" r="4" fill="url(#blue2)"/>
+  <!-- Diagonal stroke (from upper-middle to middle-right) -->
+  <path d="M10 12L16 18" stroke="url(#blue3)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Bottom diagonal leg (extending down-right) -->
+  <path d="M10 20L18 28" stroke="url(#blue4)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="blue1" x1="6" y1="4" x2="10" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="50%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="blue2" x1="10" y1="4" x2="18" y2="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#93C5FD"/>
+      <stop offset="50%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="blue3" x1="10" y1="12" x2="16" y2="18" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="blue4" x1="10" y1="20" x2="18" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+</svg>

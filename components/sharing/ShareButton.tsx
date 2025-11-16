@@ -27,7 +27,7 @@ export function ShareButton({ url, title, text, image }: ShareButtonProps) {
   };
 
   const handleShare = async (platform?: string) => {
-    if (platform === "native" && navigator.share) {
+    if (platform === "native" && typeof navigator !== 'undefined' && 'share' in navigator) {
       try {
         await navigator.share(shareData);
         toast({
@@ -77,7 +77,7 @@ export function ShareButton({ url, title, text, image }: ShareButtonProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {navigator.share && (
+        {typeof navigator !== 'undefined' && 'share' in navigator && (
           <DropdownMenuItem onClick={() => handleShare("native")}>
             Share via...
           </DropdownMenuItem>

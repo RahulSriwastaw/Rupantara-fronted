@@ -4,6 +4,8 @@ export interface User {
   fullName: string;
   email: string;
   phone: string;
+  bio?: string;
+  creatorId?: string;
   profilePicture?: string;
   dateOfBirth?: string;
   gender?: "male" | "female" | "other";
@@ -24,6 +26,7 @@ export interface Template {
   id: string;
   title: string;
   description: string;
+  image?: string;
   demoImage: string;
   additionalImages?: string[];
   category: TemplateCategory;
@@ -40,6 +43,8 @@ export interface Template {
   isFree: boolean;
   pointsCost: number;
   usageCount: number;
+  views?: number;
+  earnings?: number;
   likeCount: number;
   saveCount: number;
   rating: number;

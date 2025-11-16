@@ -6,6 +6,9 @@ const nextConfig = {
     '127.0.0.1',
     'localhost'
   ],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
       {

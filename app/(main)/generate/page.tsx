@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+export const dynamic = "force-dynamic";
+
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Sparkles } from "lucide-react";
@@ -16,7 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { generationsApi, templatesApi } from "@/services/api";
 import type { QualityLevel, Template } from "@/types";
 
-export default function GeneratePage() {
+function GenerateContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateId = searchParams?.get("templateId");
@@ -342,6 +344,14 @@ export default function GeneratePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function GeneratePage() {
+  return (
+    <Suspense fallback={<div />}> 
+      <GenerateContent />
+    </Suspense>
   );
 }
 

@@ -227,7 +227,7 @@ export function TemplateCard({
                           } catch (fetchError) {
                             // If direct fetch fails, try canvas method
                             try {
-                              const img = new Image();
+                              const img = document.createElement('img');
                               img.crossOrigin = 'anonymous';
                               
                               await new Promise<void>((resolve, reject) => {
@@ -371,7 +371,7 @@ export function TemplateCard({
                   
                   return (
                     <>
-                      {navigator.share && (
+                      {typeof navigator !== 'undefined' && 'share' in navigator && (
                         <DropdownMenuItem onClick={() => handleShare("native")}>
                           <Share2 className="mr-2 h-4 w-4" />
                           Share via...

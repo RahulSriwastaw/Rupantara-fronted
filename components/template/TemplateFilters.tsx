@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SlidersHorizontal } from "lucide-react";
-import type { TemplateFilters as Filters } from "@/types";
+import type { TemplateFilters as Filters, TemplateCategory } from "@/types";
 
 interface TemplateFiltersProps {
   filters: Filters;
@@ -59,6 +59,8 @@ export function TemplateFilters({
     sortBy: filters.sortBy || "trending"
   };
 
+  const genders: TemplateCategory[] = ["male", "female", "unisex"];
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -79,7 +81,7 @@ export function TemplateFilters({
           <div className="space-y-3">
             <Label className="text-base font-semibold">Gender</Label>
             <div className="space-y-2">
-              {["male", "female", "unisex"].map((gender) => (
+              {genders.map((gender) => (
                 <div key={gender} className="flex items-center space-x-2">
                   <Checkbox
                     id={gender}

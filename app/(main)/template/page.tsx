@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+export const dynamic = "force-dynamic";
+
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Flame } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -33,7 +35,7 @@ const categories = [
   "Modern",
 ];
 
-export default function TemplatePage() {
+function TemplateContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -324,6 +326,14 @@ export default function TemplatePage() {
         onSave={() => selectedTemplate && handleSave(selectedTemplate.id)}
       />
     </div>
+  );
+}
+
+export default function TemplatePage() {
+  return (
+    <Suspense fallback={<div />}> 
+      <TemplateContent />
+    </Suspense>
   );
 }
 

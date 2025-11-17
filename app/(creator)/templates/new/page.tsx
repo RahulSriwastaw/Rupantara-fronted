@@ -214,7 +214,6 @@ export default function CreateTemplatePage() {
       }
       const created = await templatesApi.adminCreateTemplate(payload)
       addTemplate({
-        id: created.id,
         title: created.title,
         description: created.description,
         demoImage: created.demoImage,

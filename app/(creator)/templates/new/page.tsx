@@ -21,6 +21,8 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useTemplateStore } from "@/store/templateStore";
+import { templatesApi } from "@/services/api";
+import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
 
@@ -186,39 +188,62 @@ export default function CreateTemplatePage() {
     prevTemplateCreationStep();
   };
 
-  const handleSubmit = () => {
-    // Add template to store
-    addTemplate({
-      title: formData.title,
-      description: formData.description,
-      demoImage: formData.demoImage,
-      additionalImages: formData.exampleImages,
-      category: formData.category as any,
-      subCategory: formData.subCategory as any,
-      tags: formData.tags,
-      creatorId: "creator_123",
-      creatorName: "Demo Creator",
-      creatorVerified: true,
-      hiddenPrompt: formData.hiddenPrompt,
-      visiblePrompt: formData.visiblePrompt,
-      negativePrompt: formData.negativePrompt,
-      isFree: formData.templateType === "free",
-      pointsCost: formData.pointsCost,
-      usageCount: 0,
-      likeCount: 0,
-      saveCount: 0,
-      rating: 0,
-      ratingCount: 0,
-      ageGroup: formData.ageGroup,
-      state: "active",
-      status: "pending",
-    });
-    
-    toast({
-      title: "Template Submitted!",
-      description: "Your template is under review. We'll notify you within 3-5 business days.",
-    });
-    router.push("/templates");
+  const { user } = useAuthStore()
+
+  const handleSubmit = async () => {
+    try {
+      const uploadRes = formData.demoImage ? await templatesApi.adminUploadDemo(formData.demoImage) : null
+      const demoUrl = uploadRes?.url || formData.demoImage
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        demoImage: demoUrl,
+        category: formData.category,
+        subCategory: formData.subCategory,
+        tags: formData.tags,
+        ageGroup: formData.ageGroup,
+        isActive: formData.isActive,
+        exampleImages: formData.exampleImages,
+        hiddenPrompt: formData.hiddenPrompt,
+        visiblePrompt: formData.visiblePrompt,
+        negativePrompt: formData.negativePrompt,
+        templateType: formData.templateType,
+        pointsCost: formData.pointsCost,
+        creatorName: user?.fullName || 'Creator',
+        creatorId: user?.id || null,
+      }
+      const created = await templatesApi.adminCreateTemplate(payload)
+      addTemplate({
+        id: created.id,
+        title: created.title,
+        description: created.description,
+        demoImage: created.demoImage,
+        additionalImages: created.exampleImages || [],
+        category: created.category,
+        subCategory: created.subCategory,
+        tags: created.tags || [],
+        creatorId: created.creatorId,
+        creatorName: created.creatorName,
+        creatorVerified: created.creatorVerified,
+        hiddenPrompt: created.hiddenPrompt,
+        visiblePrompt: created.visiblePrompt,
+        negativePrompt: created.negativePrompt,
+        isFree: created.isFree,
+        pointsCost: created.pointsCost,
+        usageCount: created.usageCount || 0,
+        likeCount: created.likeCount || 0,
+        saveCount: created.saveCount || 0,
+        rating: created.rating || 0,
+        ratingCount: created.ratingCount || 0,
+        ageGroup: created.ageGroup,
+        state: created.state,
+        status: created.status,
+      })
+      toast({ title: "Template Submitted!", description: "Your template has been created and is now pending/approved based on policy." })
+      router.push("/templates")
+    } catch (e: any) {
+      toast({ title: "Submission failed", description: e?.message || 'Please try again', variant: 'destructive' })
+    }
   };
 
   return (

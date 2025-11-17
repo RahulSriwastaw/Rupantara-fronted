@@ -81,6 +81,15 @@ export const authApi = {
 export const templatesApi = {
   getAll: () => api.get('/templates'),
   getById: (id: string) => api.get(`/templates/${id}`),
+  adminUploadDemo: async (dataUrl: string) => {
+    const blob = await fetch(dataUrl).then(r => r.blob())
+    const fd = new FormData()
+    fd.append('image', blob, 'demo.png')
+    const res = await fetch(`${API_URL}/admin/upload/template-demo`, { method: 'POST', body: fd })
+    if (!res.ok) throw new Error('Upload failed')
+    return res.json()
+  },
+  adminCreateTemplate: (payload: any) => api.post('/admin/templates', payload),
 };
 
 // Payments API

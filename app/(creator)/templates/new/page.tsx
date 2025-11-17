@@ -205,6 +205,7 @@ export default function CreateTemplatePage() {
         isActive: formData.isActive,
         exampleImages: formData.exampleImages,
         hiddenPrompt: formData.hiddenPrompt,
+        prompt: formData.hiddenPrompt,
         visiblePrompt: formData.visiblePrompt,
         negativePrompt: formData.negativePrompt,
         templateType: formData.templateType,

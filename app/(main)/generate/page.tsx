@@ -28,6 +28,7 @@ function GenerateContent() {
   const { addGeneration } = useGenerationStore();
 
   const [template, setTemplate] = useState<Template | null>(null);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
@@ -40,6 +41,7 @@ function GenerateContent() {
 
   // Load template if provided
   useEffect(() => {
+    templatesApi.getAll().then(setTemplates).catch(()=>{})
     if (templateId) {
       // Use real API only
       templatesApi.getById(templateId)
@@ -107,16 +109,16 @@ function GenerateContent() {
     }, 200);
 
     try {
-      // Call API
-      const generation = await generationsApi.create({
+      const body = {
         templateId: template?.id,
+        userPrompt: prompt,
+        faceImageUrl: photos[0] || '',
+        quality: quality,
+        aspectRatio: '1:1',
         prompt: template ? `${template.hiddenPrompt}, ${prompt}` : prompt,
-        uploadedImages: photos,
-        quality,
-        aspectRatio,
-        creativity,
-        detailLevel,
-      });
+        uploadedImages: photos.length ? [photos[0]] : [],
+      }
+      const generation = await generationsApi.create(body as any);
 
       clearInterval(progressInterval);
       setGenerationProgress(100);
@@ -200,6 +202,23 @@ function GenerateContent() {
       </div>
 
       {/* Selected Template Preview */}
+      <Card>
+        <CardContent className="p-3 sm:p-4">
+          <div className="space-y-2">
+            <label className="text-sm">Select Template</label>
+            <select className="bg-gray-900 border border-gray-700 rounded p-2 w-full" value={template?.id || ''} onChange={(e)=> {
+              const t = templates.find(x=> (x as any).id === e.target.value)
+              setTemplate(t || null)
+            }}>
+              <option value="">None</option>
+              {templates.map((t)=> (
+                <option key={(t as any).id} value={(t as any).id}>{t.title}</option>
+              ))}
+            </select>
+          </div>
+        </CardContent>
+      </Card>
+      
       {template && (
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="p-3 sm:p-4">

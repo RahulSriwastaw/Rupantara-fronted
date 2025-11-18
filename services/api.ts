@@ -108,6 +108,14 @@ export const generationsApi = {
   getStatus: (id: string) => api.get(`/generation/status/${id}`),
 };
 
+// Tools API
+export const toolsApi = {
+  removeBg: (imageUrl: string) => api.post('/tools/remove-bg', { imageUrl }),
+  upscale: (imageUrl: string) => api.post('/tools/upscale', { imageUrl }),
+  faceEnhance: (imageUrl: string) => api.post('/tools/face-enhance', { imageUrl }),
+  compress: (imageUrl: string) => api.post('/tools/compress', { imageUrl }),
+};
+
 // Wallet API
 export const walletApi = {
   getBalance: () => api.get('/wallet/balance'),

@@ -127,6 +127,20 @@ export const generationsApi = {
   create: (data: any) => api.post('/generation/generate', data),
   getStatus: (id: string) => api.get(`/generation/status/${id}`),
   getHistory: (page = 1, limit = 20) => api.get(`/generation/history?page=${page}&limit=${limit}`),
+  toggleFavorite: (id: string) => {
+    const headers = getHeaders();
+    return fetch(`${API_URL}/generation/${id}/favorite`, {
+      method: 'PATCH',
+      headers,
+    }).then(res => res.json());
+  },
+  delete: (id: string) => {
+    const headers = getHeaders();
+    return fetch(`${API_URL}/generation/${id}`, {
+      method: 'DELETE',
+      headers,
+    }).then(res => res.json());
+  },
 };
 
 // Tools API

@@ -1,19 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Generation } from '@/types';
-
-interface GenerationState {
-  generations: Generation[];
-  favorites: Generation[];
-  addGeneration: (generation: Generation) => void;
-  toggleFavorite: (generationId: string) => void;
-  deleteGeneration: (generationId: string) => void;
-  getGenerationById: (generationId: string) => Generation | undefined;
-}
-
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { Generation } from '@/types';
 import { generationsApi } from '@/services/api';
 
 interface GenerationState {
@@ -69,8 +56,14 @@ export const useGenerationStore = create<GenerationState>()(
           return { generations, favorites };
         });
 
-        // TODO: Call API to toggle favorite
-        // await generationsApi.toggleFavorite(generationId);
+        try {
+          // Call API to toggle favorite
+          await generationsApi.toggleFavorite(generationId);
+        } catch (error) {
+          console.error('Failed to toggle favorite:', error);
+          // Revert optimistic update on error
+          await get().fetchGenerations();
+        }
       },
 
       deleteGeneration: async (generationId) => {
@@ -80,8 +73,14 @@ export const useGenerationStore = create<GenerationState>()(
           favorites: state.favorites.filter((gen) => gen.id !== generationId),
         }));
 
-        // TODO: Call API to delete
-        // await generationsApi.delete(generationId);
+        try {
+          // Call API to delete
+          await generationsApi.delete(generationId);
+        } catch (error) {
+          console.error('Failed to delete generation:', error);
+          // Revert optimistic update on error
+          await get().fetchGenerations();
+        }
       },
 
       getGenerationById: (generationId) => {
@@ -93,4 +92,3 @@ export const useGenerationStore = create<GenerationState>()(
     }
   )
 );
-

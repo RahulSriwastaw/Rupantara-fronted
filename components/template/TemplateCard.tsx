@@ -44,7 +44,7 @@ export function TemplateCard({
   const isFollowing = (user?.followingCreators || []).some(
     (c) => c.id === template.creatorId
   );
-  
+
   const handleToggleFollow = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
@@ -125,7 +125,7 @@ export function TemplateCard({
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 flex-shrink-0">
             <Button
               onClick={handleToggleFollow}
@@ -185,7 +185,7 @@ export function TemplateCard({
                 )}
               />
             </button>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -197,30 +197,30 @@ export function TemplateCard({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 {(() => {
-                  const shareUrl = typeof window !== 'undefined' 
+                  const shareUrl = typeof window !== 'undefined'
                     ? `${window.location.origin}/generate?templateId=${template.id}`
                     : '';
                   const shareText = `Check out this amazing template: ${template.title}\n\nTry it now: ${shareUrl}`;
                   const shareTitle = template.title;
-                  
+
                   const handleShare = async (platform: string) => {
-                    
+
                     if (platform === "native") {
                       // For native share, prioritize image file sharing
                       let imageFile: File | null = null;
-                      
+
                       // Always try to get the image file first
                       if (template.demoImage) {
                         try {
                           let imageBlob: Blob | null = null;
-                          
+
                           // Method 1: Try direct fetch with CORS
                           try {
                             const response = await fetch(template.demoImage, {
                               mode: 'cors',
                               credentials: 'omit',
                             });
-                            
+
                             if (response.ok) {
                               imageBlob = await response.blob();
                             }
@@ -229,7 +229,7 @@ export function TemplateCard({
                             try {
                               const img = document.createElement('img');
                               img.crossOrigin = 'anonymous';
-                              
+
                               await new Promise<void>((resolve, reject) => {
                                 img.onload = () => {
                                   try {
@@ -258,27 +258,27 @@ export function TemplateCard({
                                 img.src = template.demoImage;
                               });
                             } catch (canvasError) {
-                              console.log("Image conversion failed:", canvasError);
+                              // console.log("Image conversion failed:", canvasError);
                             }
                           }
-                          
+
                           // Create file from blob
                           if (imageBlob) {
-                            imageFile = new File([imageBlob], `template-${template.id}.jpg`, { 
-                              type: imageBlob.type || 'image/jpeg' 
+                            imageFile = new File([imageBlob], `template-${template.id}.jpg`, {
+                              type: imageBlob.type || 'image/jpeg'
                             });
                           }
                         } catch (error) {
-                          console.log("Image file creation failed:", error);
+                          // console.log("Image file creation failed:", error);
                         }
                       }
-                      
+
                       // Build share data with image file
                       const shareData: any = {
                         title: shareTitle,
                         text: `${shareText}\n\n${shareUrl}`,
                       };
-                      
+
                       // Add image file if available
                       if (imageFile && navigator.canShare) {
                         const testData = { ...shareData, files: [imageFile] };
@@ -293,7 +293,7 @@ export function TemplateCard({
                         shareData.text = shareText;
                         shareData.url = shareUrl;
                       }
-                      
+
                       if (navigator.share) {
                         try {
                           // Final check if we can share
@@ -309,7 +309,7 @@ export function TemplateCard({
                               delete shareData.url;
                             }
                           }
-                          
+
                           await navigator.share(shareData);
                           toast({
                             title: "Shared successfully!",
@@ -326,7 +326,7 @@ export function TemplateCard({
                       }
                       return;
                     }
-                    
+
                     if (platform === "copy") {
                       try {
                         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -353,14 +353,14 @@ export function TemplateCard({
                       }
                       return;
                     }
-                    
+
                     // Social media sharing
                     const shareUrls: Record<string, string> = {
                       whatsapp: `https://wa.me/?text=${encodeURIComponent(shareText + (template.demoImage ? `\n${template.demoImage}` : ''))}`,
                       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareTitle)}&picture=${encodeURIComponent(template.demoImage || '')}`,
                       twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle + ' ' + shareUrl)}&url=${encodeURIComponent(shareUrl)}`,
                     };
-                    
+
                     if (shareUrls[platform]) {
                       window.open(shareUrls[platform], "_blank", "width=600,height=400");
                       toast({
@@ -368,7 +368,7 @@ export function TemplateCard({
                       });
                     }
                   };
-                  
+
                   return (
                     <>
                       {typeof navigator !== 'undefined' && 'share' in navigator && (
@@ -399,7 +399,7 @@ export function TemplateCard({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
+
           <button
             onClick={(e) => {
               e.stopPropagation();

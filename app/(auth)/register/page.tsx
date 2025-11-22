@@ -70,23 +70,23 @@ export default function RegisterPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      console.log("✅ Google signup successful:", user.email);
+      // console.log("✅ Google signup successful:", user.email);
 
       // Get Firebase ID token for backend sync
       const firebaseToken = await user.getIdToken();
-      console.log("Firebase token obtained, syncing with MongoDB...");
+      // console.log("Firebase token obtained, syncing with MongoDB...");
 
       // Sync Firebase user with MongoDB
       let backendUser = null;
       try {
         const response = await authApi.syncUser(firebaseToken);
         backendUser = response.user;
-        console.log("✅ User synced with MongoDB:", backendUser);
-        
+        // console.log("✅ User synced with MongoDB:", backendUser);
+
         if (response.isNewUser) {
-          console.log("🎉 New user created in MongoDB");
+          // console.log("🎉 New user created in MongoDB");
         } else {
-          console.log("🔄 Existing user updated in MongoDB");
+          // console.log("🔄 Existing user updated in MongoDB");
         }
       } catch (apiError: any) {
         console.error("❌ Sync user error:", apiError);
@@ -111,27 +111,27 @@ export default function RegisterPage() {
         profilePicture: user.photoURL || null,
       };
 
-      console.log("Logging in user:", userData);
+      // console.log("Logging in user:", userData);
 
       // Update auth store
       login(userData);
-      
+
       // Wait a bit for state to persist
       await new Promise(resolve => setTimeout(resolve, 200));
-      
+
       // Verify login was successful by checking store state
       const authState = useAuthStore.getState();
-      console.log("Auth state after signup:", { 
-        isAuthenticated: authState.isAuthenticated, 
-        user: authState.user 
-      });
-      
+      // console.log("Auth state after signup:", { 
+      //   isAuthenticated: authState.isAuthenticated, 
+      //   user: authState.user 
+      // });
+
       if (!authState.isAuthenticated || !authState.user) {
         throw new Error("Signup failed - authentication state not updated");
       }
-      
+
       addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
-      
+
       toast({
         title: "Welcome to Rupantar AI! 🎉",
         description: "Your account has been created. Enjoy 100 bonus points!",
@@ -153,7 +153,7 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
-    
+
     try {
       // Use Firebase for email/password registration, then sync with MongoDB
       if (auth) {
@@ -161,18 +161,18 @@ export default function RegisterPage() {
           // Create user in Firebase
           const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
           const firebaseUser = userCredential.user;
-          
-          console.log("✅ Firebase user created:", firebaseUser.email);
-          
+
+          // console.log("✅ Firebase user created:", firebaseUser.email);
+
           // Get Firebase token and sync with MongoDB (include fullName and phone)
           const firebaseToken = await firebaseUser.getIdToken();
           const response = await authApi.syncUser(firebaseToken, data.fullName, data.phone);
-          
+
           const backendUser = response.user;
-          
+
           login(backendUser);
           addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
-          
+
           toast({
             title: "Welcome to Rupantar AI! 🎉",
             description: "Your account has been created. Enjoy 100 bonus points!",
@@ -181,17 +181,17 @@ export default function RegisterPage() {
           router.push("/template");
         } catch (firebaseError: any) {
           // If Firebase fails, try backend registration directly
-          console.log("Firebase registration failed, trying backend:", firebaseError.message);
+          console.error("Firebase registration failed, trying backend:", firebaseError.message);
           const response = await authApi.register({
             email: data.email,
             password: data.password,
             fullName: data.fullName,
             phone: data.phone,
           });
-          
+
           login(response.user);
           addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
-          
+
           toast({
             title: "Welcome to Rupantar AI! 🎉",
             description: "Your account has been created. Enjoy 100 bonus points!",
@@ -207,10 +207,10 @@ export default function RegisterPage() {
           fullName: data.fullName,
           phone: data.phone,
         });
-        
+
         login(response.user);
         addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
-        
+
         toast({
           title: "Welcome to Rupantar AI! 🎉",
           description: "Your account has been created. Enjoy 100 bonus points!",
@@ -250,7 +250,7 @@ export default function RegisterPage() {
             unoptimized
           />
         </div>
-        
+
         <div className="text-center">
           <h1 className="text-2xl font-bold">Create Account</h1>
           <p className="text-muted-foreground">
@@ -386,8 +386,8 @@ export default function RegisterPage() {
 
       {/* Social Login */}
       <div className="grid grid-cols-2 gap-3">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           type="button"
           onClick={handleGoogleSignup}
           disabled={isLoading}

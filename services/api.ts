@@ -2,25 +2,36 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 const API_TIMEOUT = 30000; // 30 seconds
 
 // Helper function to create a timeout promise
-const timeout = (ms: number) => new Promise((_, reject) => 
+const timeout = (ms: number) => new Promise((_, reject) =>
   setTimeout(() => reject(new Error('Request timeout')), ms)
 );
+
+// Helper to get auth headers
+const getHeaders = () => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  // Try to get token from localStorage (custom auth) or you might need to integrate with Firebase auth state
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
 
 export const api = {
   async get(endpoint: string) {
     try {
       const response = await Promise.race([
         fetch(`${API_URL}${endpoint}`, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: getHeaders(),
         }),
         timeout(API_TIMEOUT) as Promise<Response>
       ]);
-      
+
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ 
-          error: `API request failed: ${response.status} ${response.statusText}` 
+        const error = await response.json().catch(() => ({
+          error: `API request failed: ${response.status} ${response.statusText}`
         }));
         throw new Error(error.error || `API request failed: ${response.status}`);
       }
@@ -41,15 +52,15 @@ export const api = {
       const response = await Promise.race([
         fetch(`${API_URL}${endpoint}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getHeaders(),
           body: JSON.stringify(data),
         }),
         timeout(API_TIMEOUT) as Promise<Response>
       ]);
-      
+
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ 
-          error: `API request failed: ${response.status} ${response.statusText}` 
+        const error = await response.json().catch(() => ({
+          error: `API request failed: ${response.status} ${response.statusText}`
         }));
         throw new Error(error.error || `API request failed: ${response.status}`);
       }
@@ -85,7 +96,16 @@ export const templatesApi = {
     const blob = await fetch(dataUrl).then(r => r.blob())
     const fd = new FormData()
     fd.append('image', blob, 'demo.png')
-    const res = await fetch(`${API_URL}/admin/upload/template-demo`, { method: 'POST', body: fd })
+    // Note: FormData needs special handling for headers (no Content-Type, browser sets it with boundary)
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_URL}/admin/upload/template-demo`, {
+      method: 'POST',
+      headers,
+      body: fd
+    })
     if (!res.ok) throw new Error('Upload failed')
     return res.json()
   },
@@ -94,18 +114,19 @@ export const templatesApi = {
 
 // Payments API
 export const paymentsApi = {
-  createStripeIntent: (amount: number) => 
+  createStripeIntent: (amount: number) =>
     api.post('/payment/stripe/create-payment-intent', { amount }),
-  createRazorpayOrder: (amount: number) => 
-    api.post('/payment/razorpay/create-order', { amount }),
-  verifyRazorpay: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
-    api.post('/payment/razorpay/verify', data),
+  createRazorpayOrder: (packageId: string, gateway: 'razorpay' | 'stripe' = 'razorpay') =>
+    api.post('/payment/create-order', { packageId, gateway }),
+  verifyRazorpay: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; packageId: string }) =>
+    api.post('/payment/verify-razorpay', data),
 };
 
 // Generations API
 export const generationsApi = {
   create: (data: any) => api.post('/generation/generate', data),
   getStatus: (id: string) => api.get(`/generation/status/${id}`),
+  getHistory: (page = 1, limit = 20) => api.get(`/generation/history?page=${page}&limit=${limit}`),
 };
 
 // Tools API
@@ -119,7 +140,8 @@ export const toolsApi = {
 // Wallet API
 export const walletApi = {
   getBalance: () => api.get('/wallet/balance'),
-  getTransactions: () => api.get('/wallet/transactions'),
+  getTransactions: (page = 1, limit = 20, type?: string) =>
+    api.get(`/wallet/transactions?page=${page}&limit=${limit}${type ? `&type=${type}` : ''}`),
   addPoints: (amount: number, description: string) =>
     api.post('/wallet/add-points', { amount, description }),
 };
@@ -131,3 +153,4 @@ export const creatorApi = {
     api.post('/creator/withdraw', data),
   getWithdrawals: () => api.get('/creator/withdrawals'),
 };
+

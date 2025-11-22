@@ -59,23 +59,23 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      console.log("✅ Google login successful:", user.email);
+      // console.log("✅ Google login successful:", user.email);
 
       // Get Firebase ID token for backend sync
       const firebaseToken = await user.getIdToken();
-      console.log("Firebase token obtained, syncing with MongoDB...");
+      // console.log("Firebase token obtained, syncing with MongoDB...");
 
       // Sync Firebase user with MongoDB
       let backendUser = null;
       try {
         const response = await authApi.syncUser(firebaseToken);
         backendUser = response.user;
-        console.log("✅ User synced with MongoDB:", backendUser);
-        
+        // console.log("✅ User synced with MongoDB:", backendUser);
+
         if (response.isNewUser) {
-          console.log("🎉 New user created in MongoDB");
+          // console.log("🎉 New user created in MongoDB");
         } else {
-          console.log("🔄 Existing user updated in MongoDB");
+          // console.log("🔄 Existing user updated in MongoDB");
         }
       } catch (apiError: any) {
         console.error("❌ Sync user error:", apiError);
@@ -100,27 +100,27 @@ export default function LoginPage() {
         profilePicture: user.photoURL || null,
       };
 
-      console.log("Logging in user:", userData);
+      // console.log("Logging in user:", userData);
 
       // Update auth store with MongoDB user data
       login(userData);
-      
+
       // Wait a bit for state to persist
       await new Promise(resolve => setTimeout(resolve, 200));
-      
+
       // Verify login was successful by checking store state
       const authState = useAuthStore.getState();
-      console.log("Auth state after login:", { 
-        isAuthenticated: authState.isAuthenticated, 
-        user: authState.user 
-      });
-      
+      // console.log("Auth state after login:", { 
+      //   isAuthenticated: authState.isAuthenticated, 
+      //   user: authState.user 
+      // });
+
       if (!authState.isAuthenticated || !authState.user) {
         throw new Error("Login failed - authentication state not updated");
       }
-      
+
       claimDailyLogin();
-      
+
       toast({
         title: "Welcome back!",
         description: "You've earned 3 daily login bonus points.",
@@ -142,17 +142,17 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    
+
     try {
       // Use real API only
       const response = await authApi.login({
         email: data.email,
         password: data.password,
       });
-      
+
       login(response.user);
       claimDailyLogin();
-      
+
       toast({
         title: "Welcome back!",
         description: "You've earned 3 daily login bonus points.",
@@ -191,7 +191,7 @@ export default function LoginPage() {
             unoptimized
           />
         </div>
-        
+
         <div className="text-center">
           <h1 className="text-2xl font-bold">Welcome Back</h1>
           <p className="text-muted-foreground">
@@ -273,8 +273,8 @@ export default function LoginPage() {
 
       {/* Social Login */}
       <div className="grid grid-cols-2 gap-3">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           type="button"
           onClick={handleGoogleLogin}
           disabled={isLoading}

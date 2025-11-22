@@ -1,26 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Transaction } from '@/types';
-
-interface WalletState {
-  balance: number;
-  totalEarned: number;
-  totalSpent: number;
-  transactions: Transaction[];
-  dailyLoginClaimed: boolean;
-  dailyStreak: number;
-  adsWatchedToday: number;
-  lastLoginDate: string;
-  addPoints: (amount: number, type: Transaction['type'], description: string) => void;
-  deductPoints: (amount: number, type: Transaction['type'], description: string) => void;
-  claimDailyLogin: () => void;
-  watchAd: () => void;
-  resetDailyLimits: () => void;
-}
-
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { Transaction } from '@/types';
 import { walletApi } from '@/services/api';
 
 interface WalletState {
@@ -36,7 +16,7 @@ interface WalletState {
 
   fetchWalletData: () => Promise<void>;
   addPoints: (amount: number, type: Transaction['type'], description: string) => Promise<void>;
-  deductPoints: (amount: number, type: Transaction['type'], description: string) => void; // Kept for optimistic UI updates if needed
+  deductPoints: (amount: number, type: Transaction['type'], description: string) => void;
   claimDailyLogin: () => Promise<void>;
   watchAd: () => Promise<void>;
   resetDailyLimits: () => void;
@@ -169,4 +149,3 @@ export const useWalletStore = create<WalletState>()(
     }
   )
 );
-

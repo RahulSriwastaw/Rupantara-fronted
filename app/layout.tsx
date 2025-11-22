@@ -33,6 +33,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
       </head>
       <body className={inter.className}>
         <ThemeProvider>

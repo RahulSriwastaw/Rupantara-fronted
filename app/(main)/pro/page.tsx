@@ -16,7 +16,7 @@ const pricingPlans = [
   {
     id: "mini",
     name: "Mini",
-    price: "$9.99",
+    price: "₹800",
     period: "/month",
     points: "500 Points",
     features: [
@@ -32,7 +32,7 @@ const pricingPlans = [
   {
     id: "pro",
     name: "Pro",
-    price: "$24.99",
+    price: "₹2,000",
     period: "/month",
     points: "1,500 Points",
     features: [
@@ -49,7 +49,7 @@ const pricingPlans = [
   {
     id: "ultimate",
     name: "Ultimate",
-    price: "$49.99",
+    price: "₹4,000",
     period: "/month",
     points: "5,000 Points",
     features: [
@@ -70,7 +70,6 @@ const pricingPlans = [
 export default function ProPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { addPoints } = useWalletStore();
   const [promoCode, setPromoCode] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -89,31 +88,71 @@ export default function ProPage() {
     setIsProcessing(true);
 
     try {
-      // Calculate points based on plan
-      const pointsMap: Record<string, number> = {
-        mini: 500,
-        pro: 1500,
-        ultimate: 5000,
+      // Create Razorpay order
+      const orderResponse = await paymentsApi.createRazorpayOrder(plan.id, 'razorpay');
+
+      // Initialize Razorpay
+      const options = {
+        key: orderResponse.key,
+        amount: orderResponse.amount * 100,
+        currency: orderResponse.currency,
+        name: 'Rupantara AI',
+        description: `${plan.name} - ${plan.points}`,
+        order_id: orderResponse.orderId,
+        handler: async function (response: any) {
+          try {
+            // Verify payment
+            const verifyResponse = await paymentsApi.verifyRazorpay({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              packageId: plan.id
+            });
+
+            if (verifyResponse.success) {
+              toast({
+                title: "Purchase Successful! 🎉",
+                description: `You've received points. New balance: ${verifyResponse.newBalance}`,
+              });
+              // Refresh wallet data
+              await useWalletStore.getState().fetchWalletData();
+              router.push('/wallet');
+            }
+          } catch (error: any) {
+            toast({
+              title: "Verification Failed",
+              description: error.message || "Payment verification failed",
+              variant: "destructive",
+            });
+          } finally {
+            setIsProcessing(false);
+            setSelectedPlan(null);
+          }
+        },
+        prefill: {
+          name: '',
+          email: '',
+          contact: ''
+        },
+        theme: {
+          color: '#4EFF9B'
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+            setSelectedPlan(null);
+          }
+        }
       };
 
-      const points = pointsMap[plan.id] || 500;
+      // @ts-ignore - Razorpay is loaded via script
+      const rzp = new window.Razorpay(options);
+      rzp.open();
 
-      // In production, integrate with payment gateway
-      // For now, simulate payment success
-      setTimeout(() => {
-        addPoints(points, 'purchase', `Purchased ${plan.name} plan`);
-        toast({
-          title: "Purchase Successful! 🎉",
-          description: `You've received ${points} points`,
-        });
-        setIsProcessing(false);
-        setSelectedPlan(null);
-        router.push('/wallet');
-      }, 1500);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Payment Failed",
-        description: "Something went wrong. Please try again.",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
       setIsProcessing(false);
@@ -138,20 +177,19 @@ export default function ProPage() {
       {/* Pricing Plans */}
       <div className="grid md:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
         {pricingPlans.map((plan) => (
-          <Card 
-            key={plan.id} 
-            className={`relative overflow-hidden ${
-              plan.popular 
-                ? "border-primary ring-2 ring-primary/30 shadow-lg shadow-primary/20" 
+          <Card
+            key={plan.id}
+            className={`relative overflow-hidden ${plan.popular
+                ? "border-primary ring-2 ring-primary/30 shadow-lg shadow-primary/20"
                 : ""
-            }`}
+              }`}
           >
             {plan.tag && (
               <div className="absolute top-4 right-4">
-                <Badge 
+                <Badge
                   className={
-                    plan.popular 
-                      ? "bg-primary text-primary-foreground" 
+                    plan.popular
+                      ? "bg-primary text-primary-foreground"
                       : "bg-secondary text-secondary-foreground"
                   }
                 >
@@ -159,7 +197,7 @@ export default function ProPage() {
                 </Badge>
               </div>
             )}
-            
+
             <CardHeader className="text-center pb-6">
               <CardTitle className="text-2xl">{plan.name}</CardTitle>
               <div className="mt-2">
@@ -168,7 +206,7 @@ export default function ProPage() {
               </div>
               <p className="text-sm text-muted-foreground mt-1">{plan.points}</p>
             </CardHeader>
-            
+
             <CardContent className="space-y-6">
               <ul className="space-y-3">
                 {plan.features.map((feature, index) => (
@@ -178,9 +216,9 @@ export default function ProPage() {
                   </li>
                 ))}
               </ul>
-              
-              <Button 
-                className="w-full" 
+
+              <Button
+                className="w-full"
                 variant={plan.popular ? "default" : "outline"}
                 size="lg"
                 onClick={() => handleBuyNow(plan)}
@@ -201,7 +239,7 @@ export default function ProPage() {
               <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
               <h3 className="font-semibold">Have a Promo Code?</h3>
             </div>
-            
+
             <div className="flex gap-3">
               <div className="flex-1">
                 <Label htmlFor="promo-code" className="sr-only">Promo Code</Label>
@@ -222,8 +260,8 @@ export default function ProPage() {
 
       {/* Footer Note */}
       <div className="text-center text-sm text-muted-foreground">
-        <p>Secure payment via App Store / Google Play</p>
-        <p className="mt-1">Subscriptions auto-renew. Cancel anytime.</p>
+        <p>Secure payment via Razorpay</p>
+        <p className="mt-1">All transactions are encrypted and secure.</p>
       </div>
     </div>
   );

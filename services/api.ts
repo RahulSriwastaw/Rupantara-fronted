@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://new-backend-production-c886.up.railway.app/api';
 const API_TIMEOUT = 30000; // 30 seconds
 
 // Helper function to create a timeout promise

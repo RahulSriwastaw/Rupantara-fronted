@@ -20,8 +20,8 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
   async rewrites() {
-    // Get local IP for mobile access
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+    // Use Railway backend URL in production, localhost in development
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://new-backend-production-c886.up.railway.app';
     return [
       {
         source: '/api/:path*',

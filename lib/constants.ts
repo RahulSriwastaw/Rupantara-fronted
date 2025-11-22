@@ -61,26 +61,33 @@ export const TEMPLATE_CATEGORIES = [
   "Modern",
 ] as const;
 
-// API endpoints (for future use)
+// API Base URL - uses environment variable or defaults to relative path for Next.js rewrites
+const API_BASE = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_BACKEND_URL
+  ? process.env.NEXT_PUBLIC_BACKEND_URL
+  : '';
+
+const getApiUrl = (path: string) => API_BASE ? `${API_BASE}${path}` : path;
+
+// API endpoints
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: "/api/auth/login",
-    REGISTER: "/api/auth/register",
-    LOGOUT: "/api/auth/logout",
+    LOGIN: getApiUrl("/api/auth/login"),
+    REGISTER: getApiUrl("/api/auth/register"),
+    LOGOUT: getApiUrl("/api/auth/logout"),
   },
   TEMPLATES: {
-    LIST: "/api/templates",
-    DETAIL: "/api/templates/:id",
-    SEARCH: "/api/templates/search",
+    LIST: getApiUrl("/api/templates"),
+    DETAIL: getApiUrl("/api/templates/:id"),
+    SEARCH: getApiUrl("/api/templates/search"),
   },
   GENERATIONS: {
-    CREATE: "/api/generations",
-    LIST: "/api/generations",
-    DETAIL: "/api/generations/:id",
+    CREATE: getApiUrl("/api/generations"),
+    LIST: getApiUrl("/api/generations"),
+    DETAIL: getApiUrl("/api/generations/:id"),
   },
   WALLET: {
-    BALANCE: "/api/wallet/balance",
-    TRANSACTIONS: "/api/wallet/transactions",
+    BALANCE: getApiUrl("/api/wallet/balance"),
+    TRANSACTIONS: getApiUrl("/api/wallet/transactions"),
   },
 } as const;
 

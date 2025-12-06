@@ -1,4 +1,26 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://new-backend-production-c886.up.railway.app/api';
+// Normalize backend URL to ensure it ends with /api/v1
+function normalizeBackendUrl() {
+  const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://new-backend-production-c886.up.railway.app').trim();
+  try {
+    const u = new URL(source);
+    // If URL already contains /api/v1, use it as is
+    if (u.pathname.includes('/api/v1')) {
+      return `${u.protocol}//${u.host}${u.pathname}`;
+    }
+    // If URL contains /api, replace with /api/v1
+    if (u.pathname.includes('/api')) {
+      return `${u.protocol}//${u.host}${u.pathname.replace(/\/api.*$/, '/api/v1')}`;
+    }
+    // Otherwise append /api/v1
+    return `${u.protocol}//${u.host}/api/v1`;
+  } catch {
+    // If not a valid URL, try to clean it up
+    const cleaned = source.replace(/\/api.*$/, '').replace(/\/$/, '');
+    return `${cleaned}/api/v1`;
+  }
+}
+
+const API_URL = normalizeBackendUrl();
 const API_TIMEOUT = 30000; // 30 seconds
 
 // Helper function to create a timeout promise
@@ -101,7 +123,9 @@ export const templatesApi = {
     const headers: Record<string, string> = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(`${API_URL}/admin/upload/template-demo`, {
+    // Use the base API URL without /api/v1 for admin upload
+    const baseUrl = API_URL.replace('/api/v1', '');
+    const res = await fetch(`${baseUrl}/api/v1/admin/upload/template-demo`, {
       method: 'POST',
       headers,
       body: fd
@@ -114,18 +138,21 @@ export const templatesApi = {
 
 // Payments API
 export const paymentsApi = {
-  createStripeIntent: (amount: number) =>
-    api.post('/payment/stripe/create-payment-intent', { amount }),
-  createRazorpayOrder: (packageId: string, gateway: 'razorpay' | 'stripe' = 'razorpay') =>
+  createOrder: (packageId: string, gateway: 'razorpay' | 'stripe' = 'razorpay') =>
     api.post('/payment/create-order', { packageId, gateway }),
   verifyRazorpay: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; packageId: string }) =>
     api.post('/payment/verify-razorpay', data),
+  // Legacy support - maps to createOrder
+  createStripeIntent: (packageId: string) =>
+    api.post('/payment/create-order', { packageId, gateway: 'stripe' }),
+  createRazorpayOrder: (packageId: string) =>
+    api.post('/payment/create-order', { packageId, gateway: 'razorpay' }),
 };
 
 // Generations API
 export const generationsApi = {
   create: (data: any) => api.post('/generation/generate', data),
-  getStatus: (id: string) => api.get(`/generation/status/${id}`),
+  getById: (id: string) => api.get(`/generation/${id}`),
   getHistory: (page = 1, limit = 20) => api.get(`/generation/history?page=${page}&limit=${limit}`),
   toggleFavorite: (id: string) => {
     const headers = getHeaders();

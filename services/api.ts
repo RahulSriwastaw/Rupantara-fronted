@@ -55,6 +55,25 @@ export const api = {
         const error = await response.json().catch(() => ({
           error: `API request failed: ${response.status} ${response.statusText}`
         }));
+        
+        // Handle 404 errors gracefully - return empty array for GET requests to /templates
+        if (response.status === 404) {
+          // For templates endpoint, return empty array instead of throwing error
+          if (endpoint === '/templates' || endpoint.startsWith('/templates')) {
+            console.warn('Templates endpoint not found, returning empty array');
+            return [];
+          }
+          if (error.error?.includes('Route not found')) {
+            throw new Error('The requested resource was not found. Please check the URL and try again.');
+          }
+          throw new Error('Resource not found. Please try again.');
+        }
+        
+        // Handle 500 errors
+        if (response.status >= 500) {
+          throw new Error('Server error. Please try again later.');
+        }
+        
         throw new Error(error.error || `API request failed: ${response.status}`);
       }
       return response.json();
@@ -84,6 +103,20 @@ export const api = {
         const error = await response.json().catch(() => ({
           error: `API request failed: ${response.status} ${response.statusText}`
         }));
+        
+        // Handle 404 errors with user-friendly messages
+        if (response.status === 404) {
+          if (error.error?.includes('Route not found')) {
+            throw new Error('The requested resource was not found. Please check the URL and try again.');
+          }
+          throw new Error('Resource not found. Please try again.');
+        }
+        
+        // Handle 500 errors
+        if (response.status >= 500) {
+          throw new Error('Server error. Please try again later.');
+        }
+        
         throw new Error(error.error || `API request failed: ${response.status}`);
       }
       return response.json();

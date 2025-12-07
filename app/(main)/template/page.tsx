@@ -14,7 +14,6 @@ import { TemplateCard } from "@/components/template/TemplateCard";
 import { TemplateFilters } from "@/components/template/TemplateFilters";
 import { TemplateDetailModal } from "@/components/template/TemplateDetailModal";
 import { templatesApi } from "@/services/api";
-import { templatesApi as mockTemplatesApi } from "@/services/mockApi";
 import { useTemplateStore } from "@/store/templateStore";
 import { useToast } from "@/hooks/use-toast";
 import type { Template } from "@/types";
@@ -70,18 +69,17 @@ function TemplateContent() {
     const loadTemplates = async () => {
       setIsLoading(true);
       try {
-        // Use real API only
         const data = await templatesApi.getAll();
-        console.log('Templates loaded from API:', data.length);
-        setTemplates(data);
-        setFilteredTemplates(data);
+        const safeData = Array.isArray(data) ? data : [];
+        setTemplates(safeData);
+        setFilteredTemplates(safeData);
       } catch (error: any) {
         console.error("API error:", error);
         setTemplates([]);
         setFilteredTemplates([]);
         toast({
           title: "Error",
-          description: error.message || "Failed to load templates",
+          description: error?.message || "Unable to load templates",
           variant: "destructive",
         });
       } finally {

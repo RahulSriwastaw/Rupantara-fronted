@@ -68,8 +68,11 @@ export default function LoginPage() {
       // Sync Firebase user with MongoDB
       let backendUser = null;
       try {
-        const response = await authApi.syncUser(firebaseToken);
-        backendUser = response.user;
+      const response = await authApi.syncUser(firebaseToken);
+      if (response?.token) {
+        localStorage.setItem('token', response.token);
+      }
+      backendUser = response.user;
         // console.log("✅ User synced with MongoDB:", backendUser);
 
         if (response.isNewUser) {
@@ -149,6 +152,9 @@ export default function LoginPage() {
         email: data.email,
         password: data.password,
       });
+      if (response?.token) {
+        localStorage.setItem('token', response.token);
+      }
 
       login(response.user);
       claimDailyLogin();

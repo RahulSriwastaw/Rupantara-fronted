@@ -49,6 +49,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/store/authStore";
 import { useGenerationStore } from "@/store/generationStore";
+import { useWalletStore } from "@/store/walletStore";
 import { useThemeStore } from "@/store/themeStore";
 import { useToast } from "@/hooks/use-toast";
 import { DataExport } from "@/components/backup/DataExport";
@@ -68,7 +69,8 @@ export default function ProfilePage() {
     submitCreatorApplication,
     setCreatorApplicationStatus,
   } = useAuthStore();
-  const { generations } = useGenerationStore();
+  const { generations, fetchGenerations, favorites } = useGenerationStore();
+  const { balance, fetchWalletData } = useWalletStore();
   const { theme, toggleTheme } = useThemeStore();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -100,6 +102,11 @@ export default function ProfilePage() {
       toast({ title: "❌ आपकी Application अस्वीकृत की गई है", description: creatorApplication?.rejectionReason });
     }
   }, [creatorApplication?.status]);
+
+  useEffect(() => {
+    fetchGenerations();
+    fetchWalletData();
+  }, []);
 
   const handleSave = () => {
     if (editedUser) {
@@ -246,19 +253,19 @@ export default function ProfilePage() {
         <Card>
           <CardContent className="p-3 sm:p-4 md:p-6 text-center">
             <p className="text-xs sm:text-sm text-muted-foreground mb-1">Points Balance</p>
-            <p className="text-2xl sm:text-3xl font-bold">5,800</p>
+            <p className="text-2xl sm:text-3xl font-bold">{balance}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 sm:p-4 md:p-6 text-center">
             <p className="text-xs sm:text-sm text-muted-foreground mb-1">Templates Used</p>
-            <p className="text-2xl sm:text-3xl font-bold">85</p>
+            <p className="text-2xl sm:text-3xl font-bold">{Array.from(new Set(generations.map(g => g.templateId).filter(Boolean))).length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 sm:p-4 md:p-6 text-center">
             <p className="text-xs sm:text-sm text-muted-foreground mb-1">Favorites Saved</p>
-            <p className="text-2xl sm:text-3xl font-bold">112</p>
+            <p className="text-2xl sm:text-3xl font-bold">{favorites.length}</p>
           </CardContent>
         </Card>
       </div>

@@ -1,6 +1,6 @@
 // Normalize backend URL to ensure it ends with /api/v1
 function normalizeBackendUrl() {
-  const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://new-backend-production-c886.up.railway.app').trim();
+  const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || '').trim();
   try {
     const u = new URL(source);
     // If URL already contains /api/v1, use it as is

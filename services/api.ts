@@ -23,6 +23,15 @@ function normalizeBackendUrl() {
 const API_URL = normalizeBackendUrl();
 const API_TIMEOUT = 30000; // 30 seconds
 
+// Debug logging (only in development)
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  console.log('🔗 API Configuration:', {
+    API_URL,
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  });
+}
+
 // Helper function to create a timeout promise
 const timeout = (ms: number) => new Promise((_, reject) =>
   setTimeout(() => reject(new Error('Request timeout')), ms)
@@ -44,6 +53,11 @@ const getHeaders = () => {
 export const api = {
   async get(endpoint: string) {
     try {
+      const fullUrl = `${API_URL}${endpoint}`;
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📡 GET Request:', fullUrl);
+      }
+      
       const response = await Promise.race([
         fetch(`${API_URL}${endpoint}`, {
           headers: getHeaders(),

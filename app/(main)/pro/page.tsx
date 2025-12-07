@@ -89,7 +89,7 @@ export default function ProPage() {
 
     try {
       // Create Razorpay order
-      const orderResponse = await paymentsApi.createRazorpayOrder(plan.id, 'razorpay');
+      const orderResponse = await paymentsApi.createOrder(plan.id, 'razorpay');
 
       // Initialize Razorpay
       const options = {

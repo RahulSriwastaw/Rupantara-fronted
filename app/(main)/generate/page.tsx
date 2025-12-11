@@ -225,7 +225,7 @@ function GenerateContent() {
             <div className="flex items-center gap-3">
               <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-lg overflow-hidden flex-shrink-0">
                 <Image
-                  src={template.demoImage}
+                  src={template.demoImage || (template as any).image || (template.additionalImages?.[0] ?? '/logo.png')}
                   alt={template.title}
                   fill
                   className="object-cover"

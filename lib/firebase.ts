@@ -4,20 +4,27 @@ import { getAuth } from "firebase/auth"
 import { getMessaging, getToken, onMessage } from "firebase/messaging"
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyCimnodSbzIYczW95Vu5pYTnPAD_P4JOFU",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "rupantra-ai.firebaseapp.com",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "rupantra-ai",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "rupantra-ai.firebasestorage.app",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "832796978617",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:832796978617:web:e835fbeb00304740899a68",
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-PE3FK9EHYH",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
+
+const hasRequiredConfig = () => (
+  !!firebaseConfig.apiKey &&
+  !!firebaseConfig.authDomain &&
+  !!firebaseConfig.projectId &&
+  !!firebaseConfig.appId
+)
 
 // Initialize Firebase
 let app
-if (typeof window !== 'undefined' && !getApps().length) {
+if (typeof window !== 'undefined' && hasRequiredConfig() && !getApps().length) {
   app = initializeApp(firebaseConfig)
-} else if (typeof window !== 'undefined') {
+} else if (typeof window !== 'undefined' && getApps().length) {
   app = getApps()[0]
 }
 

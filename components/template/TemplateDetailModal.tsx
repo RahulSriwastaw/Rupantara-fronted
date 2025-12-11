@@ -42,6 +42,7 @@ export function TemplateDetailModal({
   const { toast } = useToast();
 
   if (!template) return null;
+  const imageSrc = template.demoImage || (template as any).image || (template.additionalImages?.[0] ?? '/logo.png');
 
   const handleUse = () => {
     router.push(`/generate?templateId=${template.id}`);
@@ -54,7 +55,7 @@ export function TemplateDetailModal({
         {/* Image Section */}
         <div className="relative aspect-square w-full">
           <Image
-            src={template.demoImage}
+            src={imageSrc}
             alt={template.title}
             fill
             className="object-cover"

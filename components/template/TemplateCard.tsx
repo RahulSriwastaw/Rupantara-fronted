@@ -44,6 +44,7 @@ export function TemplateCard({
   const isFollowing = (user?.followingCreators || []).some(
     (c) => c.id === template.creatorId
   );
+  const imageSrc = template.demoImage || (template as any).image || (template.additionalImages?.[0] ?? '/logo.png');
 
   const handleToggleFollow = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -69,7 +70,7 @@ export function TemplateCard({
       <Card className="overflow-hidden bg-card border-border hover:shadow-md transition-shadow">
         <div className="relative aspect-square overflow-hidden cursor-pointer bg-muted" onClick={onClick}>
           <Image
-            src={template.demoImage}
+            src={imageSrc}
             alt={template.title}
             fill
             className="object-cover"
@@ -148,7 +149,7 @@ export function TemplateCard({
         onClick={onClick}
       >
         <Image
-          src={template.demoImage}
+          src={imageSrc}
           alt={template.title}
           fill
           className="object-cover"
@@ -210,13 +211,13 @@ export function TemplateCard({
                       let imageFile: File | null = null;
 
                       // Always try to get the image file first
-                      if (template.demoImage) {
+                      if (imageSrc) {
                         try {
                           let imageBlob: Blob | null = null;
 
                           // Method 1: Try direct fetch with CORS
                           try {
-                            const response = await fetch(template.demoImage, {
+                            const response = await fetch(imageSrc, {
                               mode: 'cors',
                               credentials: 'omit',
                             });
@@ -255,7 +256,7 @@ export function TemplateCard({
                                   }
                                 };
                                 img.onerror = () => reject(new Error('Image load failed'));
-                                img.src = template.demoImage;
+                                img.src = imageSrc;
                               });
                             } catch (canvasError) {
                               // console.log("Image conversion failed:", canvasError);
@@ -356,8 +357,8 @@ export function TemplateCard({
 
                     // Social media sharing
                     const shareUrls: Record<string, string> = {
-                      whatsapp: `https://wa.me/?text=${encodeURIComponent(shareText + (template.demoImage ? `\n${template.demoImage}` : ''))}`,
-                      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareTitle)}&picture=${encodeURIComponent(template.demoImage || '')}`,
+                      whatsapp: `https://wa.me/?text=${encodeURIComponent(shareText + (imageSrc ? `\n${imageSrc}` : ''))}`,
+                      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareTitle)}&picture=${encodeURIComponent(imageSrc || '')}`,
                       twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle + ' ' + shareUrl)}&url=${encodeURIComponent(shareUrl)}`,
                     };
 

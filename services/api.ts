@@ -1,6 +1,14 @@
 // Normalize backend URL to ensure it ends with /api/v1
 function normalizeBackendUrl() {
   const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || '').trim();
+  if (!source) {
+    // Sensible dev default: use backend on 5005 when running locally
+    try {
+      const isLocal = typeof window !== 'undefined' && /localhost|127\.0\.0\.1/.test(window.location.hostname);
+      if (isLocal) return 'http://localhost:5005/api/v1';
+    } catch {}
+    return 'http://localhost:5005/api/v1';
+  }
   try {
     const u = new URL(source);
     // If URL already contains /api/v1, use it as is
@@ -148,12 +156,21 @@ export const api = {
 
 // Auth API
 export const authApi = {
-  register: (data: { email: string; password: string; fullName: string; phone?: string; photoURL?: string; firebaseUid?: string }) =>
-    api.post('/auth/register', data),
+  register: (data: { email: string; password: string; fullName: string; phone?: string; photoURL?: string; firebaseUid?: string; name?: string }) =>
+    api.post('/auth/register', {
+      name: data.name || data.fullName,
+      email: data.email,
+      password: data.password,
+      phone: data.phone,
+      photoURL: data.photoURL,
+      firebaseUid: data.firebaseUid,
+    }),
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
   syncUser: (firebaseToken: string, fullName?: string, phone?: string) =>
     api.post('/auth/syncUser', { firebaseToken, fullName, phone }),
+  socialLogin: (provider: 'google' | 'facebook', email?: string, name?: string) =>
+    api.post('/auth/social-login', { provider, email, name }),
   getMe: () => api.get('/auth/me'),
 };
 
@@ -194,6 +211,11 @@ export const paymentsApi = {
     api.post('/payment/create-order', { packageId, gateway: 'stripe' }),
   createRazorpayOrder: (packageId: string) =>
     api.post('/payment/create-order', { packageId, gateway: 'razorpay' }),
+};
+
+// Packages API
+export const packagesApi = {
+  list: () => api.get('/packages'),
 };
 
 // Generations API

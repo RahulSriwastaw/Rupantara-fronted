@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Crown, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,69 +10,43 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useWalletStore } from "@/store/walletStore";
-import { paymentsApi } from "@/services/api";
+import { paymentsApi, packagesApi } from "@/services/api";
 
-const pricingPlans = [
-  {
-    id: "mini",
-    name: "Mini",
-    price: "₹800",
-    period: "/month",
-    points: "500 Points",
-    features: [
-      "500 AI Generation Points",
-      "Access to Premium Templates",
-      "Basic Analytics",
-      "Email Support",
-      "Up to 10 Templates"
-    ],
-    tag: null,
-    popular: false
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "₹2,000",
-    period: "/month",
-    points: "1,500 Points",
-    features: [
-      "1,500 AI Generation Points",
-      "Access to All Templates",
-      "Advanced Analytics",
-      "Priority Email Support",
-      "Up to 50 Templates",
-      "Early Access to New Features"
-    ],
-    tag: "Most Popular",
-    popular: true
-  },
-  {
-    id: "ultimate",
-    name: "Ultimate",
-    price: "₹4,000",
-    period: "/month",
-    points: "5,000 Points",
-    features: [
-      "5,000 AI Generation Points",
-      "Access to All Templates",
-      "Advanced Analytics & Insights",
-      "24/7 Priority Support",
-      "Unlimited Templates",
-      "Early Access to New Features",
-      "Custom Template Requests",
-      "Dedicated Account Manager"
-    ],
-    tag: "Best Value",
-    popular: false
-  }
-];
+type Plan = { id: string; name: string; price: string; period: string; points: string; features: string[]; tag: string | null; popular: boolean };
+const formatPlan = (p: any): Plan => ({
+  id: p.id || p._id,
+  name: p.name,
+  price: `₹${p.price}`,
+  period: "/month",
+  points: `${p.points + (p.bonusPoints || 0)} Points`,
+  features: [
+    `${p.points + (p.bonusPoints || 0)} AI Generation Points`,
+    p.isPopular ? "Priority Support" : "Email Support",
+    "Access to Premium Templates",
+    "Basic Analytics"
+  ],
+  tag: p.tag || (p.isPopular ? "Most Popular" : null),
+  popular: !!p.isPopular
+});
 
 export default function ProPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [promoCode, setPromoCode] = useState("");
+  const [pricingPlans, setPricingPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    packagesApi.list()
+      .then((list) => {
+        const active = (Array.isArray(list) ? list : []).filter((x: any) => x.isActive);
+        setPricingPlans(active.map(formatPlan));
+      })
+      .catch(() => {
+        setPricingPlans([]);
+      });
+  }, []);
 
   const handleApplyPromo = () => {
     if (promoCode.trim()) {
@@ -83,7 +57,7 @@ export default function ProPage() {
     }
   };
 
-  const handleBuyNow = async (plan: typeof pricingPlans[0]) => {
+  const handleBuyNow = async (plan: Plan) => {
     setSelectedPlan(plan.id);
     setIsProcessing(true);
 

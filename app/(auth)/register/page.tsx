@@ -56,11 +56,16 @@ export default function RegisterPage() {
 
   const handleGoogleSignup = async () => {
     if (!auth) {
-      toast({
-        title: "Error",
-        description: "Firebase is not configured",
-        variant: "destructive",
-      });
+      setIsLoading(true);
+      try {
+        const response = await authApi.socialLogin('google');
+        login(response.user);
+        addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
+        toast({ title: 'Welcome to Rupantar AI! 🎉', description: 'Account created via Google.' });
+        router.replace('/template');
+      } catch (e: any) {
+        toast({ title: 'Registration Failed', description: e?.message || 'Unable to signup with Google', variant: 'destructive' });
+      } finally { setIsLoading(false); }
       return;
     }
 
@@ -140,10 +145,13 @@ export default function RegisterPage() {
       // Use replace instead of push to avoid back button issues
       router.replace("/template");
     } catch (error: any) {
-      console.error("Google signup error:", error);
+      const code = error?.code || ''
+      const hint = code === 'auth/invalid-continue-uri'
+        ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
+        : (error.message || "Failed to sign up with Google")
       toast({
         title: "Registration Failed",
-        description: error.message || "Failed to sign up with Google",
+        description: hint,
         variant: "destructive",
       });
     } finally {

@@ -45,11 +45,17 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     if (!auth) {
-      toast({
-        title: "Error",
-        description: "Firebase is not configured",
-        variant: "destructive",
-      });
+      setIsLoading(true);
+      try {
+        const response = await authApi.socialLogin('google');
+        if (response?.token) localStorage.setItem('token', response.token);
+        login(response.user);
+        claimDailyLogin();
+        toast({ title: 'Welcome back!', description: 'Logged in with Google.' });
+        router.replace('/template');
+      } catch (e: any) {
+        toast({ title: 'Login Failed', description: e?.message || 'Unable to login with Google', variant: 'destructive' });
+      } finally { setIsLoading(false); }
       return;
     }
 
@@ -132,10 +138,13 @@ export default function LoginPage() {
       // Use replace instead of push to avoid back button issues
       router.replace("/template");
     } catch (error: any) {
-      console.error("Google login error:", error);
+      const code = error?.code || ''
+      const hint = code === 'auth/invalid-continue-uri'
+        ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
+        : (error.message || "Failed to sign in with Google")
       toast({
         title: "Login Failed",
-        description: error.message || "Failed to sign in with Google",
+        description: hint,
         variant: "destructive",
       });
     } finally {

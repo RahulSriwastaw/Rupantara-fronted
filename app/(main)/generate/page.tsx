@@ -16,7 +16,7 @@ import { useWalletStore } from "@/store/walletStore";
 import { useGenerationStore } from "@/store/generationStore";
 import { useToast } from "@/hooks/use-toast";
 import { generationsApi, templatesApi } from "@/services/api";
-import type { QualityLevel, Template } from "@/types";
+import type { QualityLevel, Template, Generation } from "@/types";
 
 function GenerateContent() {
   const router = useRouter();

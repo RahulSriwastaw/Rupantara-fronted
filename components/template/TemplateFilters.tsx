@@ -26,16 +26,14 @@ interface TemplateFiltersProps {
   filters: Filters;
   onFiltersChange: (filters: Partial<Filters>) => void;
   onReset: () => void;
+  categories?: string[];
 }
 
 export function TemplateFilters({
   filters,
   onFiltersChange,
   onReset,
-}: TemplateFiltersProps) {
-  const [open, setOpen] = useState(false);
-
-  const categories = [
+  categories = [
     "wedding",
     "fashion",
     "business",
@@ -46,7 +44,9 @@ export function TemplateFilters({
     "traditional",
     "modern",
     "cartoon",
-  ];
+  ],
+}: TemplateFiltersProps) {
+  const [open, setOpen] = useState(false);
 
   const ageGroups = ["18-25", "25-35", "35-45", "45+"];
 

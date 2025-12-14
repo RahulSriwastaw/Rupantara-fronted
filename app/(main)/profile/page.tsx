@@ -52,10 +52,11 @@ import { useGenerationStore } from "@/store/generationStore";
 import { useWalletStore } from "@/store/walletStore";
 import { useThemeStore } from "@/store/themeStore";
 import { useToast } from "@/hooks/use-toast";
-import { DataExport } from "@/components/backup/DataExport";
+import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 import { PasswordStrength } from "@/components/security/PasswordStrength";
 import { VersionInfo } from "@/components/version/VersionInfo";
-import { FeedbackButton } from "@/components/feedback/FeedbackButton";
+import { creatorApi } from "@/services/api";
+import { DataExport } from "@/components/backup/DataExport";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -68,6 +69,7 @@ export default function ProfilePage() {
     creatorApplication,
     submitCreatorApplication,
     setCreatorApplicationStatus,
+    setCreatorStatus,
   } = useAuthStore();
   const { generations, fetchGenerations, favorites } = useGenerationStore();
   const { balance, fetchWalletData } = useWalletStore();
@@ -103,6 +105,29 @@ export default function ProfilePage() {
     }
   }, [creatorApplication?.status]);
 
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
+
+  useEffect(() => {
+    const syncCreatorStatus = async () => {
+      if (!user) return;
+      try {
+        const app = await creatorApi.getApplication();
+        if (app && app.status) {
+          setCreatorApplicationStatus(app.status, { rejectionReason: app.rejectionReason });
+          if (app.status === 'approved') {
+            setCreatorStatus(true);
+          }
+        }
+      } catch (e) {
+        // ignore if no application yet
+      }
+    };
+    syncCreatorStatus();
+  }, [user?.id]);
   useEffect(() => {
     fetchGenerations();
     fetchWalletData();
@@ -151,7 +176,7 @@ export default function ProfilePage() {
         toast({ title: "Upload required", description: "Please upload two demo images.", variant: "destructive" });
         return;
       }
-      const app = submitCreatorApplication({
+      const app = await submitCreatorApplication({
         username: creatorUsername.startsWith("@") ? creatorUsername : `@${creatorUsername}`,
         bio: creatorBio,
         socialLinks: {
@@ -199,19 +224,19 @@ export default function ProfilePage() {
         <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4">
             <Avatar className="h-24 w-24 sm:h-32 sm:w-32 ring-4 ring-primary/20">
-              <AvatarImage src={user.profilePicture} alt={user.fullName} />
+              <AvatarImage src={user?.profilePicture || undefined} alt={user?.fullName || "User"} />
               <AvatarFallback className="text-3xl bg-teal-500/20 text-teal-400">
-                {user.fullName.charAt(0).toUpperCase()}
+                {(user?.fullName?.charAt(0).toUpperCase()) || "U"}
               </AvatarFallback>
             </Avatar>
 
             <div className="space-y-1">
-              <h1 className="text-xl sm:text-2xl font-bold">{user.fullName}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold">{user?.fullName || "User"}</h1>
               <p className="text-sm sm:text-base text-muted-foreground">
                 {user.email} | {user.phone}
               </p>
               <p className="text-sm text-muted-foreground">
-                Member since {new Date(user.memberSince).toLocaleDateString("default", { month: "short", year: "numeric" })}
+                Member since {user?.memberSince ? new Date(user.memberSince).toLocaleDateString("default", { month: "short", year: "numeric" }) : ""}
               </p>
               <div className="flex items-center justify-center gap-2 pt-1">
                 {user.isCreator && (

@@ -30,7 +30,7 @@ export function OfflineIndicator() {
         <CardContent className="p-3 flex items-center gap-3">
           <WifiOff className="h-5 w-5 text-orange-500" />
           <div className="flex-1">
-            <p className="text-sm font-semibold">You're offline</p>
+            <p className="text-sm font-semibold">You’re offline</p>
             <p className="text-xs text-muted-foreground">
               Some features may not work
             </p>

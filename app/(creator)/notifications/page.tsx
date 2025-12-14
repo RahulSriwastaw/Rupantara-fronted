@@ -112,9 +112,9 @@ export default function CreatorNotificationsPage() {
                 <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 mx-auto mb-3 sm:mb-4 rounded-full bg-primary/20 flex items-center justify-center">
                   <Check className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-primary" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2">You're all caught up 🎉</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2">You&#39;re all caught up 🎉</h3>
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  No new notifications. We'll let you know when something important happens.
+                  No new notifications. We&#39;ll let you know when something important happens.
                 </p>
               </CardContent>
             </Card>

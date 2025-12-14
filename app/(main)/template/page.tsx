@@ -13,26 +13,11 @@ import { ImageIcon } from "lucide-react";
 import { TemplateCard } from "@/components/template/TemplateCard";
 import { TemplateFilters } from "@/components/template/TemplateFilters";
 import { TemplateDetailModal } from "@/components/template/TemplateDetailModal";
-import { templatesApi } from "@/services/api";
+import { templatesApi, api } from "@/services/api";
 import { useTemplateStore } from "@/store/templateStore";
 import { useToast } from "@/hooks/use-toast";
 import type { Template } from "@/types";
 import { cn } from "@/lib/utils";
-
-const categories = [
-  "All",
-  "Trending",
-  "Cartoon",
-  "Wedding",
-  "Fashion",
-  "Business",
-  "Cinematic",
-  "Festival",
-  "Portrait",
-  "Couple",
-  "Traditional",
-  "Modern",
-];
 
 function TemplateContent() {
   const router = useRouter();
@@ -43,6 +28,8 @@ function TemplateContent() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [categoryChips, setCategoryChips] = useState<string[]>(["All","Trending"]);
+  const [filterCategories, setFilterCategories] = useState<string[]>([]);
 
   // Handle template ID from URL (redirect to generate page)
   useEffect(() => {
@@ -73,6 +60,16 @@ function TemplateContent() {
         const safeData = Array.isArray(data) ? data : [];
         setTemplates(safeData);
         setFilteredTemplates(safeData);
+        try {
+          const cats = await api.get('/admin/templates/categories');
+          const subs: string[] = Array.isArray(cats)
+            ? Array.from(new Set((cats || []).flatMap((c: any) => Array.isArray(c.subCategories) ? c.subCategories : [])))
+            : [];
+          if (subs.length > 0) {
+            setCategoryChips(["All","Trending", ...subs.map(s => s.charAt(0).toUpperCase() + s.slice(1))]);
+            setFilterCategories(subs);
+          }
+        } catch {}
       } catch (error: any) {
         console.error("API error:", error);
         setTemplates([]);
@@ -210,12 +207,13 @@ function TemplateContent() {
             filters={filters}
             onFiltersChange={(newFilters) => setFilters(newFilters)}
             onReset={resetFilters}
+            categories={filterCategories}
           />
         </div>
 
         {/* Category Bar */}
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {categories.map((category) => {
+          {categoryChips.map((category) => {
             const isSelected = selectedCategory === category;
             return (
               <Badge

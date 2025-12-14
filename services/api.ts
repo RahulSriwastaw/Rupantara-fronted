@@ -2,12 +2,7 @@
 function normalizeBackendUrl() {
   const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || '').trim();
   if (!source) {
-    // Sensible dev default: use backend on 5005 when running locally
-    try {
-      const isLocal = typeof window !== 'undefined' && /localhost|127\.0\.0\.1/.test(window.location.hostname);
-      if (isLocal) return 'http://localhost:5005/api/v1';
-    } catch {}
-    return 'http://localhost:5005/api/v1';
+    return 'https://new-backend-production-c886.up.railway.app/api/v1';
   }
   try {
     const u = new URL(source);
@@ -262,5 +257,11 @@ export const creatorApi = {
   requestWithdrawal: (data: { amount: number; method: 'bank' | 'upi'; bankDetails?: any; upiId?: string }) =>
     api.post('/creator/withdraw', data),
   getWithdrawals: () => api.get('/creator/withdrawals'),
+  getApplication: () => api.get('/creator/application'),
+  apply: (payload: { username: string; socialLinks?: { facebook?: string; youtube?: string; instagram?: string; telegram?: string; whatsapp?: string } }) => {
+    const name = (payload.username || '').replace(/^@/, '');
+    const links = Object.values(payload.socialLinks || {}).filter(v => v && v.trim()) as string[];
+    return api.post('/creator/apply', { name, socialLinks: links });
+  },
 };
 

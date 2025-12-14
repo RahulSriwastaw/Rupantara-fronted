@@ -38,6 +38,27 @@ export default function ProPage() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
+    const exists = typeof window !== 'undefined' && (window as any).Razorpay;
+    if (!exists) {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => {};
+      script.onerror = () => {
+        toast({
+          title: "Payment SDK load failed",
+          description: "Unable to load Razorpay checkout. Please check your connection.",
+          variant: "destructive",
+        });
+      };
+      document.body.appendChild(script);
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, [toast]);
+
+  useEffect(() => {
     packagesApi.list()
       .then((list) => {
         const active = (Array.isArray(list) ? list : []).filter((x: any) => x.isActive);
@@ -120,7 +141,11 @@ export default function ProPage() {
       };
 
       // @ts-ignore - Razorpay is loaded via script
-      const rzp = new window.Razorpay(options);
+      const RZ = (window as any).Razorpay;
+      if (!RZ) {
+        throw new Error('Payment SDK not loaded');
+      }
+      const rzp = new RZ(options);
       rzp.open();
 
     } catch (error: any) {

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, CreatorApplication } from '@/types';
+import { creatorApi } from '@/services/api';
 
 interface AuthState {
   user: User | null;
@@ -19,7 +20,7 @@ interface AuthState {
     bio?: string;
     socialLinks?: CreatorApplication['socialLinks'];
     demoTemplates: { image: string; prompt: string }[];
-  }) => CreatorApplication;
+  }) => Promise<CreatorApplication>;
   setCreatorApplicationStatus: (
     status: CreatorApplication['status'],
     options?: { rejectionReason?: string }
@@ -64,17 +65,28 @@ export const useAuthStore = create<AuthState>()(
         }
         return false;
       },
-      submitCreatorApplication: ({ username, bio, socialLinks, demoTemplates }) => {
+      submitCreatorApplication: async (payload) => {
         const state = get();
         if (!state.user) throw new Error('Not authenticated');
-        const app: CreatorApplication = {
+        const { username, bio, socialLinks, demoTemplates } = payload;
+        const backendRes = await creatorApi.apply({
+          username: username,
+          socialLinks: socialLinks || {}
+        }).catch(() => ({
           id: `app_${Date.now()}`,
+          name: (username || '').replace(/^@/, ''),
+          socialLinks: Object.values(socialLinks || {}).filter(Boolean),
+          status: 'pending',
+          appliedDate: new Date().toISOString()
+        }));
+        const app: CreatorApplication = {
+          id: backendRes.id || `app_${Date.now()}`,
           userId: state.user.id,
           username,
           socialLinks: socialLinks || {},
           demoTemplates,
           status: 'pending',
-          submittedAt: new Date().toISOString(),
+          submittedAt: backendRes.appliedDate || new Date().toISOString(),
         };
         // Save bio into user profile for convenience
         set({

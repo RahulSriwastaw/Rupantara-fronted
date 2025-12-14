@@ -38,6 +38,7 @@ function GenerateContent() {
   const [detailLevel, setDetailLevel] = useState("medium");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [result, setResult] = useState<Generation | null>(null);
 
   // Load template if provided
   useEffect(() => {
@@ -126,15 +127,13 @@ function GenerateContent() {
       // Deduct points and save generation
       deductPoints(totalCost, "generation", `Image generation - ${quality}`);
       addGeneration(generation);
+      setResult(generation);
 
       // Show success
       setTimeout(() => {
-        toast({
-          title: "Generation complete! 🎉",
-          description: "Your image is ready!",
-        });
-        router.push(`/history`);
-      }, 500);
+        toast({ title: "Generation complete! 🎉", description: "Your image is ready!" });
+        setIsGenerating(false);
+      }, 400);
     } catch (error: any) {
       clearInterval(progressInterval);
       setIsGenerating(false);
@@ -185,6 +184,56 @@ function GenerateContent() {
             <p className="text-xs text-center text-muted-foreground">
               Powered by AI • This may take a few moments
             </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (result) {
+    const onDownload = async () => {
+      try {
+        const res = await fetch(result.generatedImage);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `rupantar-${result.id}.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        toast({ title: "Downloaded", description: "Image saved" });
+      } catch (e: any) {
+        toast({ title: "Download failed", description: e?.message || "Unable to download", variant: "destructive" });
+      }
+    };
+    const onShare = async () => {
+      const shareUrl = result.generatedImage;
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: "Rupantar AI Image", text: "Check out my AI image", url: shareUrl });
+          toast({ title: "Shared", description: "Shared via system share" });
+        } else {
+          await navigator.clipboard.writeText(shareUrl);
+          toast({ title: "Link copied", description: "Image link copied to clipboard" });
+        }
+      } catch (e: any) {
+        toast({ title: "Share failed", description: e?.message || "Unable to share", variant: "destructive" });
+      }
+    };
+    return (
+      <div className="min-h-screen p-4 flex items-center justify-center">
+        <Card className="w-full max-w-2xl overflow-hidden">
+          <CardContent className="p-0">
+            <div className="relative aspect-square w-full">
+              <Image src={result.generatedImage} alt="Generated" fill className="object-cover" />
+            </div>
+            <div className="p-4 flex gap-2">
+              <Button className="flex-1" onClick={onDownload}>Download</Button>
+              <Button variant="outline" onClick={onShare}>Share</Button>
+              <Button variant="outline" onClick={() => router.push('/history')}>View in History</Button>
+            </div>
           </CardContent>
         </Card>
       </div>

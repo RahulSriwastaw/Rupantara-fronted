@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -40,7 +39,16 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    resolver: async (values) => {
+      const result = loginSchema.safeParse(values);
+      if (result.success) return { values: result.data, errors: {} };
+      const errors: Record<string, any> = {};
+      for (const issue of result.error.issues) {
+        const key = String(issue.path[0] || 'form');
+        errors[key] = { type: 'manual', message: issue.message };
+      }
+      return { values: {}, errors };
+    },
   });
 
   const handleGoogleLogin = async () => {

@@ -116,7 +116,6 @@ function GenerateContent() {
         faceImageUrl: photos[0] || '',
         quality: quality,
         aspectRatio: '1:1',
-        prompt: template ? `${template.hiddenPrompt}, ${prompt}` : prompt,
         uploadedImages: photos.length ? [photos[0]] : [],
       }
       const generation = await generationsApi.create(body as any);
@@ -193,6 +192,11 @@ function GenerateContent() {
   if (result) {
     const onDownload = async () => {
       try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        await fetch(`/api/generation/${result.id}/download`, {
+          method: 'POST',
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        }).catch(()=>{});
         const res = await fetch(result.generatedImage);
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
@@ -211,6 +215,11 @@ function GenerateContent() {
     const onShare = async () => {
       const shareUrl = result.generatedImage;
       try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        await fetch(`/api/generation/${result.id}/share`, {
+          method: 'POST',
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        }).catch(()=>{});
         if (navigator.share) {
           await navigator.share({ title: "Rupantar AI Image", text: "Check out my AI image", url: shareUrl });
           toast({ title: "Shared", description: "Shared via system share" });

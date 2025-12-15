@@ -46,6 +46,7 @@
     "@capacitor/cli": "^6.0.0",
     "@capacitor/core": "^6.0.0",
     "@capacitor/ios": "^6.0.0",
+    "@next/swc-win32-x64-msvc": "^14.2.33",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

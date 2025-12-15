@@ -1,29 +1,12 @@
-// Normalize backend URL to ensure it ends with /api/v1
-function normalizeBackendUrl() {
-  const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || '').trim();
+function getApiBaseUrl() {
+  const source = (process.env.NEXT_PUBLIC_API_URL || '').trim();
   if (!source) {
-    return 'https://new-backend-production-c886.up.railway.app/api/v1';
+    throw new Error('Missing NEXT_PUBLIC_API_URL. Please set it in .env.local or .env.production.');
   }
-  try {
-    const u = new URL(source);
-    // If URL already contains /api/v1, use it as is
-    if (u.pathname.includes('/api/v1')) {
-      return `${u.protocol}//${u.host}${u.pathname}`;
-    }
-    // If URL contains /api, replace with /api/v1
-    if (u.pathname.includes('/api')) {
-      return `${u.protocol}//${u.host}${u.pathname.replace(/\/api.*$/, '/api/v1')}`;
-    }
-    // Otherwise append /api/v1
-    return `${u.protocol}//${u.host}/api/v1`;
-  } catch {
-    // If not a valid URL, try to clean it up
-    const cleaned = source.replace(/\/api.*$/, '').replace(/\/$/, '');
-    return `${cleaned}/api/v1`;
-  }
+  return source.replace(/\/$/, '');
 }
 
-const API_URL = normalizeBackendUrl();
+const API_URL = getApiBaseUrl();
 const API_TIMEOUT = 30000; // 30 seconds
 
 // Debug logging (only in development)
@@ -166,7 +149,7 @@ export const authApi = {
     api.post('/auth/syncUser', { firebaseToken, fullName, phone }),
   socialLogin: (provider: 'google' | 'facebook', email?: string, name?: string) =>
     api.post('/auth/social-login', { provider, email, name }),
-  getMe: () => api.get('/auth/me'),
+  getMe: () => api.get('/user/me'),
 };
 
 // Templates API

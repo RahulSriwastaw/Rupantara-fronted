@@ -61,7 +61,7 @@ function TemplateContent() {
         setTemplates(safeData);
         setFilteredTemplates(safeData);
         try {
-          const cats = await api.get('/admin/templates/categories');
+          const cats = await api.get('/admin/categories');
           const subs: string[] = Array.isArray(cats)
             ? Array.from(new Set((cats || []).flatMap((c: any) => Array.isArray(c.subCategories) ? c.subCategories : [])))
             : [];

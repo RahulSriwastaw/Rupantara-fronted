@@ -1,3 +1,4 @@
+import type { Template, TemplateCategory, TemplateSubCategory } from "@/types";
 // Normalize backend URL to ensure it ends with /api/v1
 function normalizeBackendUrl() {
   const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || '').trim();
@@ -171,8 +172,47 @@ export const authApi = {
 
 // Templates API
 export const templatesApi = {
-  getAll: () => api.get('/templates'),
-  getById: (id: string) => api.get(`/templates/${id}`),
+  getAll: async (): Promise<Template[]> => {
+    const list = await api.get('/admin/templates');
+    const arr = Array.isArray(list) ? list : [];
+    return arr.map((t: any) => ({
+      id: String(t.id || t._id || ''),
+      title: String(t.title || t.name || 'Template'),
+      description: String(t.description || t.prompt || ''),
+      image: String(t.image || t.imageUrl || t.demoImage || ''),
+      demoImage: String(t.demoImage || t.imageUrl || t.image || ''),
+      additionalImages: Array.isArray(t.additionalImages) ? t.additionalImages : [],
+      category: (String(t.category || 'unisex') as TemplateCategory),
+      subCategory: (String(t.subCategory || 'other') as TemplateSubCategory),
+      tags: Array.isArray(t.tags) ? t.tags.map((x: any) => String(x)) : [],
+      creatorId: String(t.creatorId || ''),
+      creatorName: String(t.creatorName || 'Creator'),
+      creatorAvatar: String(t.creatorAvatar || ''),
+      creatorBio: String(t.creatorBio || ''),
+      creatorVerified: Boolean(t.creatorVerified || false),
+      hiddenPrompt: String(t.hiddenPrompt || ''),
+      visiblePrompt: String(t.visiblePrompt || t.title || ''),
+      negativePrompt: String(t.negativePrompt || ''),
+      isFree: Boolean(t.isFree !== undefined ? t.isFree : !t.isPremium),
+      pointsCost: Number(t.pointsCost ?? 0),
+      usageCount: Number(t.usageCount ?? t.useCount ?? 0),
+      views: Number(t.views ?? 0),
+      earnings: Number(t.earnings ?? 0),
+      likeCount: Number(t.likeCount ?? 0),
+      saveCount: Number(t.saveCount ?? 0),
+      rating: Number(t.rating ?? 0),
+      ratingCount: Number(t.ratingCount ?? 0),
+      ageGroup: t.ageGroup ? String(t.ageGroup) : undefined,
+      state: t.state ? String(t.state) : undefined,
+      createdAt: String(t.createdAt || new Date().toISOString()),
+      updatedAt: String(t.updatedAt || new Date().toISOString()),
+      status: (String(t.status || 'approved') as Template['status']),
+    }));
+  },
+  getById: async (id: string): Promise<Template | null> => {
+    const list = await templatesApi.getAll();
+    return list.find(t => t.id === id) || null;
+  },
   adminUploadDemo: async (dataUrl: string) => {
     const blob = await fetch(dataUrl).then(r => r.blob())
     const fd = new FormData()

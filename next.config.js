@@ -21,7 +21,7 @@ const nextConfig = {
   },
   async rewrites() {
     // Use Railway backend URL in production, localhost in development
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://new-backend-production-c886.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://new-backend-production-ad5a.up.railway.app';
     return [
       {
         source: '/api/:path*',

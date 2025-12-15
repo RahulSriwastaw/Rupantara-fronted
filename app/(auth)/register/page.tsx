@@ -154,14 +154,27 @@ export default function RegisterPage() {
       router.replace("/template");
     } catch (error: any) {
       const code = error?.code || ''
-      const hint = code === 'auth/invalid-continue-uri'
-        ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
-        : (error.message || "Failed to sign up with Google")
-      toast({
-        title: "Registration Failed",
-        description: hint,
-        variant: "destructive",
-      });
+      if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
+        try {
+          const response = await authApi.socialLogin('google');
+          if (response?.token) localStorage.setItem('token', response.token);
+          login(response.user);
+          addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
+          router.replace('/template');
+          return;
+        } catch (e: any) {
+          toast({ title: 'Registration Failed', description: e?.message || 'Unable to signup with Google', variant: 'destructive' });
+        }
+      } else {
+        const hint = code === 'auth/invalid-continue-uri'
+          ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
+          : (error.message || "Failed to sign up with Google")
+        toast({
+          title: "Registration Failed",
+          description: hint,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

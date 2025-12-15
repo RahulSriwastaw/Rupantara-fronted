@@ -147,14 +147,27 @@ export default function LoginPage() {
       router.replace("/template");
     } catch (error: any) {
       const code = error?.code || ''
-      const hint = code === 'auth/invalid-continue-uri'
-        ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
-        : (error.message || "Failed to sign in with Google")
-      toast({
-        title: "Login Failed",
-        description: hint,
-        variant: "destructive",
-      });
+      if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
+        try {
+          const response = await authApi.socialLogin('google');
+          if (response?.token) localStorage.setItem('token', response.token);
+          login(response.user);
+          claimDailyLogin();
+          router.replace('/template');
+          return;
+        } catch (e: any) {
+          toast({ title: "Login Failed", description: e?.message || "Unable to login with Google", variant: "destructive" });
+        }
+      } else {
+        const hint = code === 'auth/invalid-continue-uri'
+          ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
+          : (error.message || "Failed to sign in with Google")
+        toast({
+          title: "Login Failed",
+          description: hint,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

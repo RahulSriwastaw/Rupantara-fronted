@@ -163,8 +163,8 @@ export const authApi = {
     }),
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
-  syncUser: (firebaseToken: string, fullName?: string, phone?: string, email?: string) =>
-    api.post('/auth/social-login', { provider: 'google', email, name: fullName }),
+  syncUser: (firebaseToken: string) =>
+    api.post('/auth/firebase-login', { idToken: firebaseToken }),
   socialLogin: (provider: 'google' | 'facebook', email?: string, name?: string) =>
     api.post('/auth/social-login', { provider, email, name }),
   getMe: () => api.get('/auth/me'),

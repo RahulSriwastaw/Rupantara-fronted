@@ -94,23 +94,16 @@ export default function RegisterPage() {
       // Sync Firebase user with MongoDB
       let backendUser = null;
       try {
-        const response = await authApi.syncUser(firebaseToken, user.displayName || undefined, undefined, user.email || undefined);
+        const response = await authApi.syncUser(firebaseToken);
         backendUser = response.user;
-        // console.log("✅ User synced with MongoDB:", backendUser);
-
-        if (response.isNewUser) {
-          // console.log("🎉 New user created in MongoDB");
-        } else {
-          // console.log("🔄 Existing user updated in MongoDB");
-        }
       } catch (apiError: any) {
         console.error("❌ Sync user error:", apiError);
         toast({
           title: "Warning",
-          description: "Signup successful but failed to sync with database. Some features may not work.",
+          description: "Signup failed: could not verify Google account. Please try again.",
           variant: "destructive",
         });
-        // Continue with Firebase data if sync fails
+        return;
       }
 
       // Use MongoDB user data if available, otherwise fallback to Firebase data
@@ -157,18 +150,7 @@ export default function RegisterPage() {
     } catch (error: any) {
       const code = error?.code || ''
       if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
-        try {
-          const formEmail = (typeof window !== 'undefined' ? (document.getElementById('email') as HTMLInputElement | null)?.value : '') || undefined;
-          const formName = (typeof window !== 'undefined' ? (document.getElementById('fullName') as HTMLInputElement | null)?.value : '') || undefined;
-          const response = await authApi.socialLogin('google', formEmail, formName);
-          if (response?.token) localStorage.setItem('token', response.token);
-          login(response.user);
-          addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
-          router.replace('/template');
-          return;
-        } catch (e: any) {
-          toast({ title: 'Registration Failed', description: e?.message || 'Unable to signup with Google', variant: 'destructive' });
-        }
+        toast({ title: 'Registration Failed', description: 'Google login not authorized for this domain. Please configure Firebase Auth domains.', variant: 'destructive' });
       } else {
         const hint = code === 'auth/invalid-continue-uri'
           ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`

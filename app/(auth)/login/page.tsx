@@ -84,7 +84,7 @@ export default function LoginPage() {
       // Sync Firebase user with MongoDB
       let backendUser = null;
       try {
-      const response = await authApi.syncUser(firebaseToken, user.displayName || undefined, undefined, user.email || undefined);
+      const response = await authApi.syncUser(firebaseToken);
       if (response?.token) {
         localStorage.setItem('token', response.token);
       }
@@ -100,10 +100,10 @@ export default function LoginPage() {
         console.error("❌ Sync user error:", apiError);
         toast({
           title: "Warning",
-          description: "Login successful but failed to sync with database. Some features may not work.",
+          description: "Login failed: could not verify Google account. Please try again.",
           variant: "destructive",
         });
-        // Continue with Firebase data if sync fails
+        return;
       }
 
       // Use MongoDB user data if available, otherwise fallback to Firebase data
@@ -150,18 +150,7 @@ export default function LoginPage() {
     } catch (error: any) {
       const code = error?.code || ''
       if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
-        try {
-          // Fallback: use the email typed in the form to avoid placeholder user
-          const formEmail = (typeof window !== 'undefined' ? (document.getElementById('email') as HTMLInputElement | null)?.value : '') || undefined;
-          const response = await authApi.socialLogin('google', formEmail);
-          if (response?.token) localStorage.setItem('token', response.token);
-          login(response.user);
-          claimDailyLogin();
-          router.replace('/template');
-          return;
-        } catch (e: any) {
-          toast({ title: "Login Failed", description: e?.message || "Unable to login with Google", variant: "destructive" });
-        }
+        toast({ title: "Login Failed", description: "Google login not authorized for this domain. Please configure Firebase Auth domains.", variant: "destructive" });
       } else {
         const hint = code === 'auth/invalid-continue-uri'
           ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`

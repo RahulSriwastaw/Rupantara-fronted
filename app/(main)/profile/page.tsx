@@ -78,6 +78,8 @@ export default function ProfilePage() {
   const [showCreatorModal, setShowCreatorModal] = useState(false);
   const [editedUser, setEditedUser] = useState(user);
   const [newPassword, setNewPassword] = useState("");
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
 
   // Creator application form state
   const [creatorUsername, setCreatorUsername] = useState("");
@@ -100,10 +102,12 @@ export default function ProfilePage() {
   }, [creatorApplication?.status]);
 
   useEffect(() => {
-    if (!user) {
+    const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
+    const storeHydrated = (useAuthStore as any).persist?.hasHydrated?.() ?? hydrated;
+    if (!user && storeHydrated && !hasToken) {
       router.push("/login");
     }
-  }, [user, router]);
+  }, [user, router, hydrated]);
 
   useEffect(() => {
     const syncCreatorStatus = async () => {

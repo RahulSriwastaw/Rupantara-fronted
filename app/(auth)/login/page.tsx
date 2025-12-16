@@ -17,7 +17,7 @@ import { useWalletStore } from "@/store/walletStore";
 import { useToast } from "@/hooks/use-toast";
 import { authApi } from "@/services/api";
 import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "firebase/auth";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -114,6 +114,33 @@ export default function LoginPage() {
       }
     };
     checkRedirect();
+
+    if (auth) {
+      const unsub = onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+        try {
+          const firebaseToken = await user.getIdToken();
+          const response = await authApi.syncUser(firebaseToken);
+          if (response?.token) localStorage.setItem('token', response.token);
+          login(response.user || {
+            id: user.uid,
+            fullName: user.displayName || "User",
+            email: user.email || "",
+            phone: user.phoneNumber || "",
+            isCreator: false,
+            isVerified: user.emailVerified,
+            memberSince: new Date().toISOString(),
+            pointsBalance: 100,
+            profilePicture: user.photoURL || null,
+          });
+          claimDailyLogin();
+          router.replace("/template");
+        } catch (e: any) {
+          toast({ title: "Login Failed", description: e?.message || "Could not verify Google account", variant: "destructive" });
+        }
+      });
+      return () => unsub();
+    }
   }, [router, login, claimDailyLogin, toast]);
 
   const onSubmit = async (data: LoginFormData) => {

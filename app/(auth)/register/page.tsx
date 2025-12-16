@@ -17,7 +17,7 @@ import { useWalletStore } from "@/store/walletStore";
 import { useToast } from "@/hooks/use-toast";
 import { authApi } from "@/services/api";
 import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, createUserWithEmailAndPassword } from "firebase/auth";
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 const registerSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -124,6 +124,32 @@ export default function RegisterPage() {
       }
     };
     checkRedirect();
+
+    if (auth) {
+      const unsub = onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+        try {
+          const firebaseToken = await user.getIdToken();
+          const response = await authApi.syncUser(firebaseToken);
+          login(response.user || {
+            id: user.uid,
+            fullName: user.displayName || "User",
+            email: user.email || "",
+            phone: user.phoneNumber || "",
+            isCreator: false,
+            isVerified: user.emailVerified,
+            memberSince: new Date().toISOString(),
+            pointsBalance: 100,
+            profilePicture: user.photoURL || null,
+          });
+          addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
+          router.replace("/template");
+        } catch (e: any) {
+          toast({ title: "Registration Failed", description: e?.message || "Could not verify Google account", variant: "destructive" });
+        }
+      });
+      return () => unsub();
+    }
   }, [router, login, addPoints, toast]);
 
   const onSubmit = async (data: RegisterFormData) => {

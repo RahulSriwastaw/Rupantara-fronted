@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -17,7 +17,7 @@ import { useWalletStore } from "@/store/walletStore";
 import { useToast } from "@/hooks/use-toast";
 import { authApi } from "@/services/api";
 import { auth } from "@/lib/firebase";
-import { signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, createUserWithEmailAndPassword } from "firebase/auth";
 
 const registerSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -64,107 +64,67 @@ export default function RegisterPage() {
 
   const handleGoogleSignup = async () => {
     if (!auth) {
-      setIsLoading(true);
-      try {
-        const formEmail = (typeof window !== 'undefined' ? (document.getElementById('email') as HTMLInputElement | null)?.value : '') || undefined;
-        const formName = (typeof window !== 'undefined' ? (document.getElementById('fullName') as HTMLInputElement | null)?.value : '') || undefined;
-        const response = await authApi.socialLogin('google', formEmail, formName);
-        login(response.user);
-        addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
-        toast({ title: 'Welcome to Rupantar AI! 🎉', description: 'Account created via Google.' });
-        router.replace('/template');
-      } catch (e: any) {
-        toast({ title: 'Registration Failed', description: e?.message || 'Unable to signup with Google', variant: 'destructive' });
-      } finally { setIsLoading(false); }
+      toast({ title: 'Registration Failed', description: 'Firebase not initialized', variant: 'destructive' });
       return;
     }
-
     setIsLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // console.log("✅ Google signup successful:", user.email);
-
-      // Get Firebase ID token for backend sync
-      const firebaseToken = await user.getIdToken();
-      // console.log("Firebase token obtained, syncing with MongoDB...");
-
-      // Sync Firebase user with MongoDB
-      let backendUser = null;
-      try {
-        const response = await authApi.syncUser(firebaseToken);
-        backendUser = response.user;
-      } catch (apiError: any) {
-        console.error("❌ Sync user error:", apiError);
-        toast({
-          title: "Warning",
-          description: "Signup failed: could not verify Google account. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Use MongoDB user data if available, otherwise fallback to Firebase data
-      let userData = backendUser || {
-        id: user.uid,
-        fullName: user.displayName || "User",
-        email: user.email || "",
-        phone: user.phoneNumber || "",
-        isCreator: false,
-        isVerified: user.emailVerified,
-        memberSince: new Date().toISOString(),
-        pointsBalance: 100,
-        profilePicture: user.photoURL || null,
-      };
-
-      // console.log("Logging in user:", userData);
-
-      // Update auth store
-      login(userData);
-
-      // Wait a bit for state to persist
-      await new Promise(resolve => setTimeout(resolve, 200));
-
-      // Verify login was successful by checking store state
-      const authState = useAuthStore.getState();
-      // console.log("Auth state after signup:", { 
-      //   isAuthenticated: authState.isAuthenticated, 
-      //   user: authState.user 
-      // });
-
-      if (!authState.isAuthenticated || !authState.user) {
-        throw new Error("Signup failed - authentication state not updated");
-      }
-
-      addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
-
-      toast({
-        title: "Welcome to Rupantar AI! 🎉",
-        description: "Your account has been created. Enjoy 100 bonus points!",
-      });
-
-      // Use replace instead of push to avoid back button issues
-      router.replace("/template");
+      await signInWithRedirect(auth, provider);
     } catch (error: any) {
-      const code = error?.code || ''
+      const code = error?.code || '';
       if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
         toast({ title: 'Registration Failed', description: 'Google login not authorized for this domain. Please configure Firebase Auth domains.', variant: 'destructive' });
       } else {
         const hint = code === 'auth/invalid-continue-uri'
           ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
-          : (error.message || "Failed to sign up with Google")
-        toast({
-          title: "Registration Failed",
-          description: hint,
-          variant: "destructive",
-        });
+          : (error.message || "Failed to sign up with Google");
+        toast({ title: "Registration Failed", description: hint, variant: "destructive" });
       }
-    } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const checkRedirect = async () => {
+      if (!auth) return;
+      try {
+        const result = await getRedirectResult(auth);
+        if (!result) return;
+        const user = result.user;
+        const firebaseToken = await user.getIdToken();
+        const response = await authApi.syncUser(firebaseToken);
+        const backendUser = response.user;
+        login(backendUser || {
+          id: user.uid,
+          fullName: user.displayName || "User",
+          email: user.email || "",
+          phone: user.phoneNumber || "",
+          isCreator: false,
+          isVerified: user.emailVerified,
+          memberSince: new Date().toISOString(),
+          pointsBalance: 100,
+          profilePicture: user.photoURL || null,
+        });
+        addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
+        toast({ title: "Welcome to Rupantar AI! 🎉", description: "Your account has been created. Enjoy 100 bonus points!" });
+        router.replace("/template");
+      } catch (error: any) {
+        const code = error?.code || '';
+        if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
+          toast({ title: 'Registration Failed', description: 'Google login not authorized for this domain. Please configure Firebase Auth domains.', variant: 'destructive' });
+        } else {
+          const hint = code === 'auth/invalid-continue-uri'
+            ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
+            : (error.message || "Failed to sign up with Google");
+          toast({ title: "Registration Failed", description: hint, variant: "destructive" });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkRedirect();
+  }, [router, login, addPoints, toast]);
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);

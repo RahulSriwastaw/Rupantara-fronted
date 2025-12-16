@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -17,7 +17,7 @@ import { useWalletStore } from "@/store/walletStore";
 import { useToast } from "@/hooks/use-toast";
 import { authApi } from "@/services/api";
 import { auth } from "@/lib/firebase";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -53,118 +53,68 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     if (!auth) {
-      setIsLoading(true);
-      try {
-        // Use form email if available to create real account on backend
-        const formEmail = (typeof window !== 'undefined' ? (document.getElementById('email') as HTMLInputElement | null)?.value : '') || undefined;
-        const response = await authApi.socialLogin('google', formEmail);
-        if (response?.token) localStorage.setItem('token', response.token);
-        login(response.user);
-        claimDailyLogin();
-        toast({ title: 'Welcome back!', description: 'Logged in with Google.' });
-        router.replace('/template');
-      } catch (e: any) {
-        toast({ title: 'Login Failed', description: e?.message || 'Unable to login with Google', variant: 'destructive' });
-      } finally { setIsLoading(false); }
+      toast({ title: "Login Failed", description: "Firebase not initialized", variant: "destructive" });
       return;
     }
-
     setIsLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // console.log("✅ Google login successful:", user.email);
-
-      // Get Firebase ID token for backend sync
-      const firebaseToken = await user.getIdToken();
-      // console.log("Firebase token obtained, syncing with MongoDB...");
-
-      // Sync Firebase user with MongoDB
-      let backendUser = null;
-      try {
-      const response = await authApi.syncUser(firebaseToken);
-      if (response?.token) {
-        localStorage.setItem('token', response.token);
-      }
-      backendUser = response.user;
-        // console.log("✅ User synced with MongoDB:", backendUser);
-
-        if (response.isNewUser) {
-          // console.log("🎉 New user created in MongoDB");
-        } else {
-          // console.log("🔄 Existing user updated in MongoDB");
-        }
-      } catch (apiError: any) {
-        console.error("❌ Sync user error:", apiError);
-        toast({
-          title: "Warning",
-          description: "Login failed: could not verify Google account. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Use MongoDB user data if available, otherwise fallback to Firebase data
-      let userData = backendUser || {
-        id: user.uid,
-        fullName: user.displayName || "User",
-        email: user.email || "",
-        phone: user.phoneNumber || "",
-        isCreator: false,
-        isVerified: user.emailVerified,
-        memberSince: new Date().toISOString(),
-        pointsBalance: 100,
-        profilePicture: user.photoURL || null,
-      };
-
-      // console.log("Logging in user:", userData);
-
-      // Update auth store with MongoDB user data
-      login(userData);
-
-      // Wait a bit for state to persist
-      await new Promise(resolve => setTimeout(resolve, 200));
-
-      // Verify login was successful by checking store state
-      const authState = useAuthStore.getState();
-      // console.log("Auth state after login:", { 
-      //   isAuthenticated: authState.isAuthenticated, 
-      //   user: authState.user 
-      // });
-
-      if (!authState.isAuthenticated || !authState.user) {
-        throw new Error("Login failed - authentication state not updated");
-      }
-
-      claimDailyLogin();
-
-      toast({
-        title: "Welcome back!",
-        description: "You've earned 3 daily login bonus points.",
-      });
-
-      // Use replace instead of push to avoid back button issues
-      router.replace("/template");
+      await signInWithRedirect(auth, provider);
     } catch (error: any) {
-      const code = error?.code || ''
+      const code = error?.code || '';
       if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
         toast({ title: "Login Failed", description: "Google login not authorized for this domain. Please configure Firebase Auth domains.", variant: "destructive" });
       } else {
         const hint = code === 'auth/invalid-continue-uri'
           ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
-          : (error.message || "Failed to sign in with Google")
-        toast({
-          title: "Login Failed",
-          description: hint,
-          variant: "destructive",
-        });
+          : (error.message || "Failed to sign in with Google");
+        toast({ title: "Login Failed", description: hint, variant: "destructive" });
       }
-    } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const checkRedirect = async () => {
+      if (!auth) return;
+      try {
+        const result = await getRedirectResult(auth);
+        if (!result) return;
+        const user = result.user;
+        const firebaseToken = await user.getIdToken();
+        const response = await authApi.syncUser(firebaseToken);
+        if (response?.token) localStorage.setItem('token', response.token);
+        const backendUser = response.user;
+        login(backendUser || {
+          id: user.uid,
+          fullName: user.displayName || "User",
+          email: user.email || "",
+          phone: user.phoneNumber || "",
+          isCreator: false,
+          isVerified: user.emailVerified,
+          memberSince: new Date().toISOString(),
+          pointsBalance: 100,
+          profilePicture: user.photoURL || null,
+        });
+        claimDailyLogin();
+        toast({ title: "Welcome back!", description: "You've earned 3 daily login bonus points." });
+        router.replace("/template");
+      } catch (error: any) {
+        const code = error?.code || '';
+        if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
+          toast({ title: "Login Failed", description: "Google login not authorized for this domain. Please configure Firebase Auth domains.", variant: "destructive" });
+        } else {
+          const hint = code === 'auth/invalid-continue-uri'
+            ? `Add ${window.location.hostname} to Firebase Auth authorized domains and verify NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.`
+            : (error.message || "Failed to sign in with Google");
+          toast({ title: "Login Failed", description: hint, variant: "destructive" });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkRedirect();
+  }, [router, login, claimDailyLogin, toast]);
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);

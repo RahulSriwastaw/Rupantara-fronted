@@ -33,6 +33,7 @@ export default function LoginPage() {
   const { claimDailyLogin } = useWalletStore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [authInitChecked, setAuthInitChecked] = useState(false);
 
   const {
     register,
@@ -50,6 +51,37 @@ export default function LoginPage() {
       return { values: {}, errors };
     },
   });
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (token) {
+          try {
+            const me = await authApi.getMe();
+            if (me && me.email) {
+              login({
+                id: String(me.id || me._id || ''),
+                fullName: String(me.name || me.fullName || 'User'),
+                email: String(me.email || ''),
+                phone: String(me.phone || ''),
+                isCreator: Boolean(me.isCreator || false),
+                isVerified: Boolean(me.isVerified || true),
+                memberSince: String(me.joinedDate || me.createdAt || new Date().toISOString()),
+                pointsBalance: Number(me.points ?? 0),
+                profilePicture: String(me.photoURL || me.avatar || ''),
+              } as any);
+              router.replace('/template');
+              return;
+            }
+          } catch {}
+        }
+      } finally {
+        setAuthInitChecked(true);
+      }
+    };
+    init();
+  }, [login, router]);
 
   const handleGoogleLogin = async () => {
     if (!auth) {

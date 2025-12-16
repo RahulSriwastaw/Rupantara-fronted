@@ -29,11 +29,12 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuthStore();
+  const { login, user } = useAuthStore();
   const { claimDailyLogin } = useWalletStore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [authInitChecked, setAuthInitChecked] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState<boolean>(() => (useAuthStore as any).persist?.hasHydrated?.() ?? false);
 
   const {
     register,
@@ -52,7 +53,27 @@ export default function LoginPage() {
     },
   });
 
+  // Track Zustand persist hydration
   useEffect(() => {
+    const persist = (useAuthStore as any).persist;
+    if (persist?.hasHydrated?.() && !hasHydrated) {
+      setHasHydrated(true);
+    }
+    const unsub = persist?.onFinishHydration?.(() => setHasHydrated(true));
+    return () => { if (typeof unsub === "function") unsub(); };
+  }, [hasHydrated]);
+
+  // If store is hydrated and user already exists, never show login page
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!hasHydrated) return;
+    if (user) {
+      router.replace("/template");
+    }
+  }, [user, hasHydrated, router]);
+
+  useEffect(() => {
+    if (!hasHydrated) return;
     const init = async () => {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -81,7 +102,7 @@ export default function LoginPage() {
       }
     };
     init();
-  }, [login, router]);
+  }, [login, router, hasHydrated]);
 
   const handleGoogleLogin = async () => {
     if (!auth) {

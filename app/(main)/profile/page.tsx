@@ -78,8 +78,25 @@ export default function ProfilePage() {
   const [showCreatorModal, setShowCreatorModal] = useState(false);
   const [editedUser, setEditedUser] = useState(user);
   const [newPassword, setNewPassword] = useState("");
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => { setHydrated(true); }, []);
+  const [hasHydrated, setHasHydrated] = useState<boolean>(() => (useAuthStore as any).persist?.hasHydrated?.() ?? false);
+
+  useEffect(() => {
+    const persist = (useAuthStore as any).persist;
+
+    if (persist?.hasHydrated?.() && !hasHydrated) {
+      setHasHydrated(true);
+    }
+
+    const unsub = persist?.onFinishHydration?.(() => {
+      setHasHydrated(true);
+    });
+
+    return () => {
+      if (typeof unsub === "function") {
+        unsub();
+      }
+    };
+  }, [hasHydrated]);
 
   // Creator application form state
   const [creatorUsername, setCreatorUsername] = useState("");
@@ -102,12 +119,14 @@ export default function ProfilePage() {
   }, [creatorApplication?.status]);
 
   useEffect(() => {
-    const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
-    const storeHydrated = (useAuthStore as any).persist?.hasHydrated?.() ?? hydrated;
-    if (!user && storeHydrated && !hasToken) {
+    if (typeof window === "undefined") return;
+    if (!hasHydrated) return;
+
+    const hasToken = !!localStorage.getItem("token");
+    if (!user && !hasToken) {
       router.push("/login");
     }
-  }, [user, router, hydrated]);
+  }, [user, router, hasHydrated]);
 
   useEffect(() => {
     const syncCreatorStatus = async () => {

@@ -94,6 +94,9 @@ export default function RegisterPage() {
         const user = result.user;
         const firebaseToken = await user.getIdToken();
         const response = await authApi.syncUser(firebaseToken);
+        if (response?.token) {
+          localStorage.setItem("token", response.token);
+        }
         const backendUser = response.user;
         login(backendUser || {
           id: user.uid,
@@ -131,6 +134,9 @@ export default function RegisterPage() {
         try {
           const firebaseToken = await user.getIdToken();
           const response = await authApi.syncUser(firebaseToken);
+          if (response?.token) {
+            localStorage.setItem("token", response.token);
+          }
           login(response.user || {
             id: user.uid,
             fullName: user.displayName || "User",
@@ -168,6 +174,9 @@ export default function RegisterPage() {
           // Get Firebase token and sync with MongoDB (include fullName and phone)
           const firebaseToken = await firebaseUser.getIdToken();
           const response = await authApi.syncUser(firebaseToken);
+          if (response?.token) {
+            localStorage.setItem("token", response.token);
+          }
 
           const backendUser = response.user;
 

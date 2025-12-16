@@ -66,7 +66,9 @@ export default function RegisterPage() {
     if (!auth) {
       setIsLoading(true);
       try {
-        const response = await authApi.socialLogin('google');
+        const formEmail = (typeof window !== 'undefined' ? (document.getElementById('email') as HTMLInputElement | null)?.value : '') || undefined;
+        const formName = (typeof window !== 'undefined' ? (document.getElementById('fullName') as HTMLInputElement | null)?.value : '') || undefined;
+        const response = await authApi.socialLogin('google', formEmail, formName);
         login(response.user);
         addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
         toast({ title: 'Welcome to Rupantar AI! 🎉', description: 'Account created via Google.' });
@@ -156,7 +158,9 @@ export default function RegisterPage() {
       const code = error?.code || ''
       if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
         try {
-          const response = await authApi.socialLogin('google');
+          const formEmail = (typeof window !== 'undefined' ? (document.getElementById('email') as HTMLInputElement | null)?.value : '') || undefined;
+          const formName = (typeof window !== 'undefined' ? (document.getElementById('fullName') as HTMLInputElement | null)?.value : '') || undefined;
+          const response = await authApi.socialLogin('google', formEmail, formName);
           if (response?.token) localStorage.setItem('token', response.token);
           login(response.user);
           addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');

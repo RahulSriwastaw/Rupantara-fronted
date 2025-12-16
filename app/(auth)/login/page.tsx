@@ -55,7 +55,9 @@ export default function LoginPage() {
     if (!auth) {
       setIsLoading(true);
       try {
-        const response = await authApi.socialLogin('google');
+        // Use form email if available to create real account on backend
+        const formEmail = (typeof window !== 'undefined' ? (document.getElementById('email') as HTMLInputElement | null)?.value : '') || undefined;
+        const response = await authApi.socialLogin('google', formEmail);
         if (response?.token) localStorage.setItem('token', response.token);
         login(response.user);
         claimDailyLogin();
@@ -149,7 +151,9 @@ export default function LoginPage() {
       const code = error?.code || ''
       if (code === 'auth/unauthorized-domain' || code === 'auth/operation-not-allowed') {
         try {
-          const response = await authApi.socialLogin('google');
+          // Fallback: use the email typed in the form to avoid placeholder user
+          const formEmail = (typeof window !== 'undefined' ? (document.getElementById('email') as HTMLInputElement | null)?.value : '') || undefined;
+          const response = await authApi.socialLogin('google', formEmail);
           if (response?.token) localStorage.setItem('token', response.token);
           login(response.user);
           claimDailyLogin();

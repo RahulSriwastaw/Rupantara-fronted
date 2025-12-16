@@ -82,7 +82,7 @@ export default function LoginPage() {
       // Sync Firebase user with MongoDB
       let backendUser = null;
       try {
-      const response = await authApi.syncUser(firebaseToken);
+      const response = await authApi.syncUser(firebaseToken, user.displayName || undefined, undefined, user.email || undefined);
       if (response?.token) {
         localStorage.setItem('token', response.token);
       }

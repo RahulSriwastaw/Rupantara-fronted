@@ -92,7 +92,7 @@ export default function RegisterPage() {
       // Sync Firebase user with MongoDB
       let backendUser = null;
       try {
-        const response = await authApi.syncUser(firebaseToken);
+        const response = await authApi.syncUser(firebaseToken, user.displayName || undefined, undefined, user.email || undefined);
         backendUser = response.user;
         // console.log("✅ User synced with MongoDB:", backendUser);
 

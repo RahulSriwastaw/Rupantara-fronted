@@ -12,7 +12,6 @@ interface AuthState {
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
   setCreatorStatus: (isCreator: boolean) => void;
-  loginAsCreator: (userId: string, password: string) => boolean; // Add this new function
   followCreator: (creatorId: string, creatorName: string) => void;
   unfollowCreator: (creatorId: string) => void;
   submitCreatorApplication: (payload: {
@@ -47,24 +46,6 @@ export const useAuthStore = create<AuthState>()(
           user: state.user ? { ...state.user, ...userData } : null,
         })),
       setCreatorStatus: (isCreator) => set({ isCreator }),
-      // Mock function for creator login - in a real app, this would call an API
-      loginAsCreator: (userId: string, password: string) => {
-        // Simple validation for demo purposes
-        if (userId && password) {
-          const state = get();
-          if (state.user) {
-            // Update user to be a creator
-            const updatedUser = {
-              ...state.user,
-              isCreator: true,
-              creatorId: userId
-            };
-            set({ user: updatedUser, isCreator: true });
-            return true;
-          }
-        }
-        return false;
-      },
       submitCreatorApplication: async (payload) => {
         const state = get();
         if (!state.user) throw new Error('Not authenticated');
@@ -72,21 +53,15 @@ export const useAuthStore = create<AuthState>()(
         const backendRes = await creatorApi.apply({
           username: username,
           socialLinks: socialLinks || {}
-        }).catch(() => ({
-          id: `app_${Date.now()}`,
-          name: (username || '').replace(/^@/, ''),
-          socialLinks: Object.values(socialLinks || {}).filter(Boolean),
-          status: 'pending',
-          appliedDate: new Date().toISOString()
-        }));
+        });
         const app: CreatorApplication = {
-          id: backendRes.id || `app_${Date.now()}`,
+          id: String((backendRes as any).id || (backendRes as any)._id || `app_${Date.now()}`),
           userId: state.user.id,
           username,
           socialLinks: socialLinks || {},
           demoTemplates,
-          status: 'pending',
-          submittedAt: backendRes.appliedDate || new Date().toISOString(),
+          status: String((backendRes as any).status || 'pending') as CreatorApplication['status'],
+          submittedAt: String((backendRes as any).appliedDate || new Date().toISOString()),
         };
         // Save bio into user profile for convenience
         set({

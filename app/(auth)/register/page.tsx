@@ -181,7 +181,7 @@ export default function RegisterPage() {
 
           // Get Firebase token and sync with MongoDB (include fullName and phone)
           const firebaseToken = await firebaseUser.getIdToken();
-          const response = await authApi.syncUser(firebaseToken, data.fullName, data.phone);
+          const response = await authApi.syncUser(firebaseToken);
 
           const backendUser = response.user;
 

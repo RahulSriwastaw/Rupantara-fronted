@@ -65,7 +65,6 @@ export default function ProfilePage() {
     user,
     logout,
     updateUser,
-    loginAsCreator,
     creatorApplication,
     submitCreatorApplication,
     setCreatorApplicationStatus,
@@ -77,13 +76,8 @@ export default function ProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [showCreatorModal, setShowCreatorModal] = useState(false);
-  const [showCreatorLoginModal, setShowCreatorLoginModal] = useState(false);
   const [editedUser, setEditedUser] = useState(user);
   const [newPassword, setNewPassword] = useState("");
-  const [creatorCredentials, setCreatorCredentials] = useState({
-    id: "",
-    password: ""
-  });
 
   // Creator application form state
   const [creatorUsername, setCreatorUsername] = useState("");
@@ -144,27 +138,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleCreatorLogin = () => {
-    // Use the auth store function to login as creator
-    const success = loginAsCreator(creatorCredentials.id, creatorCredentials.password);
-    if (success) {
-      setShowCreatorLoginModal(false);
-      toast({
-        title: "Creator Access Granted!",
-        description: "You now have creator privileges. Redirecting to creator dashboard...",
-      });
-      // Redirect to creator dashboard after a short delay
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1500);
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid creator credentials. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleSubmitCreatorApplication = async () => {
     try {
@@ -313,13 +286,6 @@ export default function ProfilePage() {
                   className="bg-white text-purple-600 hover:bg-white/90 text-sm sm:text-base px-3 sm:px-4 whitespace-nowrap"
                 >
                   Apply for Creator
-                </Button>
-                <Button
-                  onClick={() => setShowCreatorLoginModal(true)}
-                  variant="secondary"
-                  className="bg-white/20 text-white hover:bg-white/30 border border-white/30 text-sm sm:text-base px-3 sm:px-4 whitespace-nowrap"
-                >
-                  Login as Creator
                 </Button>
               </div>
             </div>
@@ -761,48 +727,6 @@ export default function ProfilePage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showCreatorLoginModal} onOpenChange={setShowCreatorLoginModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Login as Creator</DialogTitle>
-            <DialogDescription>
-              Enter your creator credentials to access creator features
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="creatorId">Creator ID</Label>
-              <Input
-                id="creatorId"
-                placeholder="Enter your creator ID"
-                value={creatorCredentials.id}
-                onChange={(e) => setCreatorCredentials({...creatorCredentials, id: e.target.value})}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="creatorPassword">Password</Label>
-              <Input
-                id="creatorPassword"
-                type="password"
-                placeholder="Enter your password"
-                value={creatorCredentials.password}
-                onChange={(e) => setCreatorCredentials({...creatorCredentials, password: e.target.value})}
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreatorLoginModal(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreatorLogin}>
-              Login as Creator
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

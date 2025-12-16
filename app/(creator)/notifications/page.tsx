@@ -6,48 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const mockNotifications = [
-  {
-    id: 1,
-    type: "template",
-    title: "Your template '3D Avatar' has been approved ✅",
-    description: "Your template is now live and available to all users.",
-    time: "2 hours ago",
-    unread: true,
-  },
-  {
-    id: 2,
-    type: "payment",
-    title: "Payout ₹500 processed successfully 💸",
-    description: "Your earnings have been transferred to your bank account.",
-    time: "1 day ago",
-    unread: false,
-  },
-  {
-    id: 3,
-    type: "system",
-    title: "New update: You can now create HD templates",
-    description: "We've added support for high-definition template creation.",
-    time: "2 days ago",
-    unread: false,
-  },
-  {
-    id: 4,
-    type: "template",
-    title: "Template review in progress ⏳",
-    description: "Your 'Cyberpunk Character' template is under review.",
-    time: "3 days ago",
-    unread: false,
-  },
-  {
-    id: 5,
-    type: "payment",
-    title: "New earnings: ₹150 from template usage",
-    description: "Your 'Pastel Dreams' template generated new income.",
-    time: "4 days ago",
-    unread: false,
-  },
-];
+const mockNotifications: { id: number; type: "template" | "payment" | "system"; title: string; description: string; time: string; unread: boolean }[] = [];
 
 export default function CreatorNotificationsPage() {
   const [notifications, setNotifications] = useState(mockNotifications);

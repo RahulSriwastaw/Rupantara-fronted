@@ -25,33 +25,7 @@ interface Notification {
   actionUrl?: string;
 }
 
-const mockNotifications: Notification[] = [
-  {
-    id: "1",
-    type: "reward",
-    title: "Daily Login Bonus!",
-    message: "You've earned 3 points for logging in today",
-    read: false,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    type: "success",
-    title: "Image Generated!",
-    message: "Your AI image is ready to download",
-    read: false,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    actionUrl: "/history",
-  },
-  {
-    id: "3",
-    type: "info",
-    title: "New Templates Available",
-    message: "Check out 10 new premium templates",
-    read: true,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
+const mockNotifications: Notification[] = [];
 
 export function NotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);

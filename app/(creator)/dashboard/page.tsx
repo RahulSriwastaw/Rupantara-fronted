@@ -22,10 +22,9 @@ export default function CreatorDashboardPage() {
   const pendingTemplates = templates.filter(t => t.status === "pending").length;
   const rejectedTemplates = templates.filter(t => t.status === "rejected").length;
   
-  // Mock engagement data
-  const totalEngagement = "25.6k";
-  const followers = "4.8k";
-  const avgRating = "4.5";
+  const totalEngagement = String(templates.reduce((sum, t) => sum + (t.usageCount || 0), 0));
+  const followers = String((user?.followingCreators || []).length);
+  const avgRating = String(templates.length ? (templates.reduce((sum, t) => sum + (t.rating || 0), 0) / templates.length).toFixed(1) : "0.0");
 
   return (
     <div className="w-full space-y-3 sm:space-y-4 md:space-y-6">

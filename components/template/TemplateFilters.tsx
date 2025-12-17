@@ -185,6 +185,32 @@ export function TemplateFilters({
             </div>
           </div>
 
+          {/* State (India) */}
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">State</Label>
+            <Select
+              value={filters.state || "All"}
+              onValueChange={(value) =>
+                onFiltersChange({ state: value === "All" ? undefined : value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="All India" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All India</SelectItem>
+                <SelectItem value="Maharashtra">Maharashtra</SelectItem>
+                <SelectItem value="Delhi">Delhi</SelectItem>
+                <SelectItem value="Karnataka">Karnataka</SelectItem>
+                <SelectItem value="Punjab">Punjab</SelectItem>
+                <SelectItem value="Gujarat">Gujarat</SelectItem>
+                <SelectItem value="Rajasthan">Rajasthan</SelectItem>
+                <SelectItem value="West Bengal">West Bengal</SelectItem>
+                <SelectItem value="Tamil Nadu">Tamil Nadu</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Sort By */}
           <div className="space-y-3">
             <Label className="text-base font-semibold">Sort By</Label>

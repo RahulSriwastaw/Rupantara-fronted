@@ -58,25 +58,64 @@ function TemplateContent() {
     resetFilters,
   } = useTemplateStore();
 
-  // Load templates
+  // Load categories once
   useEffect(() => {
-    const loadTemplates = async () => {
+    const loadCategories = async () => {
+      try {
+        const cats = await api.get('/admin/categories');
+        const subs: string[] = Array.isArray(cats)
+          ? Array.from(new Set((cats || []).flatMap((c: any) => Array.isArray(c.subCategories) ? c.subCategories : [])))
+          : [];
+        if (subs.length > 0) {
+          setCategoryChips(["All", "Trending", ...subs.map(s => s.charAt(0).toUpperCase() + s.slice(1))]);
+          setFilterCategories(subs);
+        }
+      } catch (e) { console.error("Failed to load categories", e); }
+    };
+    loadCategories();
+  }, []);
+
+  // Fetch Templates with Server-Side Filtering
+  useEffect(() => {
+    const fetchTemplates = async () => {
       setIsLoading(true);
       try {
-        const data = await templatesApi.getAll();
+        const params = new URLSearchParams();
+
+        // Header Category Filter
+        if (selectedCategory && selectedCategory !== 'All') {
+          if (selectedCategory === "Trending") params.append('sort', 'Trending');
+          else params.append('subCategory', selectedCategory);
+        }
+
+        // Search
+        if (searchQuery) params.append('search', searchQuery);
+
+        // Advanced Filters
+        if (filters.gender?.length) filters.gender.forEach(g => params.append('gender', g));
+        if (filters.ageGroup?.length) filters.ageGroup.forEach(a => params.append('ageGroup', a));
+        if (filters.state) params.append('state', filters.state);
+
+        // Type (Free/Premium)
+        if (filters.type?.includes("premium") && !filters.type.includes("free")) params.append('isPremium', 'true');
+        if (filters.type?.includes("free") && !filters.type.includes("premium")) params.append('isPremium', 'false');
+
+        // Sidebar Category Filter (maps to subCategory)
+        if (filters.category?.length) filters.category.forEach(c => params.append('subCategory', c));
+
+        // Sorting
+        if (filters.sortBy) {
+          if (filters.sortBy === 'trending') params.append('sort', 'Trending');
+          else if (filters.sortBy === 'popular') params.append('sort', 'Popular');
+          else if (filters.sortBy === 'latest') params.append('sort', 'Latest');
+          else if (filters.sortBy === 'top_rated') params.append('sort', 'Top Rated');
+        }
+
+        const data = await templatesApi.getAll(params.toString());
         const safeData = Array.isArray(data) ? data : [];
         setTemplates(safeData);
-        setFilteredTemplates(safeData);
-        try {
-          const cats = await api.get('/admin/categories');
-          const subs: string[] = Array.isArray(cats)
-            ? Array.from(new Set((cats || []).flatMap((c: any) => Array.isArray(c.subCategories) ? c.subCategories : [])))
-            : [];
-          if (subs.length > 0) {
-            setCategoryChips(["All", "Trending", ...subs.map(s => s.charAt(0).toUpperCase() + s.slice(1))]);
-            setFilterCategories(subs);
-          }
-        } catch { }
+        setFilteredTemplates(safeData); // Backend handles filtering
+
       } catch (error: any) {
         console.error("API error:", error);
         setTemplates([]);
@@ -90,84 +129,13 @@ function TemplateContent() {
         setIsLoading(false);
       }
     };
-    loadTemplates();
-  }, [toast]);
 
-  // Filter templates
-  useEffect(() => {
-    let filtered = [...templates];
+    const debounceTimer = setTimeout(() => {
+      fetchTemplates();
+    }, 300);
 
-    // Category filter
-    if (selectedCategory !== "All") {
-      if (selectedCategory === "Trending") {
-        filtered = filtered.sort((a, b) => b.usageCount - a.usageCount).slice(0, 20);
-      } else {
-        filtered = filtered.filter(
-          (t) => t.subCategory.toLowerCase() === selectedCategory.toLowerCase()
-        );
-      }
-    }
-
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (t) =>
-          t.title.toLowerCase().includes(query) ||
-          t.description.toLowerCase().includes(query) ||
-          t.tags.some((tag) => tag.toLowerCase().includes(query))
-      );
-    }
-
-    // Gender filter
-    if (filters.gender.length > 0) {
-      filtered = filtered.filter((t) => filters.gender.includes(t.category));
-    }
-
-    // Type filter
-    if (filters.type.length > 0) {
-      filtered = filtered.filter((t) => {
-        if (filters.type.includes("free")) return t.isFree;
-        if (filters.type.includes("premium")) return !t.isFree;
-        return true;
-      });
-    }
-
-    // Category filter
-    if (filters.category.length > 0) {
-      filtered = filtered.filter((t) =>
-        filters.category.includes(t.subCategory)
-      );
-    }
-
-    // Age group filter
-    if (filters.ageGroup.length > 0) {
-      filtered = filtered.filter(
-        (t) => t.ageGroup && filters.ageGroup.includes(t.ageGroup)
-      );
-    }
-
-    // Sort
-    switch (filters.sortBy) {
-      case "trending":
-        filtered.sort((a, b) => b.usageCount - a.usageCount);
-        break;
-      case "popular":
-        filtered.sort((a, b) => b.likeCount - a.likeCount);
-        break;
-      case "latest":
-        filtered.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        break;
-      case "top_rated":
-        filtered.sort((a, b) => b.rating - a.rating);
-        break;
-    }
-
-    setFilteredTemplates(filtered);
-  }, [templates, selectedCategory, searchQuery, filters]);
+    return () => clearTimeout(debounceTimer);
+  }, [selectedCategory, searchQuery, filters, toast]);
 
   const handleUseTemplate = (templateId: string) => {
     router.push(`/generate?templateId=${templateId}`);

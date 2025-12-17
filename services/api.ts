@@ -173,8 +173,10 @@ export const authApi = {
 
 // Templates API
 export const templatesApi = {
-  getAll: async (): Promise<Template[]> => {
-    const list = await api.get('/admin/templates');
+  getAll: async (queryString: string = ''): Promise<Template[]> => {
+    // Use public endpoint with search/filter support
+    const endpoint = queryString ? `/templates?${queryString}` : '/templates';
+    const list = await api.get(endpoint);
     const arr = Array.isArray(list) ? list : [];
     return arr.map((t: any) => ({
       id: String(t.id || t._id || ''),
@@ -191,7 +193,7 @@ export const templatesApi = {
       creatorAvatar: String(t.creatorAvatar || ''),
       creatorBio: String(t.creatorBio || ''),
       creatorVerified: Boolean(t.creatorVerified || false),
-      hiddenPrompt: String(t.hiddenPrompt || ''),
+      hiddenPrompt: String(t.hiddenPrompt || t.prompt || ''),
       visiblePrompt: String(t.visiblePrompt || t.title || ''),
       negativePrompt: String(t.negativePrompt || ''),
       isFree: Boolean(t.isFree !== undefined ? t.isFree : !t.isPremium),

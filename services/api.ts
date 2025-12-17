@@ -3,7 +3,8 @@ import type { Template, TemplateCategory, TemplateSubCategory } from "@/types";
 function normalizeBackendUrl() {
   const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || '').trim();
   if (!source) {
-    return 'https://new-backend-production-ad5a.up.railway.app/api/v1';
+    // Default to production backend if env is not set (useful for local quick-start)
+    return 'https://new-backend-g2gw.onrender.com/api/v1';
   }
   try {
     const u = new URL(source);

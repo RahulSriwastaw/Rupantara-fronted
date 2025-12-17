@@ -63,46 +63,56 @@ export default function LoginPage() {
     return () => { if (typeof unsub === "function") unsub(); };
   }, [hasHydrated]);
 
-  // If store is hydrated and user already exists, never show login page
+  // Single effect to handle auth state and redirects
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!hasHydrated) return;
-    if (user) {
-      router.replace("/template");
-    }
-  }, [user, hasHydrated, router]);
 
-  useEffect(() => {
-    if (!hasHydrated) return;
-    const init = async () => {
+    // If user already logged in from store, redirect immediately
+    if (user && user.email) {
+      console.log("✅ User found in store, redirecting to /template");
+      router.replace("/template");
+      return;
+    }
+
+    // Check if token exists and verify with backend
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setAuthInitChecked(true);
+        return;
+      }
+
       try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        if (token) {
-          try {
-            const me = await authApi.getMe();
-            if (me && me.email) {
-              login({
-                id: String(me.id || me._id || ''),
-                fullName: String(me.name || me.fullName || 'User'),
-                email: String(me.email || ''),
-                phone: String(me.phone || ''),
-                isCreator: Boolean(me.isCreator || false),
-                isVerified: Boolean(me.isVerified || true),
-                memberSince: String(me.joinedDate || me.createdAt || new Date().toISOString()),
-                pointsBalance: Number(me.points ?? 0),
-                profilePicture: String(me.photoURL || me.avatar || ''),
-              } as any);
-              router.replace('/template');
-              return;
-            }
-          } catch {}
+        const me = await authApi.getMe();
+        if (me && me.email) {
+          console.log("✅ Token valid, logging in user");
+          login({
+            id: String(me.id || me._id || ''),
+            fullName: String(me.name || me.fullName || 'User'),
+            email: String(me.email || ''),
+            phone: String(me.phone || ''),
+            isCreator: Boolean(me.isCreator || false),
+            isVerified: Boolean(me.isVerified || true),
+            memberSince: String(me.joinedDate || me.createdAt || new Date().toISOString()),
+            pointsBalance: Number(me.points ?? 0),
+            profilePicture: String(me.photoURL || me.avatar || ''),
+          } as any);
+          // Don't redirect here, let the user check above handle it
+        } else {
+          // Invalid response, clear token
+          localStorage.removeItem('token');
         }
+      } catch (error) {
+        console.log("❌ Token validation failed, removing token");
+        localStorage.removeItem('token');
       } finally {
         setAuthInitChecked(true);
       }
     };
-    init();
-  }, [login, router, hasHydrated]);
+
+    checkAuth();
+  }, [hasHydrated, user, login, router]);
 
   const handleGoogleLogin = async () => {
     if (!auth) {
@@ -200,16 +210,24 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      console.log("🔐 Attempting login...");
       // Use real API only
       const response = await authApi.login({
         email: data.email,
         password: data.password,
       });
-      if (response?.token) {
-        localStorage.setItem('token', response.token);
+
+      if (!response?.user || !response?.token) {
+        throw new Error("Invalid response from server");
       }
 
+      console.log("✅ Login successful, saving token and user");
+      localStorage.setItem('token', response.token);
+
+      // Login user to store
       login(response.user);
+
+      // Claim daily login bonus
       claimDailyLogin();
 
       toast({
@@ -217,8 +235,11 @@ export default function LoginPage() {
         description: "You've earned 3 daily login bonus points.",
       });
 
-      router.push("/template");
+      // Use replace to prevent back button issues
+      console.log("🔄 Redirecting to /template");
+      router.replace("/template");
     } catch (error: any) {
+      console.error("❌ Login error:", error);
       toast({
         title: "Login Failed",
         description: error.message || "Invalid email or password",

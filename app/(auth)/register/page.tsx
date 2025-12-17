@@ -162,6 +162,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
+      console.log("📝 Attempting registration...");
       // Use Firebase for email/password registration, then sync with MongoDB
       if (auth) {
         try {
@@ -169,14 +170,17 @@ export default function RegisterPage() {
           const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
           const firebaseUser = userCredential.user;
 
-          // console.log("✅ Firebase user created:", firebaseUser.email);
+          console.log("✅ Firebase user created:", firebaseUser.email);
 
           // Get Firebase token and sync with MongoDB (include fullName and phone)
           const firebaseToken = await firebaseUser.getIdToken();
           const response = await authApi.syncUser(firebaseToken);
-          if (response?.token) {
-            localStorage.setItem("token", response.token);
+
+          if (!response?.user || !response?.token) {
+            throw new Error("Invalid response from server");
           }
+
+          localStorage.setItem("token", response.token);
 
           const backendUser = response.user;
 
@@ -188,7 +192,8 @@ export default function RegisterPage() {
             description: "Your account has been created. Enjoy 100 bonus points!",
           });
 
-          router.push("/template");
+          console.log("🔄 Redirecting to /template");
+          router.replace("/template");
         } catch (firebaseError: any) {
           // If Firebase fails, try backend registration directly
           console.error("Firebase registration failed, trying backend:", firebaseError.message);
@@ -199,6 +204,12 @@ export default function RegisterPage() {
             phone: data.phone,
           });
 
+          if (!response?.user || !response?.token) {
+            throw new Error("Invalid response from server");
+          }
+
+          localStorage.setItem("token", response.token);
+
           login(response.user);
           addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
 
@@ -207,7 +218,8 @@ export default function RegisterPage() {
             description: "Your account has been created. Enjoy 100 bonus points!",
           });
 
-          router.push("/template");
+          console.log("🔄 Redirecting to /template");
+          router.replace("/template");
         }
       } else {
         // Firebase not available, use backend directly
@@ -218,6 +230,12 @@ export default function RegisterPage() {
           phone: data.phone,
         });
 
+        if (!response?.user || !response?.token) {
+          throw new Error("Invalid response from server");
+        }
+
+        localStorage.setItem("token", response.token);
+
         login(response.user);
         addPoints(100, 'purchase', 'Welcome bonus - 100 free points!');
 
@@ -226,9 +244,11 @@ export default function RegisterPage() {
           description: "Your account has been created. Enjoy 100 bonus points!",
         });
 
-        router.push("/template");
+        console.log("🔄 Redirecting to /template");
+        router.replace("/template");
       }
     } catch (error: any) {
+      console.error("❌ Registration error:", error);
       toast({
         title: "Registration Failed",
         description: error.message || "Something went wrong. Please try again.",

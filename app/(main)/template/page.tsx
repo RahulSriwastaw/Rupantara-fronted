@@ -28,7 +28,7 @@ function TemplateContent() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [categoryChips, setCategoryChips] = useState<string[]>(["All","Trending"]);
+  const [categoryChips, setCategoryChips] = useState<string[]>(["All", "Trending"]);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
 
   // Handle template ID from URL (redirect to generate page)
@@ -38,7 +38,14 @@ function TemplateContent() {
       router.replace(`/generate?templateId=${templateId}`);
     }
   }, [searchParams, router]);
-  
+
+  // Track template views
+  useEffect(() => {
+    if (selectedTemplate?.id) {
+      templatesApi.viewTemplate(selectedTemplate.id).catch(err => console.error("View track failed", err));
+    }
+  }, [selectedTemplate]);
+
   const {
     savedTemplates,
     likedTemplates,
@@ -66,10 +73,10 @@ function TemplateContent() {
             ? Array.from(new Set((cats || []).flatMap((c: any) => Array.isArray(c.subCategories) ? c.subCategories : [])))
             : [];
           if (subs.length > 0) {
-            setCategoryChips(["All","Trending", ...subs.map(s => s.charAt(0).toUpperCase() + s.slice(1))]);
+            setCategoryChips(["All", "Trending", ...subs.map(s => s.charAt(0).toUpperCase() + s.slice(1))]);
             setFilterCategories(subs);
           }
-        } catch {}
+        } catch { }
       } catch (error: any) {
         console.error("API error:", error);
         setTemplates([]);
@@ -221,8 +228,8 @@ function TemplateContent() {
                 variant={isSelected ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer whitespace-nowrap flex-shrink-0 text-xs sm:text-sm transition-all",
-                  isSelected 
-                    ? "bg-primary text-white border-primary hover:bg-primary/90" 
+                  isSelected
+                    ? "bg-primary text-white border-primary hover:bg-primary/90"
                     : "text-foreground border-border hover:bg-secondary"
                 )}
                 onClick={() => setSelectedCategory(category)}
@@ -327,7 +334,7 @@ function TemplateContent() {
 
 export default function TemplatePage() {
   return (
-    <Suspense fallback={<div />}> 
+    <Suspense fallback={<div />}>
       <TemplateContent />
     </Suspense>
   );

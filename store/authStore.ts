@@ -75,6 +75,11 @@ export const useAuthStore = create<AuthState>()(
         if (!state.user) return;
         const existing = state.user.followingCreators || [];
         if (existing.some((c) => c.id === creatorId)) return;
+
+        import('@/services/api').then(({ userApi }) => {
+          userApi.followUser(creatorId).catch(err => console.error("Follow failed", err));
+        });
+
         const updated = [...existing, { id: creatorId, name: creatorName }];
         set({ user: { ...state.user, followingCreators: updated } });
       },

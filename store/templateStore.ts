@@ -41,7 +41,7 @@ export const useTemplateStore = create<TemplateState>()(
         sortBy: "trending"
       },
       searchQuery: "",
-      
+
       addTemplate: (templateData) => set((state) => {
         const newTemplate: Template = {
           ...templateData,
@@ -49,32 +49,32 @@ export const useTemplateStore = create<TemplateState>()(
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        
+
         return {
           templates: [...state.templates, newTemplate]
         };
       }),
-      
+
       updateTemplate: (id, updates) => set((state) => ({
-        templates: state.templates.map(template => 
-          template.id === id 
-            ? { ...template, ...updates, updatedAt: new Date().toISOString() } 
+        templates: state.templates.map(template =>
+          template.id === id
+            ? { ...template, ...updates, updatedAt: new Date().toISOString() }
             : template
         )
       })),
-      
+
       deleteTemplate: (id) => set((state) => ({
         templates: state.templates.filter(template => template.id !== id)
       })),
-      
+
       getTemplatesByStatus: (status) => {
         return get().templates.filter(template => template.status === status);
       },
-      
+
       getTemplateById: (id) => {
         return get().templates.find(template => template.id === id);
       },
-      
+
       toggleSaveTemplate: (templateId) => set((state) => {
         const isSaved = state.savedTemplates.includes(templateId);
         return {
@@ -83,22 +83,32 @@ export const useTemplateStore = create<TemplateState>()(
             : [...state.savedTemplates, templateId]
         };
       }),
-      
-      toggleLikeTemplate: (templateId) => set((state) => {
-        const isLiked = state.likedTemplates.includes(templateId);
-        return {
-          likedTemplates: isLiked
-            ? state.likedTemplates.filter(id => id !== templateId)
-            : [...state.likedTemplates, templateId]
-        };
-      }),
-      
+
+      toggleLikeTemplate: (templateId) => {
+        set((state) => {
+          const isLiked = state.likedTemplates.includes(templateId);
+
+          // Call API asynchronously if we are Liking (not Unliking)
+          if (!isLiked) {
+            import('@/services/api').then(({ templatesApi }) => {
+              templatesApi.likeTemplate(templateId).catch(err => console.error("Failed to sync like", err));
+            });
+          }
+
+          return {
+            likedTemplates: isLiked
+              ? state.likedTemplates.filter(id => id !== templateId)
+              : [...state.likedTemplates, templateId]
+          };
+        });
+      },
+
       setFilters: (newFilters) => set((state) => ({
         filters: { ...state.filters, ...newFilters }
       })),
-      
+
       setSearchQuery: (query) => set({ searchQuery: query }),
-      
+
       resetFilters: () => set({
         filters: {
           gender: [],

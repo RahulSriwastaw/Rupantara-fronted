@@ -62,7 +62,7 @@ export const api = {
       if (process.env.NODE_ENV === 'development') {
         console.log('📡 GET Request:', fullUrl);
       }
-      
+
       const response = await Promise.race([
         fetch(`${API_URL}${endpoint}`, {
           headers: getHeaders(),
@@ -74,7 +74,7 @@ export const api = {
         const error = await response.json().catch(() => ({
           error: `API request failed: ${response.status} ${response.statusText}`
         }));
-        
+
         // Handle 404 errors gracefully - return empty array for GET requests to /templates
         if (response.status === 404) {
           // For templates endpoint, return empty array instead of throwing error
@@ -87,12 +87,12 @@ export const api = {
           }
           throw new Error('Resource not found. Please try again.');
         }
-        
+
         // Handle 500 errors
         if (response.status >= 500) {
           throw new Error('Server error. Please try again later.');
         }
-        
+
         throw new Error(error.error || `API request failed: ${response.status}`);
       }
       return response.json();
@@ -122,7 +122,7 @@ export const api = {
         const error = await response.json().catch(() => ({
           error: `API request failed: ${response.status} ${response.statusText}`
         }));
-        
+
         // Handle 404 errors with user-friendly messages
         if (response.status === 404) {
           if (error.error?.includes('Route not found')) {
@@ -130,12 +130,12 @@ export const api = {
           }
           throw new Error('Resource not found. Please try again.');
         }
-        
+
         // Handle 500 errors
         if (response.status >= 500) {
           throw new Error('Server error. Please try again later.');
         }
-        
+
         throw new Error(error.error || `API request failed: ${response.status}`);
       }
       return response.json();
@@ -234,6 +234,12 @@ export const templatesApi = {
     return res.json()
   },
   adminCreateTemplate: (payload: any) => api.post('/admin/templates', payload),
+  likeTemplate: (id: string) => api.post(`/templates/${id}/like`, {}),
+  viewTemplate: (id: string) => api.post(`/templates/${id}/view`, {}),
+};
+
+export const userApi = {
+  followUser: (id: string) => api.post(`/user/follow/${id}`, {}),
 };
 
 // Payments API

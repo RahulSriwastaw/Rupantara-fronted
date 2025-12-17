@@ -63,12 +63,13 @@ function TemplateContent() {
     const loadCategories = async () => {
       try {
         const cats = await api.get('/admin/categories');
-        const subs: string[] = Array.isArray(cats)
-          ? Array.from(new Set((cats || []).flatMap((c: any) => Array.isArray(c.subCategories) ? c.subCategories : [])))
+        // Use Main Category Names to match Admin Panel
+        const catNames: string[] = Array.isArray(cats)
+          ? cats.map((c: any) => c.name).filter(Boolean)
           : [];
-        if (subs.length > 0) {
-          setCategoryChips(["All", "Trending", ...subs.map(s => s.charAt(0).toUpperCase() + s.slice(1))]);
-          setFilterCategories(subs);
+        if (catNames.length > 0) {
+          setCategoryChips(["All", "Trending", ...catNames]);
+          setFilterCategories(catNames);
         }
       } catch (e) { console.error("Failed to load categories", e); }
     };
@@ -85,7 +86,7 @@ function TemplateContent() {
         // Header Category Filter
         if (selectedCategory && selectedCategory !== 'All') {
           if (selectedCategory === "Trending") params.append('sort', 'Trending');
-          else params.append('subCategory', selectedCategory);
+          else params.append('category', selectedCategory); // Filter by Main Category Name
         }
 
         // Search
@@ -100,8 +101,8 @@ function TemplateContent() {
         if (filters.type?.includes("premium") && !filters.type.includes("free")) params.append('isPremium', 'true');
         if (filters.type?.includes("free") && !filters.type.includes("premium")) params.append('isPremium', 'false');
 
-        // Sidebar Category Filter (maps to subCategory)
-        if (filters.category?.length) filters.category.forEach(c => params.append('subCategory', c));
+        // Sidebar Category Filter
+        if (filters.category?.length) filters.category.forEach(c => params.append('category', c));
 
         // Sorting
         if (filters.sortBy) {

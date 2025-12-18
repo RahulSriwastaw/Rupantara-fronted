@@ -61,7 +61,7 @@ export default function CreatorProfilePage() {
                     email: user?.email || "",
                     bio: "",
                     socialLinks: [],
-                    profilePicture: user?.profilePicture || user?.photoURL || "",
+                    profilePicture: user?.profilePicture || "",
                     totalTemplates: stats?.totalTemplates || 0,
                     totalEarnings: stats?.totalEarnings || 0,
                     followers: stats?.followers || 0,

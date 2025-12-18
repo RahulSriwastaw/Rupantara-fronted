@@ -57,7 +57,7 @@ export default function CreatorProfilePage() {
                 const stats = await creatorApi.getStats().catch(() => null);
 
                 setProfile({
-                    name: user?.fullName || user?.name || "",
+                    name: user?.fullName || "",
                     email: user?.email || "",
                     bio: "",
                     socialLinks: [],

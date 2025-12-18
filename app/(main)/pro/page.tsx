@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Crown, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,7 +29,7 @@ const formatPlan = (p: any): Plan => ({
   popular: !!p.isPopular
 });
 
-export default function ProPage() {
+function ProPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -293,5 +293,13 @@ export default function ProPage() {
         <p className="mt-1">All transactions are encrypted and secure.</p>
       </div>
     </div>
+  );
+}
+
+export default function ProPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-10">Loading plans...</div>}>
+      <ProPageContent />
+    </Suspense>
   );
 }

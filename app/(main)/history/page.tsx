@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Search, Heart, Download, Share2, Trash2, MoreVertical } from "lucide-react";
@@ -31,8 +31,13 @@ import type { Generation } from "@/types";
 export default function HistoryPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { generations, favorites, toggleFavorite, deleteGeneration } =
+  const { generations, favorites, toggleFavorite, deleteGeneration, fetchGenerations, isLoading } =
     useGenerationStore();
+
+  // Fetch generations from backend on mount
+  useEffect(() => {
+    fetchGenerations();
+  }, [fetchGenerations]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
@@ -90,6 +95,7 @@ export default function HistoryPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
+            disabled={isLoading}
           />
         </div>
       </div>
@@ -142,7 +148,7 @@ export default function HistoryPage() {
                       className="object-cover group-hover:scale-105 transition-transform"
                       sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                     />
-                    
+
                     {/* Favorite Badge */}
                     {generation.isFavorite && (
                       <div className="absolute top-2 right-2">
@@ -286,9 +292,8 @@ export default function HistoryPage() {
                     onClick={() => toggleFavorite(selectedGeneration.id)}
                   >
                     <Heart
-                      className={`h-4 w-4 mr-2 ${
-                        selectedGeneration.isFavorite ? "fill-current" : ""
-                      }`}
+                      className={`h-4 w-4 mr-2 ${selectedGeneration.isFavorite ? "fill-current" : ""
+                        }`}
                     />
                     {selectedGeneration.isFavorite ? "Favorited" : "Add to Favorites"}
                   </Button>

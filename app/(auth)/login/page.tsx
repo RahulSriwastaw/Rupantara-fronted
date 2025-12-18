@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, Loader2, Sparkles, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
 
@@ -270,7 +271,13 @@ export default function LoginPage() {
         <div className="text-center space-y-1.5 sm:space-y-2">
           <div className="flex justify-center mb-3 sm:mb-4">
             <div className="p-2.5 sm:p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg">
-              <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+              <Image
+                src="/logo.svg"
+                alt="Rupantar AI"
+                width={32}
+                height={32}
+                className="h-6 w-6 sm:h-8 sm:w-8 text-white brightness-0 invert"
+              />
             </div>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">

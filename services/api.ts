@@ -302,10 +302,45 @@ export const walletApi = {
 
 // Creator API
 export const creatorApi = {
+  // Dashboard Stats
+  getStats: () => api.get('/creator/stats'),
+
+  // Earnings
   getEarnings: () => api.get('/creator/earnings'),
+
+  // Withdrawal
   requestWithdrawal: (data: { amount: number; method: 'bank' | 'upi'; bankDetails?: any; upiId?: string }) =>
     api.post('/creator/withdraw', data),
-  getWithdrawals: () => api.get('/creator/withdrawals'),
+  getWithdrawals: (page = 1, limit = 20, status?: string) =>
+    api.get(`/creator/withdrawals?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`),
+
+  // Templates
+  getTemplates: (status?: string, sort = 'recent', page = 1, limit = 20) =>
+    api.get(`/creator/templates?page=${page}&limit=${limit}&sort=${sort}${status ? `&status=${status}` : ''}`),
+  createTemplate: (data: {
+    title: string;
+    description?: string;
+    imageUrl: string;
+    category?: string;
+    subCategory?: string;
+    prompt?: string;
+    negativePrompt?: string;
+    tags?: string[];
+    gender?: string;
+    isPremium?: boolean;
+  }) => api.post('/creator/templates', data),
+
+  // Notifications
+  getNotifications: (page = 1, limit = 20, type?: string) =>
+    api.get(`/creator/notifications?page=${page}&limit=${limit}${type ? `&type=${type}` : ''}`),
+  markNotificationRead: (id: string) => api.post(`/creator/notifications/${id}/read`, {}),
+  markAllNotificationsRead: () => api.post('/creator/notifications/mark-all-read', {}),
+
+  // Transactions
+  getTransactions: (page = 1, limit = 20, type?: string) =>
+    api.get(`/creator/transactions?page=${page}&limit=${limit}${type ? `&type=${type}` : ''}`),
+
+  // Application (existing)
   getApplication: () => api.get('/creator/application'),
   apply: (payload: { username: string; socialLinks?: { facebook?: string; youtube?: string; instagram?: string; telegram?: string; whatsapp?: string } }) => {
     const name = (payload.username || '').replace(/^@/, '');

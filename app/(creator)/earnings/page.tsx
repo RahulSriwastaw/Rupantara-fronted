@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { DollarSign, TrendingUp, TrendingDown, Calendar, Download, HelpCircle, CreditCard, Smartphone } from "lucide-react";
+import { useState, useEffect } from "react";
+import { DollarSign, TrendingUp, TrendingDown, Calendar, Download, HelpCircle, CreditCard, Smartphone, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,6 @@ import {
 import { useEarningsStore } from "@/store/earningsStore";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
-import { creatorApi } from "@/services/api";
 
 export default function CreatorEarningsPage() {
   const [timeframe, setTimeframe] = useState("month");
@@ -43,25 +42,40 @@ export default function CreatorEarningsPage() {
     accountType: "savings" as "savings" | "current",
     panNumber: "",
   });
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const { toast } = useToast();
-  const { 
-    totalEarnings, 
-    thisMonthEarnings, 
+  const {
+    totalEarnings,
+    thisMonthEarnings,
     lastMonthEarnings,
+    pendingWithdrawal,
+    availableBalance,
     transactions,
+    templateEarnings,
+    monthlyTrend,
+    isLoading,
+    fetchEarnings,
+    fetchTransactions,
     requestWithdrawal
   } = useEarningsStore();
 
+  useEffect(() => {
+    fetchEarnings();
+    fetchTransactions();
+  }, [fetchEarnings, fetchTransactions]);
+
   // Calculate percentage change
-  const percentageChange = ((thisMonthEarnings - lastMonthEarnings) / lastMonthEarnings) * 100;
+  const percentageChange = lastMonthEarnings > 0
+    ? ((thisMonthEarnings - lastMonthEarnings) / lastMonthEarnings) * 100
+    : 0;
   const isPositive = percentageChange >= 0;
-  
-  const availableBalance = totalEarnings;
-  
+
+  const displayAvailableBalance = availableBalance || (totalEarnings - pendingWithdrawal);
+
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
-    
+
     if (!amount || amount <= 0) {
       toast({
         title: "Invalid Amount",
@@ -70,16 +84,16 @@ export default function CreatorEarningsPage() {
       });
       return;
     }
-    
-    if (amount > availableBalance) {
+
+    if (amount > displayAvailableBalance) {
       toast({
         title: "Insufficient Balance",
-        description: `You can withdraw maximum $${availableBalance.toFixed(2)}`,
+        description: `You can withdraw maximum $${displayAvailableBalance.toFixed(2)}`,
         variant: "destructive",
       });
       return;
     }
-    
+
     if (withdrawMethod === "upi") {
       if (!upiId || !upiId.includes("@")) {
         toast({
@@ -89,19 +103,6 @@ export default function CreatorEarningsPage() {
         });
         return;
       }
-      
-      // Try API first, fallback to store
-      try {
-        await creatorApi.requestWithdrawal({ amount, method: "upi", upiId });
-      } catch (apiError) {
-        console.log("API not available, using store");
-      }
-      
-      requestWithdrawal(amount, "upi", undefined, upiId);
-      toast({
-        title: "Withdrawal Request Submitted",
-        description: `$${amount.toFixed(2)} withdrawal to ${upiId} is being processed`,
-      });
     } else {
       if (!bankDetails.accountHolderName || !bankDetails.bankName || !bankDetails.accountNumber || !bankDetails.ifscCode) {
         toast({
@@ -111,33 +112,62 @@ export default function CreatorEarningsPage() {
         });
         return;
       }
-      
-      // Try API first, fallback to store
-      try {
-        await creatorApi.requestWithdrawal({ amount, method: "bank", bankDetails });
-      } catch (apiError) {
-        console.log("API not available, using store");
-      }
-      
-      requestWithdrawal(amount, "bank", bankDetails);
+    }
+
+    setIsSubmitting(true);
+
+    const success = await requestWithdrawal(
+      amount,
+      withdrawMethod,
+      withdrawMethod === "bank" ? bankDetails : undefined,
+      withdrawMethod === "upi" ? upiId : undefined
+    );
+
+    setIsSubmitting(false);
+
+    if (success) {
       toast({
         title: "Withdrawal Request Submitted",
-        description: `$${amount.toFixed(2)} withdrawal to ${bankDetails.bankName} is being processed`,
+        description: `$${amount.toFixed(2)} withdrawal to ${withdrawMethod === "upi" ? upiId : bankDetails.bankName} is being processed`,
+      });
+
+      setShowWithdrawDialog(false);
+      setWithdrawAmount("");
+      setUpiId("");
+      setBankDetails({
+        accountHolderName: "",
+        bankName: "",
+        accountNumber: "",
+        ifscCode: "",
+        accountType: "savings",
+        panNumber: "",
+      });
+    } else {
+      toast({
+        title: "Withdrawal Failed",
+        description: "Please try again later",
+        variant: "destructive",
       });
     }
-    
-    setShowWithdrawDialog(false);
-    setWithdrawAmount("");
-    setUpiId("");
-    setBankDetails({
-      accountHolderName: "",
-      bankName: "",
-      accountNumber: "",
-      ifscCode: "",
-      accountType: "savings",
-      panNumber: "",
-    });
   };
+
+  // Chart data
+  const chartData = monthlyTrend.length > 0
+    ? monthlyTrend.map(m => m.amount)
+    : [20, 35, 28, 45, 38, 52, 48, 60, 55, 70, 65, 75, 68, 80, 72, 85, 75, 90, 78, 95, 80, 100, 85, 105, 88, 110, 90, 115, 92, 120, 95];
+
+  const maxChartValue = Math.max(...chartData, 1);
+
+  if (isLoading) {
+    return (
+      <div className="w-full flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading earnings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-3 sm:space-y-4 md:space-y-6">
@@ -177,25 +207,28 @@ export default function CreatorEarningsPage() {
           </CardHeader>
           <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
             <div className="text-xl sm:text-2xl md:text-3xl font-bold">${thisMonthEarnings.toFixed(2)}</div>
-            <Badge className={`mt-2 text-xs ${isPositive ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
-              {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
-              {isPositive ? '+' : ''}{percentageChange.toFixed(1)}%
-            </Badge>
+            {percentageChange !== 0 && (
+              <Badge className={`mt-2 text-xs ${isPositive ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
+                {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                {isPositive ? '+' : ''}{percentageChange.toFixed(1)}%
+              </Badge>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-4 md:p-6">
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Last Month
+              Available Balance
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold">${lastMonthEarnings.toFixed(2)}</div>
-            <Badge className={`mt-2 text-xs ${isPositive ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-green-500/20 text-green-400 border-green-500/30'}`}>
-              {isPositive ? <TrendingDown className="h-3 w-3 mr-1" /> : <TrendingUp className="h-3 w-3 mr-1" />}
-              {isPositive ? '-' : '+'}{Math.abs(percentageChange).toFixed(1)}%
-            </Badge>
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-green-500">${displayAvailableBalance.toFixed(2)}</div>
+            {pendingWithdrawal > 0 && (
+              <Badge className="mt-2 text-xs bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                ${pendingWithdrawal.toFixed(2)} pending
+              </Badge>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -210,11 +243,10 @@ export default function CreatorEarningsPage() {
                 <button
                   key={period}
                   onClick={() => setTimeframe(period.toLowerCase())}
-                  className={`flex-1 sm:flex-none px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all ${
-                    timeframe === period.toLowerCase()
+                  className={`flex-1 sm:flex-none px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all ${timeframe === period.toLowerCase()
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {period}
                 </button>
@@ -227,22 +259,23 @@ export default function CreatorEarningsPage() {
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground">Earnings this month</p>
               <p className="text-xl sm:text-2xl font-bold">${thisMonthEarnings.toFixed(2)}</p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">1 Oct - 31 Oct</p>
             </div>
-            <Badge className={`text-xs ${isPositive ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
-              {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
-              {isPositive ? '+' : ''}{percentageChange.toFixed(1)}%
-            </Badge>
+            {percentageChange !== 0 && (
+              <Badge className={`text-xs ${isPositive ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
+                {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                {isPositive ? '+' : ''}{percentageChange.toFixed(1)}%
+              </Badge>
+            )}
           </div>
 
           {/* Graph */}
           <div className="h-32 sm:h-40 md:h-48 w-full rounded-xl bg-gradient-to-t from-primary/20 to-transparent flex items-end justify-between px-1 sm:px-2 pb-1 sm:pb-2 gap-0.5 sm:gap-1">
-            {[20, 35, 28, 45, 38, 52, 48, 60, 55, 70, 65, 75, 68, 80, 72, 85, 75, 90, 78, 95, 80, 100, 85, 105, 88, 110, 90, 115, 92, 120, 95].map((height, i) => (
+            {chartData.slice(-31).map((height, i) => (
               <div
                 key={i}
                 className="flex-1 rounded-t-lg bg-primary transition-all hover:bg-primary/80"
-                style={{ height: `${(height / 120) * 100}%` }}
-                title={`Day ${i + 1}: $${height}`}
+                style={{ height: `${(height / maxChartValue) * 100}%` }}
+                title={`Day ${i + 1}: $${height.toFixed(2)}`}
               />
             ))}
           </div>
@@ -256,35 +289,36 @@ export default function CreatorEarningsPage() {
         </CardHeader>
         <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
           <div className="space-y-2 sm:space-y-3 md:space-y-4">
-            {[
-              { name: "Vibrant Smoke", sales: 125, earnings: 312.50, color: "from-blue-500 to-cyan-500" },
-              { name: "Geometric Gold", sales: 98, earnings: 245.00, color: "from-yellow-500 to-orange-500" },
-              { name: "Pastel Dreams", sales: 82, earnings: 205.00, color: "from-blue-400 to-blue-500" },
-              { name: "Liquid Marble", sales: 65, earnings: 162.50, color: "from-blue-500 to-blue-600" },
-            ].map((template) => (
-              <div
-                key={template.name}
-                className="flex items-center justify-between p-2 sm:p-3 md:p-4 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors gap-2 sm:gap-4"
-              >
-                <div className="flex items-center gap-2 sm:gap-3 md:gap-4 min-w-0 flex-1">
-                  <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gradient-to-br ${template.color} flex-shrink-0`} />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-sm sm:text-base truncate">{template.name}</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      {template.sales} sales
-                    </p>
+            {templateEarnings.length > 0 ? (
+              templateEarnings.map((template, index) => (
+                <div
+                  key={template.templateId}
+                  className="flex items-center justify-between p-2 sm:p-3 md:p-4 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors gap-2 sm:gap-4"
+                >
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4 min-w-0 flex-1">
+                    <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gradient-to-br from-blue-${400 + index * 100} to-blue-${500 + index * 100} flex-shrink-0`} />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-sm sm:text-base truncate">{template.templateName}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {template.uses} uses
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="font-bold text-sm sm:text-base md:text-lg">${template.earnings.toFixed(2)}</p>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="font-bold text-sm sm:text-base md:text-lg">${template.earnings.toFixed(2)}</p>
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No earnings data yet. Start creating templates to earn!</p>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
 
-      <Button className="w-full" size="sm" onClick={() => setShowTransactionHistory(true)}>
+      <Button className="w-full" size="sm" onClick={() => { fetchTransactions(); setShowTransactionHistory(true); }}>
         View Full Transaction History
       </Button>
 
@@ -297,14 +331,14 @@ export default function CreatorEarningsPage() {
               Withdraw your earnings to UPI ID or Bank Account
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             {/* Available Balance */}
             <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
               <p className="text-xs text-muted-foreground mb-1">Available Balance</p>
-              <p className="text-2xl font-bold">${availableBalance.toFixed(2)}</p>
+              <p className="text-2xl font-bold">${displayAvailableBalance.toFixed(2)}</p>
             </div>
-            
+
             {/* Withdrawal Amount */}
             <div className="space-y-2">
               <Label htmlFor="amount">Withdrawal Amount ($)</Label>
@@ -315,42 +349,40 @@ export default function CreatorEarningsPage() {
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)}
                 min="1"
-                max={availableBalance}
+                max={displayAvailableBalance}
               />
               <p className="text-xs text-muted-foreground">
-                Minimum: $10 | Maximum: ${availableBalance.toFixed(2)}
+                Minimum: $10 | Maximum: ${displayAvailableBalance.toFixed(2)}
               </p>
             </div>
-            
+
             {/* Payment Method */}
             <div className="space-y-2">
               <Label>Payment Method</Label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setWithdrawMethod("upi")}
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    withdrawMethod === "upi"
+                  className={`p-3 rounded-lg border-2 transition-all ${withdrawMethod === "upi"
                       ? "border-primary bg-primary/10"
                       : "border-border hover:border-primary/50"
-                  }`}
+                    }`}
                 >
                   <Smartphone className="h-5 w-5 mx-auto mb-2" />
                   <p className="text-sm font-medium">UPI ID</p>
                 </button>
                 <button
                   onClick={() => setWithdrawMethod("bank")}
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    withdrawMethod === "bank"
+                  className={`p-3 rounded-lg border-2 transition-all ${withdrawMethod === "bank"
                       ? "border-primary bg-primary/10"
                       : "border-border hover:border-primary/50"
-                  }`}
+                    }`}
                 >
                   <CreditCard className="h-5 w-5 mx-auto mb-2" />
                   <p className="text-sm font-medium">Bank Account</p>
                 </button>
               </div>
             </div>
-            
+
             {/* UPI ID Form */}
             {withdrawMethod === "upi" && (
               <div className="space-y-2">
@@ -367,7 +399,7 @@ export default function CreatorEarningsPage() {
                 </p>
               </div>
             )}
-            
+
             {/* Bank Account Form */}
             {withdrawMethod === "bank" && (
               <div className="space-y-3">
@@ -380,7 +412,7 @@ export default function CreatorEarningsPage() {
                     onChange={(e) => setBankDetails({ ...bankDetails, accountHolderName: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="bankName">Bank Name</Label>
                   <Input
@@ -390,7 +422,7 @@ export default function CreatorEarningsPage() {
                     onChange={(e) => setBankDetails({ ...bankDetails, bankName: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="accountNumber">Account Number</Label>
                   <Input
@@ -400,7 +432,7 @@ export default function CreatorEarningsPage() {
                     onChange={(e) => setBankDetails({ ...bankDetails, accountNumber: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="ifscCode">IFSC Code</Label>
                   <Input
@@ -410,7 +442,7 @@ export default function CreatorEarningsPage() {
                     onChange={(e) => setBankDetails({ ...bankDetails, ifscCode: e.target.value.toUpperCase() })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="accountType">Account Type</Label>
                   <Select
@@ -428,7 +460,7 @@ export default function CreatorEarningsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="panNumber">PAN Number (Optional)</Label>
                   <Input
@@ -441,13 +473,20 @@ export default function CreatorEarningsPage() {
               </div>
             )}
           </div>
-          
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowWithdrawDialog(false)}>
+            <Button variant="outline" onClick={() => setShowWithdrawDialog(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button onClick={handleWithdraw}>
-              Request Withdrawal
+            <Button onClick={handleWithdraw} disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                'Request Withdrawal'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -462,7 +501,7 @@ export default function CreatorEarningsPage() {
               View all your earnings and withdrawal transactions
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-3 py-4">
             {transactions.length === 0 ? (
               <div className="text-center py-8">
@@ -484,8 +523,8 @@ export default function CreatorEarningsPage() {
                             {transaction.type === "creator_earning"
                               ? "Earning"
                               : transaction.type === "withdrawal"
-                              ? "Withdrawal"
-                              : transaction.type}
+                                ? "Withdrawal"
+                                : transaction.type}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(transaction.createdAt), {
@@ -502,11 +541,10 @@ export default function CreatorEarningsPage() {
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p
-                          className={`font-bold ${
-                            transaction.amount > 0
+                          className={`font-bold ${transaction.amount > 0
                               ? "text-green-500"
                               : "text-red-500"
-                          }`}
+                            }`}
                         >
                           {transaction.amount > 0 ? "+" : ""}$
                           {Math.abs(transaction.amount).toFixed(2)}
@@ -521,7 +559,7 @@ export default function CreatorEarningsPage() {
               ))
             )}
           </div>
-          
+
           <DialogFooter>
             <Button onClick={() => setShowTransactionHistory(false)}>
               Close

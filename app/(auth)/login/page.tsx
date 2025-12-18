@@ -270,13 +270,13 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center space-y-1.5 sm:space-y-2">
           <div className="flex justify-center mb-3 sm:mb-4">
-            <div className="p-2.5 sm:p-3 bg-white rounded-2xl shadow-lg">
+            <div className="mb-2">
               <Image
                 src="/logo.png"
                 alt="Rupantar AI"
-                width={32}
-                height={32}
-                className="h-6 w-6 sm:h-8 sm:w-8"
+                width={48}
+                height={48}
+                className="h-10 w-10 sm:h-12 sm:w-12"
               />
             </div>
           </div>

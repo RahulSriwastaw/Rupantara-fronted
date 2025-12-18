@@ -48,7 +48,7 @@ export default function HistoryPage() {
   const displayGenerations = activeTab === "favorites" ? favorites : generations;
 
   const filteredGenerations = displayGenerations.filter((gen) =>
-    gen.prompt.toLowerCase().includes(searchQuery.toLowerCase())
+    (gen.prompt || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDownload = (generation: Generation) => {
@@ -143,7 +143,7 @@ export default function HistoryPage() {
                   <div className="relative aspect-square">
                     <Image
                       src={generation.generatedImage}
-                      alt={generation.prompt}
+                      alt={generation.prompt || 'Generated Image'}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform"
                       sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
@@ -198,7 +198,7 @@ export default function HistoryPage() {
               <div className="relative aspect-square w-full">
                 <Image
                   src={selectedGeneration.generatedImage}
-                  alt={selectedGeneration.prompt}
+                  alt={selectedGeneration.prompt || 'Generated Image'}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 896px"

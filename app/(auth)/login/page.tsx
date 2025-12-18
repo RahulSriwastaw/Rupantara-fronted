@@ -274,8 +274,8 @@ export default function LoginPage() {
               <Image
                 src="/logo.png"
                 alt="Rupantar AI"
-                width={48}
-                height={48}
+                width={50}
+                height={50}
                 className="h-10 w-10 sm:h-12 sm:w-12"
               />
             </div>

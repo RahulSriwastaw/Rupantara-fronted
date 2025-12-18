@@ -31,6 +31,7 @@ const formatPlan = (p: any): Plan => ({
 
 export default function ProPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [promoCode, setPromoCode] = useState("");
   const [pricingPlans, setPricingPlans] = useState<Plan[]>([]);

@@ -55,7 +55,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 import { PasswordStrength } from "@/components/security/PasswordStrength";
 import { VersionInfo } from "@/components/version/VersionInfo";
-import { creatorApi } from "@/services/api";
+import { creatorApi, templatesApi } from "@/services/api";
 import { DataExport } from "@/components/backup/DataExport";
 
 export default function ProfilePage() {
@@ -471,8 +471,8 @@ export default function ProfilePage() {
                     Enable dark theme
                   </p>
                 </div>
-                <Switch 
-                  checked={theme === 'dark'} 
+                <Switch
+                  checked={theme === 'dark'}
                   onCheckedChange={toggleTheme}
                 />
               </div>
@@ -654,98 +654,185 @@ export default function ProfilePage() {
       </Dialog>
 
       <Dialog open={showCreatorModal} onOpenChange={setShowCreatorModal}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Become a Creator</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl">Become a Creator</DialogTitle>
+            <DialogDescription className="text-sm">
               Apply to become a creator and start earning from your templates
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Creator Username</Label>
+          <div className="space-y-3 sm:space-y-4 py-2 sm:py-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="username" className="text-sm">Creator Username <span className="text-destructive">*</span></Label>
               <Input
                 id="username"
                 placeholder="@username"
                 value={creatorUsername}
                 onChange={(e) => setCreatorUsername(e.target.value)}
+                className="text-sm sm:text-base"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="bio">Short Bio</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="bio" className="text-sm">Short Bio</Label>
               <Input
                 id="bio"
                 placeholder="Tell us about your style and niche"
                 value={creatorBio}
                 onChange={(e) => setCreatorBio(e.target.value)}
+                className="text-sm sm:text-base"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>Social Media Links</Label>
-              <Input
-                placeholder="Instagram URL (optional)"
-                value={socialInstagram}
-                onChange={(e) => setSocialInstagram(e.target.value)}
-              />
-              <Input
-                placeholder="YouTube URL (optional)"
-                className="mt-2"
-                value={socialYouTube}
-                onChange={(e) => setSocialYouTube(e.target.value)}
-              />
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label className="text-sm">Social Media Links (Optional)</Label>
+              <div className="space-y-2">
+                <Input
+                  placeholder="Instagram URL"
+                  value={socialInstagram}
+                  onChange={(e) => setSocialInstagram(e.target.value)}
+                  className="text-sm sm:text-base"
+                />
+                <Input
+                  placeholder="YouTube URL"
+                  value={socialYouTube}
+                  onChange={(e) => setSocialYouTube(e.target.value)}
+                  className="text-sm sm:text-base"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Demo Template 1</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const url = URL.createObjectURL(file);
-                    setDemo1Image(url);
-                  }
-                }}
-              />
-              <Input
-                placeholder="Prompt used for this template"
-                className="mt-2"
-                value={demo1Prompt}
-                onChange={(e) => setDemo1Prompt(e.target.value)}
-              />
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label className="text-sm">Demo Template 1 <span className="text-destructive">*</span></Label>
+              <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row items-start gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        try {
+                          const localUrl = URL.createObjectURL(file);
+                          setDemo1Image(localUrl);
+
+                          toast({
+                            title: "Uploading image...",
+                            description: "Please wait while we upload your demo image.",
+                          });
+
+                          const result = await templatesApi.adminUploadDemo(localUrl);
+                          if (result?.url) {
+                            setDemo1Image(result.url);
+                            toast({
+                              title: "Image uploaded!",
+                              description: "Demo 1 uploaded successfully.",
+                            });
+                          }
+                        } catch (err) {
+                          toast({
+                            title: "Upload failed",
+                            description: "Failed to upload demo image. Please try again.",
+                            variant: "destructive",
+                          });
+                        }
+                      }
+                    }}
+                    className="text-xs sm:text-sm"
+                  />
+                  {demo1Image && (
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-md overflow-hidden border-2 border-green-500">
+                      <img src={demo1Image} alt="Demo 1" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+                <Input
+                  placeholder="Prompt used for this template"
+                  value={demo1Prompt}
+                  onChange={(e) => setDemo1Prompt(e.target.value)}
+                  className="text-sm sm:text-base"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Demo Template 2</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const url = URL.createObjectURL(file);
-                    setDemo2Image(url);
-                  }
-                }}
-              />
-              <Input
-                placeholder="Prompt used for this template"
-                className="mt-2"
-                value={demo2Prompt}
-                onChange={(e) => setDemo2Prompt(e.target.value)}
-              />
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label className="text-sm">Demo Template 2 <span className="text-destructive">*</span></Label>
+              <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row items-start gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        try {
+                          const localUrl = URL.createObjectURL(file);
+                          setDemo2Image(localUrl);
+
+                          toast({
+                            title: "Uploading image...",
+                            description: "Please wait while we upload your demo image.",
+                          });
+
+                          const result = await templatesApi.adminUploadDemo(localUrl);
+                          if (result?.url) {
+                            setDemo2Image(result.url);
+                            toast({
+                              title: "Image uploaded!",
+                              description: "Demo 2 uploaded successfully.",
+                            });
+                          }
+                        } catch (err) {
+                          toast({
+                            title: "Upload failed",
+                            description: "Failed to upload demo image. Please try again.",
+                            variant: "destructive",
+                          });
+                        }
+                      }
+                    }}
+                    className="text-xs sm:text-sm"
+                  />
+                  {demo2Image && (
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-md overflow-hidden border-2 border-green-500">
+                      <img src={demo2Image} alt="Demo 2" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+                <Input
+                  placeholder="Prompt used for this template"
+                  value={demo2Prompt}
+                  onChange={(e) => setDemo2Prompt(e.target.value)}
+                  className="text-sm sm:text-base"
+                />
+              </div>
+            </div>
+
+            <div className="bg-muted p-3 rounded-lg text-xs sm:text-sm text-muted-foreground">
+              <p>📝 <strong>Tips:</strong></p>
+              <ul className="list-disc pl-5 mt-1 space-y-1">
+                <li>Choose your best template designs</li>
+                <li>High-quality images get better approval chances</li>
+                <li>Add social links to build trust</li>
+              </ul>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreatorModal(false)}>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowCreatorModal(false)}
+              className="w-full sm:w-auto text-sm"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSubmitCreatorApplication}>Submit Application</Button>
+            <Button
+              onClick={handleSubmitCreatorApplication}
+              className="w-full sm:w-auto text-sm"
+            >
+              Submit Application
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

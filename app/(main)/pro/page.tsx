@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Crown, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,7 @@ export default function ProPage() {
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
       script.async = true;
-      script.onload = () => {};
+      script.onload = () => { };
       script.onerror = () => {
         toast({
           title: "Payment SDK load failed",
@@ -69,6 +69,29 @@ export default function ProPage() {
       });
   }, []);
 
+  // Fetch active gateway and handle Stripe success
+  const [activeGateway, setActiveGateway] = useState<string>('razorpay');
+  useEffect(() => {
+    paymentsApi.getActiveGateway().then((g: string) => { if (g) setActiveGateway(g) }).catch(() => { });
+
+    const success = searchParams.get('payment_success');
+    const sessionId = searchParams.get('session_id');
+    if (success === 'true' && sessionId) {
+      setIsProcessing(true);
+      paymentsApi.verifyStripe({ sessionId }).then(async (res: any) => {
+        if (res.success) {
+          toast({ title: "Purchase Successful!", description: `New Balance: ${res.newBalance}` });
+          await useWalletStore.getState().fetchWalletData();
+          router.replace('/pro'); // Clean URL
+        } else {
+          toast({ title: "Verification Failed", description: res.msg, variant: "destructive" });
+        }
+      }).catch((e: any) => {
+        toast({ title: "Error", description: "Payment verification failed", variant: "destructive" });
+      }).finally(() => setIsProcessing(false));
+    }
+  }, [searchParams, router, toast]);
+
   const handleApplyPromo = () => {
     if (promoCode.trim()) {
       toast({
@@ -83,10 +106,16 @@ export default function ProPage() {
     setIsProcessing(true);
 
     try {
-      // Create Razorpay order
-      const orderResponse = await paymentsApi.createOrder(plan.id, 'razorpay');
+      // Create Order with active gateway
+      const orderResponse: any = await paymentsApi.createOrder(plan.id, activeGateway as 'razorpay' | 'stripe');
 
-      // Initialize Razorpay
+      // Handle Stripe Redirect
+      if (orderResponse.url) {
+        window.location.href = orderResponse.url;
+        return;
+      }
+
+      // Handle Razorpay
       const options = {
         key: orderResponse.key,
         amount: orderResponse.amount * 100,
@@ -179,8 +208,8 @@ export default function ProPage() {
           <Card
             key={plan.id}
             className={`relative overflow-hidden ${plan.popular
-                ? "border-primary ring-2 ring-primary/30 shadow-lg shadow-primary/20"
-                : ""
+              ? "border-primary ring-2 ring-primary/30 shadow-lg shadow-primary/20"
+              : ""
               }`}
           >
             {plan.tag && (

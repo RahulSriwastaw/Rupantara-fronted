@@ -119,7 +119,7 @@ function ProPageContent() {
       // Handle Razorpay
       const options = {
         key: orderResponse.key,
-        amount: orderResponse.amount * 100,
+        amount: orderResponse.amount, // Already in paise from backend
         currency: orderResponse.currency,
         name: 'Rupantara AI',
         description: `${plan.name} - ${plan.points}`,

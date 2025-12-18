@@ -123,20 +123,26 @@ export const api = {
           error: `API request failed: ${response.status} ${response.statusText}`
         }));
 
+        // Check for specific backend messages
+        const errorMessage = error.msg || error.message || error.error;
+
         // Handle 404 errors with user-friendly messages
         if (response.status === 404) {
-          if (error.error?.includes('Route not found')) {
+          if (errorMessage?.includes('Route not found')) {
             throw new Error('The requested resource was not found. Please check the URL and try again.');
           }
           throw new Error('Resource not found. Please try again.');
         }
 
-        // Handle 500 errors
+        // Handle 500 errors but allow specific messages
         if (response.status >= 500) {
+          if (errorMessage && !errorMessage.includes('API request failed')) {
+            throw new Error(errorMessage);
+          }
           throw new Error('Server error. Please try again later.');
         }
 
-        throw new Error(error.error || `API request failed: ${response.status}`);
+        throw new Error(errorMessage || `API request failed: ${response.status}`);
       }
       return response.json();
     } catch (error: any) {

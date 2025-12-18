@@ -77,7 +77,7 @@ export default function CreatorLayout({
                 <span className="ml-1 sm:ml-0">Alerts</span>
               </Button>
             </Link>
-            <Link href="/profile">
+            <Link href="/creator-profile">
               <Button variant="outline" className="w-full justify-center text-xs sm:text-sm py-1.5 sm:py-2 h-auto">
                 <User className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1.5" />
                 <span className="ml-1 sm:ml-0">Profile</span>
@@ -117,7 +117,7 @@ export default function CreatorLayout({
               Notifications
             </Button>
           </Link>
-          <Link href="/profile">
+          <Link href="/creator-profile">
             <Button variant="ghost" className="w-full justify-start">
               <User className="h-4 w-4 mr-2" />
               Profile

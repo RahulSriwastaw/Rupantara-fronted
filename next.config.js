@@ -6,6 +6,8 @@ const nextConfig = {
     '127.0.0.1',
     'localhost'
   ],
+  output: 'export',
+  trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -16,7 +18,7 @@ const nextConfig = {
         hostname: '**',
       },
     ],
-    unoptimized: false,
+    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
   },
   async rewrites() {

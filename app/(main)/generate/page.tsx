@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Download, Share2, History, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhotoUpload } from "@/components/generate/PhotoUpload";
@@ -23,7 +23,7 @@ function GenerateContent() {
   const searchParams = useSearchParams();
   const templateId = searchParams?.get("templateId");
   const { toast } = useToast();
-  
+
   const { balance, deductPoints } = useWalletStore();
   const { addGeneration } = useGenerationStore();
 
@@ -42,7 +42,7 @@ function GenerateContent() {
 
   // Load template if provided
   useEffect(() => {
-    templatesApi.getAll().then(setTemplates).catch(()=>{})
+    templatesApi.getAll().then(setTemplates).catch(() => { })
     if (templateId) {
       // Use real API only
       templatesApi.getById(templateId)
@@ -65,7 +65,7 @@ function GenerateContent() {
   // Calculate total cost
   const calculateCost = () => {
     let cost = 20; // Base cost
-    
+
     // Quality cost
     const qualityCosts: Record<QualityLevel, number> = {
       SD: 0,
@@ -87,7 +87,7 @@ function GenerateContent() {
     if (!canGenerate) {
       toast({
         title: "Cannot generate",
-        description: photos.length === 0 
+        description: photos.length === 0
           ? "Please upload at least one photo"
           : "Insufficient points. Please add more points.",
         variant: "destructive",
@@ -137,7 +137,7 @@ function GenerateContent() {
       clearInterval(progressInterval);
       setIsGenerating(false);
       setGenerationProgress(0);
-      
+
       // Refund points if generation failed
       // Note: Points are only deducted after successful generation, so no refund needed
       // But we should show proper error message
@@ -196,7 +196,7 @@ function GenerateContent() {
         await fetch(`/api/generation/${result.id}/download`, {
           method: 'POST',
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-        }).catch(()=>{});
+        }).catch(() => { });
         const res = await fetch(result.generatedImage);
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
@@ -219,7 +219,7 @@ function GenerateContent() {
         await fetch(`/api/generation/${result.id}/share`, {
           method: 'POST',
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-        }).catch(()=>{});
+        }).catch(() => { });
         if (navigator.share) {
           await navigator.share({ title: "Rupantar AI Image", text: "Check out my AI image", url: shareUrl });
           toast({ title: "Shared", description: "Shared via system share" });
@@ -232,19 +232,73 @@ function GenerateContent() {
       }
     };
     return (
-      <div className="min-h-screen p-4 flex items-center justify-center">
-        <Card className="w-full max-w-2xl overflow-hidden">
-          <CardContent className="p-0">
-            <div className="relative aspect-square w-full">
-              <Image src={result.generatedImage} alt="Generated" fill className="object-cover" />
-            </div>
-            <div className="p-4 flex gap-2">
-              <Button className="flex-1" onClick={onDownload}>Download</Button>
-              <Button variant="outline" onClick={onShare}>Share</Button>
-              <Button variant="outline" onClick={() => router.push('/history')}>View in History</Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-[80vh] w-full flex flex-col items-center justify-center p-4 md:p-8 animate-in fade-in zoom-in duration-500">
+        <div className="w-full max-w-lg space-y-6">
+          {/* Result Card */}
+          <Card className="overflow-hidden border-none bg-secondary/30 backdrop-blur-xl shadow-2xl ring-1 ring-white/10">
+            <CardContent className="p-0">
+              <div className="relative aspect-[4/5] w-full bg-muted">
+                <Image
+                  src={result.generatedImage}
+                  alt="Generated"
+                  fill
+                  className="object-cover transition-transform duration-700 hover:scale-105"
+                  priority
+                />
+
+                {/* Image Overlay Label */}
+                <div className="absolute top-4 left-4">
+                  <span className="bg-black/50 backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded-full border border-white/20">
+                    Artistic Generation
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons Area */}
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 rounded-2xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+                    onClick={onDownload}
+                  >
+                    <Download className="h-5 w-5" />
+                    Download
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold py-6 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+                    onClick={onShare}
+                  >
+                    <Share2 className="h-5 w-5" />
+                    Share
+                  </Button>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  className="w-full text-muted-foreground hover:text-white hover:bg-white/5 py-4 rounded-xl flex items-center justify-center gap-2 text-sm"
+                  onClick={() => router.push('/history')}
+                >
+                  <History className="h-4 w-4" />
+                  View in History
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Secondary Actions */}
+          <div className="flex justify-center">
+            <Button
+              variant="link"
+              className="text-muted-foreground hover:text-blue-400 gap-2"
+              onClick={() => setResult(null)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Generate Another
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -264,19 +318,19 @@ function GenerateContent() {
         <CardContent className="p-3 sm:p-4">
           <div className="space-y-2">
             <label className="text-sm">Select Template</label>
-            <select className="bg-gray-900 border border-gray-700 rounded p-2 w-full" value={template?.id || ''} onChange={(e)=> {
-              const t = templates.find(x=> (x as any).id === e.target.value)
+            <select className="bg-gray-900 border border-gray-700 rounded p-2 w-full" value={template?.id || ''} onChange={(e) => {
+              const t = templates.find(x => (x as any).id === e.target.value)
               setTemplate(t || null)
             }}>
               <option value="">None</option>
-              {templates.map((t)=> (
+              {templates.map((t) => (
                 <option key={(t as any).id} value={(t as any).id}>{t.title}</option>
               ))}
             </select>
           </div>
         </CardContent>
       </Card>
-      
+
       {template && (
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="p-3 sm:p-4">
@@ -403,8 +457,8 @@ function GenerateContent() {
                 {photos.length === 0
                   ? "Upload Photos First"
                   : balance < totalCost
-                  ? "Insufficient Points"
-                  : `Generate Image (${totalCost} points)`}
+                    ? "Insufficient Points"
+                    : `Generate Image (${totalCost} points)`}
               </Button>
 
               {balance < totalCost && (
@@ -426,7 +480,7 @@ function GenerateContent() {
 
 export default function GeneratePage() {
   return (
-    <Suspense fallback={<div />}> 
+    <Suspense fallback={<div />}>
       <GenerateContent />
     </Suspense>
   );

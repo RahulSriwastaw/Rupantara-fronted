@@ -252,6 +252,8 @@ export const userApi = {
 
 // Payments API
 export const paymentsApi = {
+  getActiveGateway: () => api.get('/payment/active-gateway').then(res => res.provider),
+  verifyStripe: (data: { sessionId: string }) => api.post('/payment/verify-stripe', data),
   createOrder: (packageId: string, gateway: 'razorpay' | 'stripe' = 'razorpay') =>
     api.post('/payment/create-order', { packageId, gateway }),
   verifyRazorpay: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; packageId: string }) =>

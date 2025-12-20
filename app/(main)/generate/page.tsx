@@ -197,8 +197,7 @@ function GenerateContent() {
           method: 'POST',
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         }).catch(() => { });
-        const res = await fetch(result.generatedImage);
-        const blob = await res.blob();
+        const blob = await generationsApi.downloadProxy(result.generatedImage);
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;

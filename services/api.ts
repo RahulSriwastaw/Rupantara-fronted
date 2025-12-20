@@ -272,6 +272,11 @@ export const packagesApi = {
 
 // Generations API
 export const generationsApi = {
+  downloadProxy: async (imageUrl: string) => {
+    const res = await fetch(`${API_URL}/proxy?url=${encodeURIComponent(imageUrl)}`);
+    if (!res.ok) throw new Error("Download failed via proxy");
+    return res.blob();
+  },
   create: (data: any) => api.post('/generation/generate', data),
   getById: (id: string) => api.get(`/generation/${id}`),
   getHistory: (page = 1, limit = 20) => api.get(`/generation/history?page=${page}&limit=${limit}`),

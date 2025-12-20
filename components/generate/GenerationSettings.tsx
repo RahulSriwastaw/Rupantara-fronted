@@ -91,10 +91,9 @@ export function GenerationSettings({
               onClick={() => onAspectRatioChange(ratio.value)}
               className={`
                 p-3 rounded-lg border-2 text-sm transition-colors
-                ${
-                  aspectRatio === ratio.value
-                    ? "border-primary bg-primary/10"
-                    : "border-muted hover:border-primary/50"
+                ${aspectRatio === ratio.value
+                  ? "border-primary bg-primary/10"
+                  : "border-muted hover:border-primary/50"
                 }
               `}
             >
@@ -104,37 +103,7 @@ export function GenerationSettings({
         </div>
       </div>
 
-      {/* Creativity Level */}
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label>Creativity Level</Label>
-          <span className="text-sm text-muted-foreground">{creativity}%</span>
-        </div>
-        <Slider
-          value={[creativity]}
-          onValueChange={(val) => onCreativityChange(val[0])}
-          max={100}
-          step={1}
-        />
-        <p className="text-xs text-muted-foreground">
-          Lower = More accurate, Higher = More creative
-        </p>
-      </div>
 
-      {/* Detail Level */}
-      <div className="space-y-2">
-        <Label>Detail Level</Label>
-        <Select value={detailLevel} onValueChange={onDetailLevelChange}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="low">Low - Faster generation</SelectItem>
-            <SelectItem value="medium">Medium - Balanced</SelectItem>
-            <SelectItem value="high">High - More details</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
     </div>
   );
 }

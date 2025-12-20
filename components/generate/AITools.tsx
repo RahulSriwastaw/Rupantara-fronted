@@ -29,20 +29,6 @@ const tools = [
     description: "Remove background instantly",
   },
   {
-    id: "enhance",
-    name: "Enhance",
-    icon: Sparkles,
-    cost: 5,
-    description: "Auto color & brightness",
-  },
-  {
-    id: "face-fix",
-    name: "Face Fix",
-    icon: Smile,
-    cost: 8,
-    description: "Enhance facial features",
-  },
-  {
     id: "upscale",
     name: "Upscale",
     icon: Maximize2,
@@ -55,13 +41,6 @@ const tools = [
     icon: Palette,
     cost: 10,
     description: "B&W to color",
-  },
-  {
-    id: "style",
-    name: "Style",
-    icon: Paintbrush,
-    cost: 8,
-    description: "Apply artistic styles",
   },
 ];
 
@@ -85,7 +64,7 @@ export function AITools({ hasPhotos, onToolApply }: AIToolsProps) {
 
   const handleApply = () => {
     if (!selectedTool) return;
-    
+
     setIsProcessing(true);
     setTimeout(() => {
       onToolApply(selectedTool);

@@ -115,7 +115,7 @@ function GenerateContent() {
         userPrompt: prompt,
         faceImageUrl: photos[0] || '',
         quality: quality,
-        aspectRatio: '1:1',
+        aspectRatio: aspectRatio,
         uploadedImages: photos.length ? [photos[0]] : [],
       }
       const generation = await generationsApi.create(body as any);

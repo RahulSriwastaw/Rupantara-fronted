@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useAdsStore } from '@/store/adsStore';
+import { useAdsStore, AdsConfig } from '@/store/adsStore';
 import { useWalletStore } from '@/store/walletStore';
 import { adsApi } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 
-export const useAdMob = (currentPage?: keyof ReturnType<typeof useAdsStore>['config']['pages']) => {
+export const useAdMob = (currentPage?: keyof AdsConfig['pages']) => {
     const { toast } = useToast();
     const {
         config,

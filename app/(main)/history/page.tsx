@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useGenerationStore } from "@/store/generationStore";
+import { generationsApi } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ImageIcon, Sparkles } from "lucide-react";
@@ -51,18 +52,39 @@ export default function HistoryPage() {
     (gen.prompt || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDownload = (generation: Generation) => {
-    toast({
-      title: "Download started",
-      description: "Your image is being downloaded",
-    });
+
+  const handleDownload = async (generation: Generation) => {
+    try {
+      const blob = await generationsApi.downloadProxy(generation.generatedImage);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `rupantar-${generation.id}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast({ title: "Downloaded", description: "Image saved successfully" });
+    } catch (e: any) {
+      console.error(e);
+      toast({ title: "Download failed", description: "Unable to download image", variant: "destructive" });
+    }
   };
 
-  const handleShare = (generation: Generation) => {
-    toast({
-      title: "Share",
-      description: "Share functionality coming soon",
-    });
+  const handleShare = async (generation: Generation) => {
+    const shareUrl = generation.generatedImage;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Rupantara AI", text: "Check out my AI image", url: shareUrl });
+      } catch (e) { console.error(e); }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast({ title: "Link copied", description: "Image link copied to clipboard" });
+      } catch (e) {
+        toast({ title: "Share failed", description: "Could not share", variant: "destructive" });
+      }
+    }
   };
 
   const handleDelete = (generationId: string) => {

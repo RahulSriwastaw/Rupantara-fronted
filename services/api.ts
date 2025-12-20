@@ -357,3 +357,20 @@ export const creatorApi = {
   },
 };
 
+// Ads API
+export const adsApi = {
+  // Get ads configuration from admin panel
+  getConfig: () => api.get('/ads/config'),
+
+  // Watch a rewarded ad and get points
+  watchRewardedAd: (adId?: string) =>
+    api.post('/ads/watch', { adId, adType: 'rewarded' }),
+
+  // Record ad impression
+  recordImpression: (adType: 'banner' | 'interstitial' | 'rewarded' | 'native', adId?: string) =>
+    api.post('/ads/impression', { adType, adId }),
+
+  // Get user's ad watch stats
+  getAdStats: () => api.get('/ads/stats'),
+};
+

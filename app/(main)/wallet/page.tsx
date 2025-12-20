@@ -23,6 +23,7 @@ import { useWalletStore } from "@/store/walletStore";
 import { useAuthStore } from "@/store/authStore";
 import { useToast } from "@/hooks/use-toast";
 import { ReferralLink } from "@/components/social/ReferralLink";
+import { RewardedAdButton } from "@/components/AdMobComponents";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 
@@ -36,9 +37,7 @@ export default function WalletPage() {
     transactions,
     dailyLoginClaimed,
     dailyStreak,
-    adsWatchedToday,
     claimDailyLogin,
-    watchAd,
   } = useWalletStore();
   const { user } = useAuthStore();
 
@@ -75,16 +74,6 @@ export default function WalletPage() {
       toast({
         title: "Daily bonus claimed! 🎉",
         description: "+3 points added to your balance",
-      });
-    }
-  };
-
-  const handleWatchAd = () => {
-    if (adsWatchedToday < 5) {
-      watchAd();
-      toast({
-        title: "Ad watched! 🎉",
-        description: "+6 points added to your balance",
       });
     }
   };
@@ -203,7 +192,7 @@ export default function WalletPage() {
       {/* Earning Methods */}
       <div className="space-y-4">
         <h2 className="text-lg sm:text-xl font-bold">Earn Points</h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
           {/* Daily Login */}
           <Card>
@@ -217,7 +206,7 @@ export default function WalletPage() {
                   <p className="text-xs text-muted-foreground">+3 points</p>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span>Current streak</span>
@@ -238,41 +227,11 @@ export default function WalletPage() {
           {/* Referrals - Using ReferralLink Component */}
           <ReferralLink />
 
-          {/* Watch Ads */}
-          <Card>
-            <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-                  <Play className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm sm:text-base">Watch Ads</h3>
-                  <p className="text-xs text-muted-foreground">+6 points</p>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs sm:text-sm">
-                  <span>Today</span>
-                  <span className="text-xs">{adsWatchedToday}/5 watched</span>
-                </div>
-                <div className="h-1.5 sm:h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-orange-500"
-                    style={{ width: `${(adsWatchedToday / 5) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              <Button
-                onClick={handleWatchAd}
-                disabled={adsWatchedToday >= 5}
-                className="w-full h-8 sm:h-9 text-xs sm:text-sm"
-              >
-                {adsWatchedToday >= 5 ? "Max Reached" : "Watch Ad"}
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Watch Ads - NEW AdMob Integration */}
+          <RewardedAdButton
+            variant="compact"
+            className="h-full"
+          />
         </div>
       </div>
 
@@ -314,11 +273,10 @@ export default function WalletPage() {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="flex items-center gap-2 sm:gap-3">
                         <div
-                          className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center ${
-                            transaction.amount > 0
-                              ? "bg-green-100 dark:bg-green-900"
-                              : "bg-red-100 dark:bg-red-900"
-                          }`}
+                          className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center ${transaction.amount > 0
+                            ? "bg-green-100 dark:bg-green-900"
+                            : "bg-red-100 dark:bg-red-900"
+                            }`}
                         >
                           {transaction.amount > 0 ? (
                             <Plus className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
@@ -337,9 +295,8 @@ export default function WalletPage() {
                       </div>
                       <div className="text-right">
                         <p
-                          className={`font-bold text-sm ${
-                            transaction.amount > 0 ? "text-green-600" : "text-red-600"
-                          }`}
+                          className={`font-bold text-sm ${transaction.amount > 0 ? "text-green-600" : "text-red-600"
+                            }`}
                         >
                           {transaction.amount > 0 ? "+" : ""}
                           {transaction.amount}

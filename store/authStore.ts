@@ -34,7 +34,14 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isCreator: false,
       creatorApplication: null,
-      login: (user) => set({ user, isAuthenticated: true, isCreator: user.isCreator }),
+      login: (user) => {
+        const isCreator = user.isCreator || user.role === 'creator';
+        set({
+          user: { ...user, isCreator },
+          isAuthenticated: true,
+          isCreator
+        });
+      },
       logout: () => {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token')

@@ -131,6 +131,12 @@ export default function ProfilePage() {
   useEffect(() => {
     const syncCreatorStatus = async () => {
       if (!user) return;
+
+      // Auto-sync from role if available
+      if (user.role === 'creator' && !user.isCreator) {
+        setCreatorStatus(true);
+      }
+
       try {
         const app = await creatorApi.getApplication();
         if (app && app.status) {
@@ -144,7 +150,7 @@ export default function ProfilePage() {
       }
     };
     syncCreatorStatus();
-  }, [user?.id]);
+  }, [user?.id, user?.role, user?.isCreator]);
   useEffect(() => {
     fetchGenerations();
     fetchWalletData();

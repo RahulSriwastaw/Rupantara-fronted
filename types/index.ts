@@ -19,6 +19,7 @@ export interface User {
   memberSince: string;
   pointsBalance: number;
   followingCreators?: { id: string; name: string }[];
+  role?: "user" | "admin" | "creator" | "super_admin";
 }
 
 // Template types

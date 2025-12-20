@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+
 import { Badge } from "@/components/ui/badge";
 import type { QualityLevel } from "@/types";
 
@@ -84,23 +84,18 @@ export function GenerationSettings({
       {/* Aspect Ratio */}
       <div className="space-y-2">
         <Label>Aspect Ratio</Label>
-        <div className="grid grid-cols-3 gap-2">
-          {aspectRatios.map((ratio) => (
-            <button
-              key={ratio.value}
-              onClick={() => onAspectRatioChange(ratio.value)}
-              className={`
-                p-3 rounded-lg border-2 text-sm transition-colors
-                ${aspectRatio === ratio.value
-                  ? "border-primary bg-primary/10"
-                  : "border-muted hover:border-primary/50"
-                }
-              `}
-            >
-              {ratio.label}
-            </button>
-          ))}
-        </div>
+        <Select value={aspectRatio} onValueChange={onAspectRatioChange}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {aspectRatios.map((ratio) => (
+              <SelectItem key={ratio.value} value={ratio.value}>
+                {ratio.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Upload, X, Sparkles } from "lucide-react";
@@ -21,7 +21,7 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useTemplateStore } from "@/store/templateStore";
-import { templatesApi } from "@/services/api";
+import { templatesApi, categoryApi } from "@/services/api";
 import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
@@ -63,10 +63,34 @@ export default function CreateTemplatePage() {
     aspectRatio: "1:1",
   });
 
+  // Dynamic categories from admin panel
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
   const [tagInput, setTagInput] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const demoImageInputRef = useRef<HTMLInputElement>(null);
   const exampleImageInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Fetch categories from backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryApi.getAll();
+        setCategories(response.categories || response || []);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        toast({
+          title: "Warning",
+          description: "Failed to load categories from admin panel.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const addTag = () => {
     if (tagInput && formData.tags.length < 10) {

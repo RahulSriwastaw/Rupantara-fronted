@@ -155,6 +155,57 @@ export const api = {
       throw error;
     }
   },
+
+  async put(endpoint: string, data: any) {
+    try {
+      const response = await Promise.race([
+        fetch(`${API_URL}${endpoint}`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify(data),
+        }),
+        timeout(API_TIMEOUT) as Promise<Response>
+      ]);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({
+          error: `API request failed: ${response.status} ${response.statusText}`
+        }));
+        throw new Error(error.message || error.error || `PUT request failed: ${response.status}`);
+      }
+      return response.json();
+    } catch (error: any) {
+      if (error.message === 'Request timeout') {
+        throw new Error('Request timeout. Please check your connection and try again.');
+      }
+      throw error;
+    }
+  },
+
+  async delete(endpoint: string) {
+    try {
+      const response = await Promise.race([
+        fetch(`${API_URL}${endpoint}`, {
+          method: 'DELETE',
+          headers: getHeaders(),
+        }),
+        timeout(API_TIMEOUT) as Promise<Response>
+      ]);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({
+          error: `API request failed: ${response.status} ${response.statusText}`
+        }));
+        throw new Error(error.message || error.error || `DELETE request failed: ${response.status}`);
+      }
+      return response.json();
+    } catch (error: any) {
+      if (error.message === 'Request timeout') {
+        throw new Error('Request timeout. Please check your connection and try again.');
+      }
+      throw error;
+    }
+  }
 };
 
 // Auth API
@@ -242,6 +293,10 @@ export const templatesApi = {
     return res.json()
   },
   adminCreateTemplate: (payload: any) => api.post('/admin/templates', payload),
+  creatorSubmitTemplate: (payload: any) => api.post('/creator/templates', payload),
+  creatorGetTemplates: () => api.get('/creator/templates'),
+  creatorUpdateTemplate: (id: string, payload: any) => api.put(`/creator/templates/${id}`, payload),
+  creatorDeleteTemplate: (id: string) => api.delete(`/creator/templates/${id}`),
   likeTemplate: (id: string) => api.post(`/templates/${id}/like`, {}),
   viewTemplate: (id: string) => api.post(`/templates/${id}/view`, {}),
 };

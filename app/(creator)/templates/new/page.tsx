@@ -38,8 +38,8 @@ export default function CreateTemplatePage() {
   const router = useRouter();
   const { toast } = useToast();
   const { addTemplate } = useTemplateStore();
-  const { 
-    templateCreationStep: currentStep, 
+  const {
+    templateCreationStep: currentStep,
     setTemplateCreationStep,
     nextTemplateCreationStep,
     prevTemplateCreationStep
@@ -209,40 +209,29 @@ export default function CreateTemplatePage() {
         visiblePrompt: formData.visiblePrompt,
         negativePrompt: formData.negativePrompt,
         templateType: formData.templateType,
-        pointsCost: formData.pointsCost,
-        creatorName: user?.fullName || 'Creator',
-        creatorId: user?.id || null,
+        pointsCost: formData.pointsCost
       }
-      const created = await templatesApi.adminCreateTemplate(payload)
+
+      // Use creator-specific endpoint
+      const created = await templatesApi.creatorSubmitTemplate(payload)
+
       addTemplate({
-        title: created.title,
-        description: created.description,
-        demoImage: created.demoImage,
-        additionalImages: created.exampleImages || [],
-        category: created.category,
-        subCategory: created.subCategory,
-        tags: created.tags || [],
-        creatorId: created.creatorId,
-        creatorName: created.creatorName,
-        creatorVerified: created.creatorVerified,
-        hiddenPrompt: created.hiddenPrompt,
-        visiblePrompt: created.visiblePrompt,
-        negativePrompt: created.negativePrompt,
-        isFree: created.isFree,
-        pointsCost: created.pointsCost,
-        usageCount: created.usageCount || 0,
-        likeCount: created.likeCount || 0,
-        saveCount: created.saveCount || 0,
-        rating: created.rating || 0,
-        ratingCount: created.ratingCount || 0,
-        ageGroup: created.ageGroup,
-        state: created.state,
-        status: created.status,
+        ...created.template,
+        additionalImages: created.template.exampleImages || [],
       })
-      toast({ title: "Template Submitted!", description: "Your template has been created and is now pending/approved based on policy." })
+
+      toast({
+        title: "✅ Template Submitted!",
+        description: "Your template is now pending review. You'll be notified when it's approved."
+      })
       router.push("/templates")
     } catch (e: any) {
-      toast({ title: "Submission failed", description: e?.message || 'Please try again', variant: 'destructive' })
+      console.error('Template submission error:', e)
+      toast({
+        title: "❌ Submission failed",
+        description: e?.message || e?.response?.data?.message || 'Please try again',
+        variant: 'destructive'
+      })
     }
   };
 
@@ -266,13 +255,12 @@ export default function CreateTemplatePage() {
         {steps.map((step) => (
           <div
             key={step.id}
-            className={`flex-1 h-1 rounded-full transition-all ${
-              step.id <= currentStep
+            className={`flex-1 h-1 rounded-full transition-all ${step.id <= currentStep
                 ? "bg-primary"
                 : step.id === currentStep + 1
-                ? "bg-primary/50"
-                : "bg-secondary"
-            }`}
+                  ? "bg-primary/50"
+                  : "bg-secondary"
+              }`}
           />
         ))}
       </div>
@@ -637,11 +625,10 @@ export default function CreateTemplatePage() {
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => setFormData({ ...formData, templateType: "free" })}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    formData.templateType === "free"
+                  className={`p-4 rounded-xl border-2 transition-all ${formData.templateType === "free"
                       ? "border-primary bg-primary/10"
                       : "border-border bg-secondary/50"
-                  }`}
+                    }`}
                 >
                   <p className="font-bold mb-1">Free</p>
                   <p className="text-xs text-muted-foreground">
@@ -650,11 +637,10 @@ export default function CreateTemplatePage() {
                 </button>
                 <button
                   onClick={() => setFormData({ ...formData, templateType: "premium" })}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    formData.templateType === "premium"
+                  className={`p-4 rounded-xl border-2 transition-all ${formData.templateType === "premium"
                       ? "border-primary bg-primary/10"
                       : "border-border bg-secondary/50"
-                  }`}
+                    }`}
                 >
                   <p className="font-bold mb-1">Premium</p>
                   <p className="text-xs text-muted-foreground">

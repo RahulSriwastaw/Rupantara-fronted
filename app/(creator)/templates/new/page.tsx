@@ -256,10 +256,10 @@ export default function CreateTemplatePage() {
           <div
             key={step.id}
             className={`flex-1 h-1 rounded-full transition-all ${step.id <= currentStep
-                ? "bg-primary"
-                : step.id === currentStep + 1
-                  ? "bg-primary/50"
-                  : "bg-secondary"
+              ? "bg-primary"
+              : step.id === currentStep + 1
+                ? "bg-primary/50"
+                : "bg-secondary"
               }`}
           />
         ))}
@@ -309,9 +309,14 @@ export default function CreateTemplatePage() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="unisex">Unisex</SelectItem>
+                    <SelectItem value="Professional">Professional</SelectItem>
+                    <SelectItem value="Fashion">Fashion</SelectItem>
+                    <SelectItem value="Wedding">Wedding</SelectItem>
+                    <SelectItem value="Festival">Festival</SelectItem>
+                    <SelectItem value="Cinematic">Cinematic</SelectItem>
+                    <SelectItem value="Creative">Creative</SelectItem>
+                    <SelectItem value="Corporate">Corporate</SelectItem>
+                    <SelectItem value="Casual">Casual</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -328,10 +333,14 @@ export default function CreateTemplatePage() {
                     <SelectValue placeholder="Select a sub-category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="wedding">Wedding</SelectItem>
-                    <SelectItem value="fashion">Fashion</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
-                    <SelectItem value="cinematic">Cinematic</SelectItem>
+                    <SelectItem value="Portraits">Portraits</SelectItem>
+                    <SelectItem value="Full Body">Full Body</SelectItem>
+                    <SelectItem value="Couple">Couple</SelectItem>
+                    <SelectItem value="Group">Group</SelectItem>
+                    <SelectItem value="Headshot">Headshot</SelectItem>
+                    <SelectItem value="Action">Action</SelectItem>
+                    <SelectItem value="Artistic">Artistic</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -626,8 +635,8 @@ export default function CreateTemplatePage() {
                 <button
                   onClick={() => setFormData({ ...formData, templateType: "free" })}
                   className={`p-4 rounded-xl border-2 transition-all ${formData.templateType === "free"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-secondary/50"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-secondary/50"
                     }`}
                 >
                   <p className="font-bold mb-1">Free</p>
@@ -638,8 +647,8 @@ export default function CreateTemplatePage() {
                 <button
                   onClick={() => setFormData({ ...formData, templateType: "premium" })}
                   className={`p-4 rounded-xl border-2 transition-all ${formData.templateType === "premium"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-secondary/50"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-secondary/50"
                     }`}
                 >
                   <p className="font-bold mb-1">Premium</p>

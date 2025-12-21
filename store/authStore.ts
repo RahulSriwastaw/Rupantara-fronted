@@ -52,7 +52,11 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...userData } : null,
         })),
-      setCreatorStatus: (isCreator) => set({ isCreator }),
+      setCreatorStatus: (isCreator) =>
+        set((state) => ({
+          isCreator,
+          user: state.user ? { ...state.user, isCreator } : null
+        })),
       submitCreatorApplication: async (payload) => {
         const state = get();
         if (!state.user) throw new Error('Not authenticated');

@@ -89,6 +89,20 @@ export const useGenerationStore = create<GenerationState>()(
     }),
     {
       name: 'rupantar-generations',
+      // Only store last 10 generations to prevent quota issues
+      partialize: (state) => ({
+        generations: state.generations.slice(0, 10).map(gen => ({
+          ...gen,
+          // Exclude large image data from localStorage
+          generatedImage: undefined,
+          uploadedImages: [],
+        })),
+        favorites: state.favorites.slice(0, 5).map(gen => ({
+          ...gen,
+          generatedImage: undefined,
+          uploadedImages: [],
+        })),
+      }),
     }
   )
 );

@@ -301,6 +301,15 @@ export const templatesApi = {
   viewTemplate: (id: string) => api.post(`/templates/${id}/view`, {}),
 };
 
+// Category API
+export const categoryApi = {
+  getAll: () => api.get('/categories'),
+  adminCreate: (payload: any) => api.post('/admin/categories', payload),
+  adminUpdate: (id: string, payload: any) => api.put(`/admin/categories/${id}`, payload),
+  adminDelete: (id: string) => api.delete(`/admin/categories/${id}`),
+  adminSeed: () => api.post('/admin/categories/seed', {})
+};
+
 export const userApi = {
   followUser: (id: string) => api.post(`/user/follow/${id}`, {}),
 };

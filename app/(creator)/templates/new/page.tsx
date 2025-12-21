@@ -309,14 +309,12 @@ export default function CreateTemplatePage() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Professional">Professional</SelectItem>
-                    <SelectItem value="Fashion">Fashion</SelectItem>
-                    <SelectItem value="Wedding">Wedding</SelectItem>
-                    <SelectItem value="Festival">Festival</SelectItem>
-                    <SelectItem value="Cinematic">Cinematic</SelectItem>
-                    <SelectItem value="Creative">Creative</SelectItem>
-                    <SelectItem value="Corporate">Corporate</SelectItem>
-                    <SelectItem value="Casual">Casual</SelectItem>
+                    <SelectItem value="Sci-Fi">Sci-Fi</SelectItem>
+                    <SelectItem value="Portrait">Portrait</SelectItem>
+                    <SelectItem value="Landscape">Landscape</SelectItem>
+                    <SelectItem value="Abstract">Abstract</SelectItem>
+                    <SelectItem value="Anime">Anime</SelectItem>
+                    <SelectItem value="General">General</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -333,14 +331,37 @@ export default function CreateTemplatePage() {
                     <SelectValue placeholder="Select a sub-category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Portraits">Portraits</SelectItem>
-                    <SelectItem value="Full Body">Full Body</SelectItem>
-                    <SelectItem value="Couple">Couple</SelectItem>
-                    <SelectItem value="Group">Group</SelectItem>
-                    <SelectItem value="Headshot">Headshot</SelectItem>
-                    <SelectItem value="Action">Action</SelectItem>
-                    <SelectItem value="Artistic">Artistic</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
+                    {/* Sci-Fi Sub-categories */}
+                    <SelectItem value="Cyberpunk">Cyberpunk</SelectItem>
+                    <SelectItem value="Hacker">Hacker</SelectItem>
+                    <SelectItem value="Stealth">Stealth</SelectItem>
+                    <SelectItem value="Futuristic City">Futuristic City</SelectItem>
+
+                    {/* Portrait Sub-categories */}
+                    <SelectItem value="Realistic">Realistic</SelectItem>
+                    <SelectItem value="Anime">Anime</SelectItem>
+                    <SelectItem value="Oil Painting">Oil Painting</SelectItem>
+                    <SelectItem value="Studio">Studio</SelectItem>
+                    <SelectItem value="Vintage">Vintage</SelectItem>
+
+                    {/* Landscape Sub-categories */}
+                    <SelectItem value="Nature">Nature</SelectItem>
+                    <SelectItem value="Urban">Urban</SelectItem>
+                    <SelectItem value="Fantasy">Fantasy</SelectItem>
+                    <SelectItem value="Surreal">Surreal</SelectItem>
+
+                    {/* Abstract Sub-categories */}
+                    <SelectItem value="Fluid">Fluid</SelectItem>
+                    <SelectItem value="Geometric">Geometric</SelectItem>
+                    <SelectItem value="Textual">Textual</SelectItem>
+
+                    {/* Anime Sub-categories */}
+                    <SelectItem value="Manga">Manga</SelectItem>
+                    <SelectItem value="Chibi">Chibi</SelectItem>
+                    <SelectItem value="Mecha">Mecha</SelectItem>
+
+                    {/* General Sub-category */}
+                    <SelectItem value="Misc">Misc</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

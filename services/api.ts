@@ -120,18 +120,19 @@ export const api = {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({
-          error: `API request failed: ${response.status} ${response.statusText}`
+          error: `API request failed: ${response.status} ${response.statusText}`,
+          msg: `API request failed: ${response.status} ${response.statusText}`
         }));
 
         // Check for specific backend messages
-        const errorMessage = error.msg || error.message || error.error;
+        const errorMessage = error.msg || error.message || error.error || error.details;
 
         // Handle 404 errors with user-friendly messages
         if (response.status === 404) {
           if (errorMessage?.includes('Route not found')) {
             throw new Error('The requested resource was not found. Please check the URL and try again.');
           }
-          throw new Error('Resource not found. Please try again.');
+          throw new Error(errorMessage || 'Resource not found. Please try again.');
         }
 
         // Handle 401 Unauthorized
@@ -141,6 +142,15 @@ export const api = {
             localStorage.removeItem('token');
           }
           throw new Error('Session expired. Please login again.');
+        }
+
+        // Handle 500 errors with better messages
+        if (response.status >= 500) {
+          // For payment errors, show specific message
+          if (endpoint.includes('/payment/')) {
+            throw new Error(errorMessage || 'Payment service error. Please try again later.');
+          }
+          throw new Error(errorMessage || 'Server error. Please try again later.');
         }
 
         // Handle 400 Bad Request

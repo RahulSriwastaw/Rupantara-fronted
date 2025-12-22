@@ -179,9 +179,13 @@ function ProPageContent() {
       rzp.open();
 
     } catch (error: any) {
+      console.error('Payment error:', error);
+      const errorMessage = error.message || error.msg || "Something went wrong. Please try again.";
       toast({
         title: "Payment Failed",
-        description: error.message || "Something went wrong. Please try again.",
+        description: errorMessage.includes('credentials') || errorMessage.includes('configure') 
+          ? "Payment gateway not configured. Please contact support."
+          : errorMessage,
         variant: "destructive",
       });
       setIsProcessing(false);

@@ -327,10 +327,10 @@ export default function CreateTemplatePage() {
 
     try {
       console.log('📤 Submitting template...', formData);
-      
+
       const uploadRes = formData.demoImage ? await templatesApi.adminUploadDemo(formData.demoImage) : null;
       const demoUrl = uploadRes?.url || formData.demoImage;
-      
+
       const payload = {
         title: formData.title,
         description: formData.description,
@@ -629,6 +629,8 @@ export default function CreateTemplatePage() {
               )}
             </div>
 
+            {/* Example images removed - Only 2 images needed: Input (BEFORE) and Output (AFTER) */}
+            {/*
             <div className="space-y-2">
               <Label>Add Example Images</Label>
               <p className="text-sm text-muted-foreground">
@@ -678,6 +680,7 @@ export default function CreateTemplatePage() {
                 })}
               </div>
             </div>
+            */}
 
             <div className="flex gap-3">
               <Button onClick={prevStep} variant="outline" className="flex-1">

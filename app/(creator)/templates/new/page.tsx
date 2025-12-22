@@ -52,7 +52,8 @@ export default function CreateTemplatePage() {
     tags: [] as string[],
     ageGroup: "All Ages",
     isActive: true,
-    demoImage: "",
+    inputImage: "",  // User's original photo (BEFORE)
+    demoImage: "",   // Generated result (AFTER)
     exampleImages: [] as string[],
     hiddenPrompt: "",
     visiblePrompt: "",
@@ -71,6 +72,7 @@ export default function CreateTemplatePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const inputImageInputRef = useRef<HTMLInputElement>(null);
   const demoImageInputRef = useRef<HTMLInputElement>(null);
   const exampleImageInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 

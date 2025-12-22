@@ -274,12 +274,67 @@ export default function CreateTemplatePage() {
   const { user } = useAuthStore()
 
   const handleSubmit = async () => {
+    // Validation
+    if (!formData.title.trim()) {
+      toast({
+        title: "❌ Title Required",
+        description: "Please enter a template title",
+        variant: "destructive"
+      });
+      setTemplateCreationStep(1);
+      return;
+    }
+
+    if (!formData.inputImage) {
+      toast({
+        title: "❌ Input Image Required",
+        description: "Please upload the original photo (BEFORE image)",
+        variant: "destructive"
+      });
+      setTemplateCreationStep(2);
+      return;
+    }
+
+    if (!formData.demoImage) {
+      toast({
+        title: "❌ Output Image Required",
+        description: "Please upload the generated result (AFTER image)",
+        variant: "destructive"
+      });
+      setTemplateCreationStep(2);
+      return;
+    }
+
+    if (!formData.category) {
+      toast({
+        title: "❌ Category Required",
+        description: "Please select a category",
+        variant: "destructive"
+      });
+      setTemplateCreationStep(1);
+      return;
+    }
+
+    if (!formData.hiddenPrompt.trim()) {
+      toast({
+        title: "❌ Prompt Required",
+        description: "Please enter the AI prompt",
+        variant: "destructive"
+      });
+      setTemplateCreationStep(3);
+      return;
+    }
+
     try {
-      const uploadRes = formData.demoImage ? await templatesApi.adminUploadDemo(formData.demoImage) : null
-      const demoUrl = uploadRes?.url || formData.demoImage
+      console.log('📤 Submitting template...', formData);
+      
+      const uploadRes = formData.demoImage ? await templatesApi.adminUploadDemo(formData.demoImage) : null;
+      const demoUrl = uploadRes?.url || formData.demoImage;
+      
       const payload = {
         title: formData.title,
         description: formData.description,
+        inputImage: formData.inputImage,
         demoImage: demoUrl,
         category: formData.category,
         subCategory: formData.subCategory,
@@ -293,7 +348,7 @@ export default function CreateTemplatePage() {
         negativePrompt: formData.negativePrompt,
         templateType: formData.templateType,
         pointsCost: formData.pointsCost
-      }
+      };
 
       // Use creator-specific endpoint
       const created = await templatesApi.creatorSubmitTemplate(payload)

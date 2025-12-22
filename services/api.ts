@@ -303,7 +303,14 @@ export const templatesApi = {
 
 // Category API
 export const categoryApi = {
-  getAll: () => api.get('/categories'),
+  getAll: async () => {
+    const response = await api.get('/categories');
+    // Handle both old array format and new {success, categories} format
+    if (Array.isArray(response)) {
+      return response;
+    }
+    return response.categories || [];
+  },
   adminCreate: (payload: any) => api.post('/admin/categories', payload),
   adminUpdate: (id: string, payload: any) => api.put(`/admin/categories/${id}`, payload),
   adminDelete: (id: string) => api.delete(`/admin/categories/${id}`),

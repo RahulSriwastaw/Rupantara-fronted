@@ -176,19 +176,19 @@ export default function CreatorTemplatesPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
-                            {template.status === "approved" && (
+                            {template.approvalStatus === "approved" && (
                               <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px] sm:text-xs">
-                                APPROVED
+                                🟢 LIVE
                               </Badge>
                             )}
-                            {template.status === "pending" && (
+                            {template.approvalStatus === "pending" && (
                               <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] sm:text-xs">
-                                PENDING
+                                🟡 PENDING REVIEW
                               </Badge>
                             )}
-                            {template.status === "rejected" && (
+                            {template.approvalStatus === "rejected" && (
                               <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px] sm:text-xs">
-                                REJECTED
+                                🔴 REJECTED
                               </Badge>
                             )}
                             {template.category && (

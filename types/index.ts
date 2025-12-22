@@ -33,6 +33,13 @@ export interface Template {
   category: TemplateCategory;
   subCategory: TemplateSubCategory;
   tags: string[];
+
+  // Template Type & Source
+  type?: 'Official' | 'Creator';
+  source?: 'admin' | 'creator';
+  isOfficial?: boolean;
+
+  // Creator Info
   creatorId: string;
   creatorName: string;
   creatorAvatar?: string;
@@ -52,9 +59,22 @@ export interface Template {
   ratingCount: number;
   ageGroup?: string;
   state?: string;
+
+  // Approval Workflow
+  approvalStatus: "approved" | "pending" | "rejected";
+  rejectionReason?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  submittedAt?: string;
+
+  // Display & Features
+  isFeatured?: boolean;
+  isPaused?: boolean;
+
+  // Timestamps
   createdAt: string;
   updatedAt: string;
-  status: "approved" | "pending" | "rejected";
+  status: "active" | "draft" | "paused";
 }
 
 export type TemplateCategory = "male" | "female" | "unisex";

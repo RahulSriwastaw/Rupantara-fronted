@@ -101,39 +101,27 @@ export function TemplateCard({
     );
   }
 
-  // Instagram/Facebook style card
+  // Professional Instagram/Facebook style card
   return (
-    <Card className="overflow-hidden bg-card border-b sm:border sm:rounded-lg border-border hover:shadow-lg transition-shadow sm:mb-4 mb-4">
+    <Card className="overflow-hidden bg-card border border-border/50 rounded-xl hover:shadow-xl transition-all duration-300 hover:border-primary/20 sm:mb-4 mb-4">
       {/* Header - Creator Info */}
-      <CardContent className="p-2.5 sm:p-3 pb-2">
+      <CardContent className="p-3 sm:p-4 pb-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border border-border">
-              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+            <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-border/50 shadow-sm">
+              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-semibold text-sm">
                 {template.creatorName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1">
-                <span className="font-semibold text-xs sm:text-sm truncate">
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-sm sm:text-base truncate">
                   {template.creatorName}
                 </span>
                 {template.creatorVerified && (
-                  <div className="flex-shrink-0 h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full bg-green-500 flex items-center justify-center">
-                    <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-white stroke-[3]" />
+                  <div className="flex-shrink-0 h-4 w-4 rounded-full bg-blue-500 flex items-center justify-center shadow-sm">
+                    <Check className="h-2.5 w-2.5 text-white stroke-[3]" />
                   </div>
-                )}
-                {/* Official Template Badge - Only show for Official templates */}
-                {template.type === 'Official' && (
-                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 border-0 text-[9px] sm:text-[10px] px-1 py-0 ml-1">
-                    ⭐ OFFICIAL
-                  </Badge>
-                )}
-                {/* Creator Template Badge - Only show for Creator templates (not Official) */}
-                {template.type === 'Creator' && (
-                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 border-0 text-[9px] sm:text-[10px] px-1 py-0 ml-1">
-                    👤 CREATOR
-                  </Badge>
                 )}
               </div>
             </div>
@@ -145,8 +133,8 @@ export function TemplateCard({
               variant={isFollowing ? "outline" : "default"}
               size="sm"
               className={cn(
-                "h-7 px-2.5 sm:px-3 text-[10px] sm:text-xs",
-                isFollowing && "bg-secondary hover:bg-secondary/80"
+                "h-8 px-3 sm:px-4 text-xs sm:text-sm font-medium transition-all",
+                isFollowing && "bg-secondary hover:bg-secondary/80 border-secondary"
               )}
             >
               {isFollowing ? "Following" : "Follow"}
@@ -157,38 +145,41 @@ export function TemplateCard({
 
       {/* Image Section */}
       <div
-        className="relative w-full aspect-square overflow-hidden bg-muted cursor-pointer"
+        className="relative w-full aspect-square overflow-hidden bg-muted cursor-pointer group"
         onClick={onClick}
       >
         <Image
           src={imageSrc}
           alt={template.title}
           fill
-          className="object-cover"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
+        {/* Gradient Overlay on Hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
         {/* Badges on Image - Top Right */}
-        <div className="absolute top-2 right-2 flex flex-col gap-1.5 items-end z-10">
+        <div className="absolute top-3 right-3 flex flex-col gap-2 items-end z-10">
           {/* Official/Creator Badge - Show based on template type */}
           {template.type === 'Official' && (
-            <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 border-0 text-[9px] sm:text-[10px] px-1.5 py-0.5 shadow-lg">
+            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm">
               ⭐ OFFICIAL
             </Badge>
           )}
           {template.type === 'Creator' && (
-            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 border-0 text-[9px] sm:text-[10px] px-1.5 py-0.5 shadow-lg">
+            <Badge className="bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm text-white">
               👤 CREATOR
             </Badge>
           )}
           {/* Premium Badge */}
           {!template.isFree && (
-            <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 border-0 text-[9px] sm:text-[10px] px-1.5 py-0.5 shadow-lg">
+            <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm text-white">
               ⭐ PREMIUM
             </Badge>
           )}
           {/* Live Badge - Only for approved templates */}
           {template.approvalStatus === 'approved' && (
-            <Badge className="bg-green-500 border-0 text-[9px] sm:text-[10px] px-1.5 py-0.5 shadow-lg text-white">
+            <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm text-white">
               🟢 LIVE
             </Badge>
           )}
@@ -196,23 +187,23 @@ export function TemplateCard({
       </div>
 
       {/* Action Buttons Row */}
-      <CardContent className="p-2.5 sm:p-3 pt-2 space-y-1.5">
+      <CardContent className="p-3 sm:p-4 pt-3 space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onLike?.();
               }}
               className={cn(
-                "transition-colors",
-                isLiked ? "text-red-500" : "text-foreground hover:text-red-500"
+                "transition-all duration-200 hover:scale-110 active:scale-95",
+                isLiked ? "text-red-500" : "text-foreground/70 hover:text-red-500"
               )}
             >
               <Heart
                 className={cn(
-                  "h-4 w-4 sm:h-5 sm:w-5 transition-transform hover:scale-110",
-                  isLiked && "fill-red-500"
+                  "h-5 w-5 sm:h-6 sm:w-6 transition-all",
+                  isLiked && "fill-red-500 scale-110"
                 )}
               />
             </button>
@@ -221,9 +212,9 @@ export function TemplateCard({
               <DropdownMenuTrigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
-                  className="text-foreground hover:text-primary transition-colors"
+                  className="text-foreground/70 hover:text-primary transition-all duration-200 hover:scale-110 active:scale-95"
                 >
-                  <Share2 className="h-4 w-4 sm:h-5 sm:w-5 transition-transform hover:scale-110" />
+                  <Share2 className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -437,48 +428,54 @@ export function TemplateCard({
               onSave?.();
             }}
             className={cn(
-              "transition-colors",
-              isSaved ? "text-primary" : "text-foreground hover:text-primary"
+              "transition-all duration-200 hover:scale-110 active:scale-95",
+              isSaved ? "text-primary" : "text-foreground/70 hover:text-primary"
             )}
           >
             <Bookmark
               className={cn(
-                "h-4 w-4 sm:h-5 sm:w-5 transition-transform hover:scale-110",
-                isSaved && "fill-primary"
+                "h-5 w-5 sm:h-6 sm:w-6 transition-all",
+                isSaved && "fill-primary scale-110"
               )}
             />
           </button>
         </div>
 
-        {/* Engagement Stats - All in one line */}
-        <div className="flex items-center gap-1.5 text-xs sm:text-sm text-foreground">
-          <span className="font-semibold">{template.likeCount.toLocaleString()}</span>
-          <span className="text-muted-foreground">•</span>
-          <span className="font-semibold">{template.saveCount.toLocaleString()}</span>
-          <span className="text-muted-foreground">•</span>
+        {/* Engagement Stats - Professional styling */}
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-foreground/80">
           <div className="flex items-center gap-1">
-            <Eye className="h-3 w-3" />
-            <span>{template.usageCount.toLocaleString()}</span>
+            <Heart className={cn("h-3.5 w-3.5", isLiked && "fill-red-500 text-red-500")} />
+            <span className="font-semibold">{template.likeCount.toLocaleString()}</span>
+          </div>
+          <span className="text-muted-foreground/50">•</span>
+          <div className="flex items-center gap-1">
+            <Bookmark className={cn("h-3.5 w-3.5", isSaved && "fill-primary text-primary")} />
+            <span className="font-semibold">{template.saveCount.toLocaleString()}</span>
+          </div>
+          <span className="text-muted-foreground/50">•</span>
+          <div className="flex items-center gap-1">
+            <Eye className="h-3.5 w-3.5" />
+            <span className="font-semibold">{template.usageCount.toLocaleString()}</span>
           </div>
         </div>
 
-        {/* Title Only */}
-        <div onClick={onClick} className="cursor-pointer">
-          <h3 className="font-semibold text-sm sm:text-base line-clamp-2">
+        {/* Title */}
+        <div onClick={onClick} className="cursor-pointer group">
+          <h3 className="font-bold text-base sm:text-lg line-clamp-2 group-hover:text-primary transition-colors">
             {template.title}
           </h3>
         </div>
 
         {/* Description */}
         <div onClick={onClick} className="cursor-pointer">
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+          <p className="text-sm sm:text-base text-muted-foreground line-clamp-2 leading-relaxed">
             {template.description}
           </p>
         </div>
 
         {/* Tags */}
         {template.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {template.tags.slice(0, 3).map((tag) => (
               <button
                 key={tag}
@@ -486,14 +483,14 @@ export function TemplateCard({
                   e.stopPropagation();
                   // Filter by tag
                 }}
-                className="text-[10px] sm:text-xs text-primary hover:underline"
+                className="text-xs sm:text-sm text-primary/80 hover:text-primary font-medium transition-colors"
               >
                 #{tag}
               </button>
             ))}
             {template.tags.length > 3 && (
-              <span className="text-[10px] sm:text-xs text-muted-foreground">
-                +{template.tags.length - 3}
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                +{template.tags.length - 3} more
               </span>
             )}
           </div>
@@ -505,8 +502,8 @@ export function TemplateCard({
             e.stopPropagation();
             onUse?.();
           }}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-8 text-xs sm:text-sm"
-          size="sm"
+          className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground h-10 text-sm sm:text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+          size="lg"
         >
           Use Template ({template.pointsCost} pts)
         </Button>

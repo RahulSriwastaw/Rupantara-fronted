@@ -126,10 +126,15 @@ export default function LoginPage() {
       // Add custom parameters for better UX
       provider.setCustomParameters({
         prompt: 'select_account',
-        hd: '*', // Show account selector
       });
 
-      // Always use popup (better UX, no redirect)
+      // Force popup mode - never use redirect
+      // Check if popup is available
+      if (typeof window === 'undefined') {
+        throw new Error('Window not available');
+      }
+
+      // Always use popup - no redirect fallback
       const result = await signInWithPopup(auth, provider);
       
       // Handle the user immediately

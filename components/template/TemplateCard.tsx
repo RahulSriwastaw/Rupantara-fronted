@@ -78,14 +78,10 @@ export function TemplateCard({
           />
           <div className="absolute top-2 right-2">
             {!template.isFree ? (
-              <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 border-0 text-[10px] px-1.5 py-0">
-                Premium
+              <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 w-5 h-5 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm text-white p-0">
+                <Sparkles className="h-3 w-3" />
               </Badge>
-            ) : (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                Free
-              </Badge>
-            )}
+            ) : null}
           </div>
         </div>
         <CardContent className="p-2 space-y-1">

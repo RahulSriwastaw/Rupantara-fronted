@@ -26,10 +26,13 @@ function TemplateContent() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<Template[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [categoryChips, setCategoryChips] = useState<string[]>(["All", "Trending"]);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
+  const [categoryWithSubs, setCategoryWithSubs] = useState<Record<string, string[]>>({});
+  const [currentSubCategories, setCurrentSubCategories] = useState<string[]>([]);
 
   // Handle template ID from URL (redirect to generate page)
   useEffect(() => {
@@ -58,23 +61,45 @@ function TemplateContent() {
     resetFilters,
   } = useTemplateStore();
 
-  // Load categories once
+  // Load categories with sub-categories
   useEffect(() => {
     const loadCategories = async () => {
       try {
         const cats = await api.get('/admin/categories');
-        // Use Main Category Names to match Admin Panel
-        const catNames: string[] = Array.isArray(cats)
-          ? cats.map((c: any) => c.name).filter(Boolean)
-          : [];
+        // Build category data structure
+        const catNames: string[] = [];
+        const catSubMap: Record<string, string[]> = {};
+
+        if (Array.isArray(cats)) {
+          cats.forEach((c: any) => {
+            if (c.name) {
+              catNames.push(c.name);
+              catSubMap[c.name] = c.subCategories || [];
+            }
+          });
+        }
+
         if (catNames.length > 0) {
           setCategoryChips(["All", "Trending", ...catNames]);
           setFilterCategories(catNames);
+          setCategoryWithSubs(catSubMap);
         }
       } catch (e) { console.error("Failed to load categories", e); }
     };
     loadCategories();
   }, []);
+
+  // Update sub-categories when category changes
+  useEffect(() => {
+    if (selectedCategory && selectedCategory !== 'All' && selectedCategory !== 'Trending') {
+      const subs = categoryWithSubs[selectedCategory] || [];
+      setCurrentSubCategories(subs);
+      setSelectedSubCategory(null); // Reset sub-category selection
+    } else {
+      setCurrentSubCategories([]);
+      setSelectedSubCategory(null);
+    }
+  }, [selectedCategory, categoryWithSubs]);
 
   // Fetch Templates with Server-Side Filtering
   useEffect(() => {
@@ -86,7 +111,13 @@ function TemplateContent() {
         // Header Category Filter
         if (selectedCategory && selectedCategory !== 'All') {
           if (selectedCategory === "Trending") params.append('sort', 'Trending');
-          else params.append('category', selectedCategory); // Filter by Main Category Name
+          else {
+            params.append('category', selectedCategory);
+            // Sub-category filter
+            if (selectedSubCategory) {
+              params.append('subCategory', selectedSubCategory);
+            }
+          }
         }
 
         // Search
@@ -136,7 +167,7 @@ function TemplateContent() {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [selectedCategory, searchQuery, filters, toast]);
+  }, [selectedCategory, selectedSubCategory, searchQuery, filters, toast]);
 
   const handleUseTemplate = (templateId: string) => {
     router.push(`/generate?templateId=${templateId}`);
@@ -209,6 +240,45 @@ function TemplateContent() {
             );
           })}
         </div>
+
+        {/* Sub-Category Bar - Shows when category is selected */}
+        {currentSubCategories.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">Select Style:</p>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {/* All sub-categories option */}
+              <Badge
+                variant={selectedSubCategory === null ? "default" : "outline"}
+                className={cn(
+                  "cursor-pointer whitespace-nowrap flex-shrink-0 text-xs transition-all",
+                  selectedSubCategory === null
+                    ? "bg-primary/80 text-white border-primary"
+                    : "text-foreground border-border hover:bg-secondary"
+                )}
+                onClick={() => setSelectedSubCategory(null)}
+              >
+                All Styles
+              </Badge>
+
+              {/* Individual sub-categories */}
+              {currentSubCategories.map((subCat) => (
+                <Badge
+                  key={subCat}
+                  variant={selectedSubCategory === subCat ? "default" : "outline"}
+                  className={cn(
+                    "cursor-pointer whitespace-nowrap flex-shrink-0 text-xs transition-all",
+                    selectedSubCategory === subCat
+                      ? "bg-primary/80 text-white border-primary"
+                      : "text-foreground border-border hover:bg-secondary"
+                  )}
+                  onClick={() => setSelectedSubCategory(subCat)}
+                >
+                  {subCat}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Trending Section */}

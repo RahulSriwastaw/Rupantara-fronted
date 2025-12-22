@@ -133,15 +133,28 @@ export default function CreateTemplatePage() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
+      console.log('📸 Image loaded:', result ? 'Success' : 'Failed');
+      console.log('📏 Image size:', result?.length, 'bytes');
+
       if (type === 'demo') {
+        console.log('✅ Setting demo image to formData');
         setFormData((prev) => ({ ...prev, demoImage: result }));
       } else if (type === 'example' && index !== undefined) {
+        console.log('✅ Setting example image', index, 'to formData');
         setFormData((prev) => {
           const newExamples = [...prev.exampleImages];
           newExamples[index] = result;
           return { ...prev, exampleImages: newExamples };
         });
       }
+    };
+    reader.onerror = (error) => {
+      console.error('❌ FileReader error:', error);
+      toast({
+        title: "Upload Error",
+        description: "Failed to read the image file",
+        variant: "destructive"
+      });
     };
     reader.readAsDataURL(file);
   }, [toast]);
@@ -799,19 +812,19 @@ export default function CreateTemplatePage() {
               <div className="space-y-3 p-4 rounded-xl bg-secondary/30">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Template Details</span>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => setTemplateCreationStep(1)}>
                     Edit
                   </Button>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Base AI Model</span>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => setTemplateCreationStep(3)}>
                     Edit
                   </Button>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Core Prompt</span>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => setTemplateCreationStep(3)}>
                     Edit
                   </Button>
                 </div>

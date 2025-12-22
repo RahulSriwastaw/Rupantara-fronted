@@ -68,11 +68,11 @@ export default function CreatorTemplatesPage() {
   };
 
   const handleEdit = (templateId: string) => {
-    router.push(`/templates/${templateId}/edit`);
+    router.push(`/templates/edit?id=${templateId}`);
   };
 
   const handleViewAnalytics = (templateId: string) => {
-    router.push(`/templates/${templateId}/analytics`);
+    router.push(`/templates/analytics?id=${templateId}`);
   };
 
   const handleDuplicate = async (templateId: string) => {
@@ -103,7 +103,7 @@ export default function CreatorTemplatesPage() {
         prompt: template.hiddenPrompt || template.visiblePrompt || '',
         negativePrompt: template.negativePrompt || '',
         tags: template.tags || [],
-        gender: template.gender,
+        gender: (template as any).gender,
         isPremium: !template.isFree,
       };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Eye, DollarSign, Star, Heart, TrendingUp, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,10 +11,10 @@ import { useTemplateStore } from "@/store/templateStore";
 
 export default function TemplateAnalyticsPage() {
   const router = useRouter();
-  const params = useParams();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { getTemplateById } = useTemplateStore();
-  const templateId = params.id as string;
+  const templateId = searchParams.get('id') || '';
   
   const [template, setTemplate] = useState<any>(null);
   const [analytics, setAnalytics] = useState<any>(null);
@@ -53,14 +53,16 @@ export default function TemplateAnalyticsPage() {
         } catch (error: any) {
           console.error('Failed to load analytics:', error);
           // Use template data as fallback
+          const views = templateData.views ?? 0;
+          const usageCount = templateData.usageCount || 0;
           setAnalytics({
-            useCount: templateData.usageCount || 0,
-            viewCount: templateData.views || 0,
+            useCount: usageCount,
+            viewCount: views,
             likeCount: templateData.likeCount || 0,
             savesCount: templateData.saveCount || 0,
             earningsGenerated: templateData.earnings || 0,
-            conversionRate: templateData.views > 0 
-              ? ((templateData.usageCount / templateData.views) * 100).toFixed(2)
+            conversionRate: views > 0 
+              ? ((usageCount / views) * 100).toFixed(2)
               : 0
           });
         }
@@ -97,14 +99,16 @@ export default function TemplateAnalyticsPage() {
     return null;
   }
 
+  const templateViews = template.views ?? 0;
+  const templateUsageCount = template.usageCount || 0;
   const stats = analytics || {
-    useCount: template.usageCount || 0,
-    viewCount: template.views || 0,
+    useCount: templateUsageCount,
+    viewCount: templateViews,
     likeCount: template.likeCount || 0,
     savesCount: template.saveCount || 0,
     earningsGenerated: template.earnings || 0,
-    conversionRate: template.views > 0 
-      ? ((template.usageCount / template.views) * 100).toFixed(2)
+    conversionRate: templateViews > 0 
+      ? ((templateUsageCount / templateViews) * 100).toFixed(2)
       : 0
   };
 

@@ -280,7 +280,16 @@ export const templatesApi = {
       state: t.state ? String(t.state) : undefined,
       createdAt: String(t.createdAt || new Date().toISOString()),
       updatedAt: String(t.updatedAt || new Date().toISOString()),
-      status: (String(t.status || 'approved') as Template['status']),
+      status: (String(t.status || 'active') as Template['status']),
+      // Approval Workflow
+      approvalStatus: (String(t.approvalStatus || (t.status === 'active' ? 'approved' : 'pending')) as Template['approvalStatus']),
+      rejectionReason: t.rejectionReason ? String(t.rejectionReason) : undefined,
+      approvedAt: t.approvedAt ? String(t.approvedAt) : undefined,
+      rejectedAt: t.rejectedAt ? String(t.rejectedAt) : undefined,
+      submittedAt: t.submittedAt ? String(t.submittedAt) : undefined,
+      // Display & Features
+      isFeatured: Boolean(t.isFeatured || false),
+      isPaused: Boolean(t.isPaused || false),
     }));
   },
   getById: async (id: string): Promise<Template | null> => {
@@ -455,7 +464,7 @@ export const creatorApi = {
     isPremium?: boolean;
   }) => api.put(`/creator/templates/${id}`, data),
   deleteTemplate: (id: string) => api.delete(`/creator/templates/${id}`),
-  duplicateTemplate: (id: string) => api.post(`/creator/templates/${id}/duplicate`),
+  duplicateTemplate: (id: string) => api.post(`/creator/templates/${id}/duplicate`, {}),
   getTemplateAnalytics: (id: string) => {
     // Try creator endpoint first, fallback to admin endpoint
     return api.get(`/creator/templates/${id}/analytics`).catch(() => 

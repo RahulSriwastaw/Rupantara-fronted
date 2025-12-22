@@ -1,21 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { creatorApi } from "@/services/api";
 import { useTemplateStore } from "@/store/templateStore";
-// Edit form will be implemented inline
 
 export default function EditTemplatePage() {
   const router = useRouter();
-  const params = useParams();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { getTemplateById, fetchCreatorTemplates } = useTemplateStore();
-  const templateId = params.id as string;
+  const templateId = searchParams.get('id') || '';
   
   const [template, setTemplate] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);

@@ -75,9 +75,19 @@ export default function CreatorDashboardPage() {
 
   // Calculate engagement metrics from stats or templates
   const totalTemplates = stats?.totalTemplates ?? templates.length;
-  const approvedTemplates = stats?.approvedTemplates ?? templates.filter(t => t.status === "approved").length;
-  const pendingTemplates = stats?.pendingTemplates ?? templates.filter(t => t.status === "pending").length;
-  const rejectedTemplates = stats?.rejectedTemplates ?? templates.filter(t => t.status === "rejected").length;
+  // Use approvalStatus instead of status for approval workflow
+  const approvedTemplates = stats?.approvedTemplates ?? templates.filter(t => {
+    const template = t as any;
+    return template.approvalStatus === "approved" || (!template.approvalStatus && t.status === "active");
+  }).length;
+  const pendingTemplates = stats?.pendingTemplates ?? templates.filter(t => {
+    const template = t as any;
+    return template.approvalStatus === "pending";
+  }).length;
+  const rejectedTemplates = stats?.rejectedTemplates ?? templates.filter(t => {
+    const template = t as any;
+    return template.approvalStatus === "rejected";
+  }).length;
 
   const totalEngagement = stats?.totalUses ?? templates.reduce((sum, t) => sum + (t.usageCount || 0), 0);
   const followers = stats?.followers ?? 0;

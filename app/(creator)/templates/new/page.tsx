@@ -325,20 +325,25 @@ export default function CreateTemplatePage() {
                 <Label>Category</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, category: value })
-                  }
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, category: value, subCategory: '' }); // Reset sub-category
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Sci-Fi">Sci-Fi</SelectItem>
-                    <SelectItem value="Portrait">Portrait</SelectItem>
-                    <SelectItem value="Landscape">Landscape</SelectItem>
-                    <SelectItem value="Abstract">Abstract</SelectItem>
-                    <SelectItem value="Anime">Anime</SelectItem>
-                    <SelectItem value="General">General</SelectItem>
+                    {loadingCategories ? (
+                      <SelectItem value="loading" disabled>Loading...</SelectItem>
+                    ) : categories.length === 0 ? (
+                      <SelectItem value="none" disabled>No categories available</SelectItem>
+                    ) : (
+                      categories.map((cat: any) => (
+                        <SelectItem key={cat.id || cat._id || cat.name} value={cat.name}>
+                          {cat.name}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -350,42 +355,30 @@ export default function CreateTemplatePage() {
                   onValueChange={(value) =>
                     setFormData({ ...formData, subCategory: value })
                   }
+                  disabled={!formData.category}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a sub-category" />
+                    <SelectValue placeholder={!formData.category ? "Select category first" : "Select a sub-category"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* Sci-Fi Sub-categories */}
-                    <SelectItem value="Cyberpunk">Cyberpunk</SelectItem>
-                    <SelectItem value="Hacker">Hacker</SelectItem>
-                    <SelectItem value="Stealth">Stealth</SelectItem>
-                    <SelectItem value="Futuristic City">Futuristic City</SelectItem>
+                    {!formData.category ? (
+                      <SelectItem value="none" disabled>Select category first</SelectItem>
+                    ) : (
+                      (() => {
+                        const selectedCategory = categories.find((cat: any) => cat.name === formData.category);
+                        const subCategories = selectedCategory?.subCategories || [];
 
-                    {/* Portrait Sub-categories */}
-                    <SelectItem value="Realistic">Realistic</SelectItem>
-                    <SelectItem value="Anime">Anime</SelectItem>
-                    <SelectItem value="Oil Painting">Oil Painting</SelectItem>
-                    <SelectItem value="Studio">Studio</SelectItem>
-                    <SelectItem value="Vintage">Vintage</SelectItem>
+                        if (subCategories.length === 0) {
+                          return <SelectItem value="none" disabled>No sub-categories available</SelectItem>;
+                        }
 
-                    {/* Landscape Sub-categories */}
-                    <SelectItem value="Nature">Nature</SelectItem>
-                    <SelectItem value="Urban">Urban</SelectItem>
-                    <SelectItem value="Fantasy">Fantasy</SelectItem>
-                    <SelectItem value="Surreal">Surreal</SelectItem>
-
-                    {/* Abstract Sub-categories */}
-                    <SelectItem value="Fluid">Fluid</SelectItem>
-                    <SelectItem value="Geometric">Geometric</SelectItem>
-                    <SelectItem value="Textual">Textual</SelectItem>
-
-                    {/* Anime Sub-categories */}
-                    <SelectItem value="Manga">Manga</SelectItem>
-                    <SelectItem value="Chibi">Chibi</SelectItem>
-                    <SelectItem value="Mecha">Mecha</SelectItem>
-
-                    {/* General Sub-category */}
-                    <SelectItem value="Misc">Misc</SelectItem>
+                        return subCategories.map((subCat: string) => (
+                          <SelectItem key={subCat} value={subCat}>
+                            {subCat}
+                          </SelectItem>
+                        ));
+                      })()
+                    )}
                   </SelectContent>
                 </Select>
               </div>

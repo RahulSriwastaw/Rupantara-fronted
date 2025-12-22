@@ -181,11 +181,10 @@ function ProPageContent() {
     } catch (error: any) {
       console.error('Payment error:', error);
       const errorMessage = error.message || error.msg || "Something went wrong. Please try again.";
+      // Show backend error message directly for better clarity
       toast({
         title: "Payment Failed",
-        description: errorMessage.includes('credentials') || errorMessage.includes('configure') 
-          ? "Payment gateway not configured. Please contact support."
-          : errorMessage,
+        description: errorMessage,
         variant: "destructive",
       });
       setIsProcessing(false);

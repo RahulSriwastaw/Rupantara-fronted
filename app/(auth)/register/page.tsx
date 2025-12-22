@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { User, Mail, Phone, Lock, Loader2, Sparkles, Eye, EyeOff, Check, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 

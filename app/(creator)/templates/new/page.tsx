@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Upload, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useTemplateStore } from "@/store/templateStore";
-import { templatesApi, categoryApi } from "@/services/api";
+import { templatesApi, categoryApi, creatorApi } from "@/services/api";
 import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
@@ -36,14 +36,19 @@ const steps = [
 
 export default function CreateTemplatePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
-  const { addTemplate } = useTemplateStore();
+  const { addTemplate, getTemplateById } = useTemplateStore();
   const {
     templateCreationStep: currentStep,
     setTemplateCreationStep,
     nextTemplateCreationStep,
     prevTemplateCreationStep
   } = useUIStore();
+  
+  // Check if editing existing template
+  const editTemplateId = searchParams.get('edit') || '';
+  const isEditMode = !!editTemplateId;
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -95,6 +100,64 @@ export default function CreateTemplatePage() {
     };
     fetchCategories();
   }, []);
+
+  // Load template data if editing
+  useEffect(() => {
+    const loadTemplateForEdit = async () => {
+      if (!isEditMode || !editTemplateId) return;
+      
+      try {
+        // Try to get from store first
+        let templateData = getTemplateById(editTemplateId);
+        
+        // If not in store, fetch from API
+        if (!templateData) {
+          const templates = await creatorApi.getTemplates();
+          templateData = templates.templates?.find((t: any) => t.id === editTemplateId);
+        }
+        
+        if (templateData) {
+          // Pre-fill form with template data
+          const template = templateData as any; // Type assertion for edit mode
+          setFormData({
+            title: template.title || "",
+            description: template.description || "",
+            category: template.category || "",
+            subCategory: template.subCategory || "",
+            tags: template.tags || [],
+            ageGroup: template.ageGroup || "All Ages",
+            isActive: template.status === 'active',
+            inputImage: template.inputImage || "",
+            demoImage: template.image || template.demoImage || "",
+            exampleImages: template.additionalImages || [],
+            hiddenPrompt: template.hiddenPrompt || template.visiblePrompt || "",
+            visiblePrompt: template.visiblePrompt || template.title || "",
+            negativePrompt: template.negativePrompt || "",
+            templateType: template.isFree ? "free" : "premium",
+            pointsCost: template.pointsCost || 25,
+            quality: "HD",
+            aspectRatio: "1:1",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Template not found",
+            variant: "destructive",
+          });
+          router.push("/templates");
+        }
+      } catch (error: any) {
+        console.error('Failed to load template for edit:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load template",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadTemplateForEdit();
+  }, [isEditMode, editTemplateId, getTemplateById, router, toast]);
 
   const addTag = () => {
     if (tagInput && formData.tags.length < 10) {
@@ -350,18 +413,40 @@ export default function CreateTemplatePage() {
         pointsCost: formData.pointsCost
       };
 
-      // Use creator-specific endpoint
-      const created = await templatesApi.creatorSubmitTemplate(payload)
+      // Check if editing or creating
+      if (isEditMode && editTemplateId) {
+        // Update existing template
+        await creatorApi.updateTemplate(editTemplateId, {
+          title: payload.title,
+          description: payload.description,
+          imageUrl: payload.imageUrl,
+          category: payload.category,
+          subCategory: payload.subCategory,
+          prompt: payload.hiddenPrompt,
+          negativePrompt: payload.negativePrompt,
+          tags: payload.tags,
+          isPremium: payload.templateType === 'premium',
+        });
 
-      addTemplate({
-        ...created.template,
-        additionalImages: created.template.exampleImages || [],
-      })
+        toast({
+          title: "✅ Template Updated!",
+          description: "Your template has been updated. It will be reviewed again if it was previously approved."
+        });
+      } else {
+        // Create new template
+        const created = await templatesApi.creatorSubmitTemplate(payload);
 
-      toast({
-        title: "✅ Template Submitted!",
-        description: "Your template is now pending review. You'll be notified when it's approved."
-      })
+        addTemplate({
+          ...created.template,
+          additionalImages: created.template.exampleImages || [],
+        });
+
+        toast({
+          title: "✅ Template Submitted!",
+          description: "Your template is now pending review. You'll be notified when it's approved."
+        });
+      }
+      
       router.push("/templates")
     } catch (e: any) {
       console.error('Template submission error:', e)
@@ -381,7 +466,9 @@ export default function CreateTemplatePage() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">Create New Template</h1>
+          <h1 className="text-2xl font-bold">
+            {isEditMode ? "Edit Template" : "Create New Template"}
+          </h1>
           <p className="text-sm text-muted-foreground">
             Step {currentStep} of 5
           </p>
@@ -1006,10 +1093,12 @@ export default function CreateTemplatePage() {
 
             <div className="space-y-3">
               <Button onClick={handleSubmit} className="w-full" size="lg">
-                Submit for Review
+                {isEditMode ? "Update Template" : "Submit for Review"}
               </Button>
               <p className="text-xs text-center text-muted-foreground">
-                Your template will be reviewed within 3-5 business days.
+                {isEditMode 
+                  ? "Your template will be reviewed again if it was previously approved."
+                  : "Your template will be reviewed within 3-5 business days."}
               </p>
             </div>
           </CardContent>

@@ -22,9 +22,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useTemplateStore } from "@/store/templateStore";
+import { creatorApi } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CreatorTemplatesPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const {
     templates,
     isLoading,
@@ -37,6 +40,7 @@ export default function CreatorTemplatesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCreatorTemplates(activeTab === "all" ? undefined : activeTab, sortBy);
@@ -61,6 +65,93 @@ export default function CreatorTemplatesPage() {
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
+  };
+
+  const handleEdit = (templateId: string) => {
+    router.push(`/templates/${templateId}/edit`);
+  };
+
+  const handleViewAnalytics = (templateId: string) => {
+    router.push(`/templates/${templateId}/analytics`);
+  };
+
+  const handleDuplicate = async (templateId: string) => {
+    try {
+      toast({
+        title: "Duplicating template...",
+        description: "Please wait while we create a copy of your template.",
+      });
+      
+      // First get the template data
+      const template = templates.find(t => t.id === templateId);
+      if (!template) {
+        toast({
+          title: "Error",
+          description: "Template not found",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create a duplicate by creating a new template with same data
+      const duplicateData = {
+        title: `${template.title} (Copy)`,
+        description: template.description || '',
+        imageUrl: template.image || template.demoImage || '',
+        category: template.category,
+        subCategory: template.subCategory,
+        prompt: template.hiddenPrompt || template.visiblePrompt || '',
+        negativePrompt: template.negativePrompt || '',
+        tags: template.tags || [],
+        gender: template.gender,
+        isPremium: !template.isFree,
+      };
+
+      await creatorApi.createTemplate(duplicateData);
+      
+      toast({
+        title: "Success!",
+        description: "Template duplicated successfully. It will be submitted for review.",
+      });
+      
+      // Refresh templates list
+      fetchCreatorTemplates(activeTab === "all" ? undefined : activeTab, sortBy);
+    } catch (error: any) {
+      console.error('Failed to duplicate template:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to duplicate template",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (templateId: string) => {
+    if (!confirm("Are you sure you want to delete this template? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      setDeletingId(templateId);
+      await creatorApi.deleteTemplate(templateId);
+      
+      toast({
+        title: "Success!",
+        description: "Template deleted successfully.",
+      });
+      
+      // Refresh templates list
+      fetchCreatorTemplates(activeTab === "all" ? undefined : activeTab, sortBy);
+    } catch (error: any) {
+      console.error('Failed to delete template:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete template. Only pending or rejected templates can be deleted.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   if (isLoading && templates.length === 0) {
@@ -209,11 +300,29 @@ export default function CreatorTemplatesPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem>View Analytics</DropdownMenuItem>
-                            <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
-                              Delete
+                            <DropdownMenuItem 
+                              onClick={() => handleEdit(template.id)}
+                              disabled={template.approvalStatus === 'approved'}
+                            >
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleViewAnalytics(template.id)}
+                              disabled={template.approvalStatus !== 'approved'}
+                            >
+                              View Analytics
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDuplicate(template.id)}
+                            >
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleDelete(template.id)}
+                              disabled={deletingId === template.id}
+                            >
+                              {deletingId === template.id ? "Deleting..." : "Delete"}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

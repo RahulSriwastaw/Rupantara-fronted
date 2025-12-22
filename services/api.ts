@@ -442,6 +442,26 @@ export const creatorApi = {
     gender?: string;
     isPremium?: boolean;
   }) => api.post('/creator/templates', data),
+  updateTemplate: (id: string, data: {
+    title?: string;
+    description?: string;
+    imageUrl?: string;
+    category?: string;
+    subCategory?: string;
+    prompt?: string;
+    negativePrompt?: string;
+    tags?: string[];
+    gender?: string;
+    isPremium?: boolean;
+  }) => api.put(`/creator/templates/${id}`, data),
+  deleteTemplate: (id: string) => api.delete(`/creator/templates/${id}`),
+  duplicateTemplate: (id: string) => api.post(`/creator/templates/${id}/duplicate`),
+  getTemplateAnalytics: (id: string) => {
+    // Try creator endpoint first, fallback to admin endpoint
+    return api.get(`/creator/templates/${id}/analytics`).catch(() => 
+      api.get(`/admin/creators/templates/${id}/analytics`)
+    );
+  },
 
   // Notifications
   getNotifications: (page = 1, limit = 20, type?: string) =>

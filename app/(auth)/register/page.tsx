@@ -323,9 +323,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-3 sm:p-4 md:p-6">
-      {/* Clean Simple Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-3 sm:p-4 md:p-6 bg-transparent">
 
       <Card className="w-full max-w-[95%] sm:max-w-md relative z-10 p-6 sm:p-8 md:p-10 space-y-5 sm:space-y-6 shadow-2xl border border-white/10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-2xl max-h-[95vh] overflow-y-auto">
         {/* Header */}

@@ -149,10 +149,15 @@ export default function RegisterPage() {
       // Add custom parameters for better UX
       provider.setCustomParameters({
         prompt: 'select_account',
-        hd: '*',
       });
 
-      // Use popup (better UX, no redirect)
+      // Force popup mode - never use redirect
+      // Check if popup is available
+      if (typeof window === 'undefined') {
+        throw new Error('Window not available');
+      }
+
+      // Always use popup - no redirect fallback
       const result = await signInWithPopup(auth, provider);
       
       // Handle the user immediately
@@ -318,33 +323,21 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-3 sm:p-4 md:p-6">
-      {/* Professional Animated Gradient Background */}
+      {/* Clean Simple Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
-      
-      {/* Animated Mesh Gradient Overlay */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.3),transparent_50%)]" />
-        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_50%,rgba(139,92,246,0.3),transparent_50%)]" />
-        <div className="absolute bottom-0 left-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_80%,rgba(99,102,241,0.2),transparent_50%)]" />
-      </div>
-
-      {/* Animated Decorative Elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-      
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
       <Card className="w-full max-w-[95%] sm:max-w-md relative z-10 p-6 sm:p-8 md:p-10 space-y-5 sm:space-y-6 shadow-2xl border border-white/10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-2xl max-h-[95vh] overflow-y-auto">
         {/* Header */}
         <div className="text-center space-y-2 sm:space-y-3">
           <div className="flex justify-center mb-4 sm:mb-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur-lg opacity-50 animate-pulse" />
-              <div className="relative p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-xl">
-                <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Rupantar AI"
+                width={64}
+                height={64}
+                className="h-16 w-16 sm:h-20 sm:w-20"
+              />
             </div>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">

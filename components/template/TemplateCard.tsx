@@ -166,10 +166,10 @@ export function TemplateCard({
               ⭐ OFFICIAL
             </Badge>
           )}
-          {/* Premium Badge */}
+          {/* Premium Badge - Only icon */}
           {!template.isFree && (
-            <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm text-white">
-              ⭐ PREMIUM
+            <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 text-base sm:text-lg font-semibold w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shadow-xl backdrop-blur-sm text-white p-0">
+              ⭐
             </Badge>
           )}
         </div>

@@ -574,10 +574,74 @@ export default function CreateTemplatePage() {
           <CardContent className="p-6 space-y-6">
             <h2 className="text-xl font-bold">Template Visuals</h2>
 
+            {/* INPUT IMAGE (BEFORE) */}
             <div className="space-y-2">
-              <Label>Upload Demo Image</Label>
+              <Label className="text-base font-semibold flex items-center gap-2">
+                <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">BEFORE</span>
+                Input Image (Original Photo)
+              </Label>
               <p className="text-sm text-muted-foreground">
-                This is the primary visual for your template. It is a required field.
+                Upload the user's original photo that will be INPUT for AI generation.
+              </p>
+              <input
+                ref={inputImageInputRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleInputImageChange}
+                className="hidden"
+              />
+              {formData.inputImage ? (
+                <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-green-500">
+                  <Image
+                    src={formData.inputImage}
+                    alt="Input image"
+                    fill
+                    className="object-cover"
+                    unoptimized={formData.inputImage.startsWith('data:')}
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 z-10"
+                    onClick={removeInputImage}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div
+                  onDrop={handleInputImageDrop}
+                  onDragOver={handleInputImageDragOver}
+                  onDragLeave={handleInputImageDragLeave}
+                  onClick={handleInputImageClick}
+                  className={cn(
+                    "border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors",
+                    isDragging
+                      ? "border-green-500 bg-green-50"
+                      : "border-green-500 hover:bg-green-50/50"
+                  )}
+                >
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-green-500" />
+                  <p className="font-medium mb-2">
+                    {isDragging ? "Drop your image here" : "Upload Input Image (BEFORE)"}
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">or</p>
+                  <Button variant="outline" type="button">Browse Files</Button>
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Max 5MB. Formats: JPG, PNG, WEBP
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* OUTPUT IMAGE (AFTER) */}
+            <div className="space-y-2">
+              <Label className="text-base font-semibold flex items-center gap-2">
+                <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">AFTER</span>
+                Output Image (Generated Result)
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Upload the AI-generated result. This will be your template's thumbnail/demo.
               </p>
               <input
                 ref={demoImageInputRef}
@@ -587,12 +651,13 @@ export default function CreateTemplatePage() {
                 className="hidden"
               />
               {formData.demoImage ? (
-                <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-border">
+                <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-blue-500">
                   <Image
                     src={formData.demoImage}
-                    alt="Demo image"
+                    alt="Output image"
                     fill
                     className="object-cover"
+                    unoptimized={formData.demoImage.startsWith('data:')}
                   />
                   <Button
                     variant="destructive"
@@ -612,13 +677,13 @@ export default function CreateTemplatePage() {
                   className={cn(
                     "border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors",
                     isDragging
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-blue-500 hover:bg-blue-50/50"
                   )}
                 >
-                  <Upload className="h-12 w-12 mx-auto mb-4 text-primary" />
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-blue-500" />
                   <p className="font-medium mb-2">
-                    {isDragging ? "Drop your image here" : "Drag & drop your image here"}
+                    {isDragging ? "Drop your image here" : "Upload Output Image (AFTER)"}
                   </p>
                   <p className="text-sm text-muted-foreground mb-4">or</p>
                   <Button variant="outline" type="button">Browse Files</Button>

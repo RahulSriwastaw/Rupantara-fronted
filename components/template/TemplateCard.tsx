@@ -160,27 +160,16 @@ export function TemplateCard({
         
         {/* Badges on Image - Top Right */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 items-end z-10">
-          {/* Official/Creator Badge - Show based on template type */}
+          {/* Official Badge - Only show for Official templates */}
           {template.type === 'Official' && (
             <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm">
               ⭐ OFFICIAL
-            </Badge>
-          )}
-          {template.type === 'Creator' && (
-            <Badge className="bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm text-white">
-              👤 CREATOR
             </Badge>
           )}
           {/* Premium Badge */}
           {!template.isFree && (
             <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm text-white">
               ⭐ PREMIUM
-            </Badge>
-          )}
-          {/* Live Badge - Only for approved templates */}
-          {template.approvalStatus === 'approved' && (
-            <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm text-white">
-              🟢 LIVE
             </Badge>
           )}
         </div>

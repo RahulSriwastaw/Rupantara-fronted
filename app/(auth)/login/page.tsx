@@ -246,7 +246,7 @@ export default function LoginPage() {
 
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="min-h-screen flex items-center justify-center bg-transparent">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );

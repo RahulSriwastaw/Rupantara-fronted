@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Bookmark, Eye, Check, Share2, MessageCircle, Facebook, Twitter, Copy } from "lucide-react";
+import { Heart, Bookmark, Eye, Check, Share2, MessageCircle, Facebook, Twitter, Copy, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -166,10 +166,10 @@ export function TemplateCard({
               ⭐ OFFICIAL
             </Badge>
           )}
-          {/* Premium Badge - Only icon */}
+          {/* Premium Badge - Only icon (Sparkles) */}
           {!template.isFree && (
-            <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 text-base sm:text-lg font-semibold w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shadow-xl backdrop-blur-sm text-white p-0">
-              ⭐
+            <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shadow-xl backdrop-blur-sm text-white p-0">
+              <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Badge>
           )}
         </div>

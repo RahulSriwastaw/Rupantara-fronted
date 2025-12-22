@@ -118,12 +118,12 @@ function ProPageContent() {
 
       // Handle Razorpay
       const options = {
-        key: orderResponse.key,
+        key: orderResponse.key || orderResponse.keyId,
         amount: orderResponse.amount, // Already in paise from backend
         currency: orderResponse.currency,
         name: 'Rupantara AI',
         description: `${plan.name} - ${plan.points}`,
-        order_id: orderResponse.orderId,
+        order_id: orderResponse.orderId || orderResponse.id || orderResponse.order_id,
         handler: async function (response: any) {
           try {
             // Verify payment

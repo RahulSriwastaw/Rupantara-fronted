@@ -300,6 +300,10 @@ export const templatesApi = {
       // Display & Features
       isFeatured: Boolean(t.isFeatured || false),
       isPaused: Boolean(t.isPaused || false),
+      // Template Type & Source
+      type: (String(t.type || (t.isOfficial ? 'Official' : 'Creator')) as Template['type']),
+      source: (String(t.source || (t.isOfficial ? 'admin' : 'creator')) as Template['source']),
+      isOfficial: Boolean(t.isOfficial || t.type === 'Official' || t.source === 'admin'),
     }));
   },
   getById: async (id: string): Promise<Template | null> => {

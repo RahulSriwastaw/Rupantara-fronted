@@ -114,7 +114,7 @@ export default function CreateTemplatePage() {
   };
 
   // Handle file upload and convert to base64
-  const handleFileUpload = useCallback((file: File, type: 'demo' | 'example', index?: number) => {
+  const handleFileUpload = useCallback((file: File, type: 'input' | 'demo' | 'example', index?: number) => {
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "File too large",
@@ -140,9 +140,14 @@ export default function CreateTemplatePage() {
       console.log('📸 Image loaded:', result ? 'Success' : 'Failed');
       console.log('📏 Image size:', result?.length, 'bytes');
 
-      if (type === 'demo') {
-        console.log('✅ Setting demo image to formData');
+      if (type === 'input') {
+        console.log('✅ Setting input image (BEFORE)');
+        setFormData((prev) => ({ ...prev, inputImage: result }));
+        toast({ title: "✅ Input Image Uploaded", description: "Original photo uploaded!" });
+      } else if (type === 'demo') {
+        console.log('✅ Setting demo image (AFTER)');
         setFormData((prev) => ({ ...prev, demoImage: result }));
+        toast({ title: "✅ Output Image Uploaded", description: "Generated result uploaded!" });
       } else if (type === 'example' && index !== undefined) {
         console.log('✅ Setting example image', index, 'to formData');
         setFormData((prev) => {
@@ -162,6 +167,43 @@ export default function CreateTemplatePage() {
     };
     reader.readAsDataURL(file);
   }, [toast]);
+
+  // Input image handlers
+  const handleInputImageClick = () => {
+    inputImageInputRef.current?.click();
+  };
+
+  const handleInputImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file, 'input');
+    }
+  };
+
+  const handleInputImageDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleFileUpload(file, 'input');
+    }
+  }, [handleFileUpload]);
+
+  const handleInputImageDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleInputImageDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const removeInputImage = () => {
+    setFormData({ ...formData, inputImage: "" });
+    if (inputImageInputRef.current) {
+      inputImageInputRef.current.value = "";
+    }
+  };
 
   // Demo image handlers
   const handleDemoImageClick = () => {

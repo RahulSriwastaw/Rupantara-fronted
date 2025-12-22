@@ -79,7 +79,7 @@ export function TemplateCard({
           <div className="absolute top-2 right-2">
             {!template.isFree ? (
               <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 w-5 h-5 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm text-white p-0">
-                <Sparkles className="h-3 w-3" />
+                <Crown className="h-3 w-3" />
               </Badge>
             ) : null}
           </div>

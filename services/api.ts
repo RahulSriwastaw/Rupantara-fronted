@@ -100,8 +100,8 @@ export const api = {
       if (error.message === 'Request timeout') {
         throw new Error('Request timeout. Please check your connection and try again.');
       }
-      if (error.message.includes('Failed to fetch')) {
-        throw new Error('Unable to connect to server. Please check your connection.');
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        throw new Error('Unable to connect to server. Please check your internet connection.');
       }
       throw error;
     }
@@ -134,6 +134,20 @@ export const api = {
           throw new Error('Resource not found. Please try again.');
         }
 
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          // Clear invalid token
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('token');
+          }
+          throw new Error('Session expired. Please login again.');
+        }
+
+        // Handle 400 Bad Request
+        if (response.status === 400) {
+          throw new Error(errorMessage || 'Invalid request. Please check your input.');
+        }
+
         // Handle 500 errors but allow specific messages
         if (response.status >= 500) {
           if (errorMessage && !errorMessage.includes('API request failed')) {
@@ -149,8 +163,8 @@ export const api = {
       if (error.message === 'Request timeout') {
         throw new Error('Request timeout. Please check your connection and try again.');
       }
-      if (error.message.includes('Failed to fetch')) {
-        throw new Error('Unable to connect to server. Please check your connection.');
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        throw new Error('Unable to connect to server. Please check your internet connection.');
       }
       throw error;
     }
@@ -277,7 +291,22 @@ export const generationsApi = {
     if (!res.ok) throw new Error("Download failed via proxy");
     return res.blob();
   },
-  create: (data: any) => api.post('/generation/generate', data),
+  create: (data: any) => {
+    // Map frontend fields to backend expected format
+    const backendData = {
+      templateId: data.templateId,
+      userPrompt: data.userPrompt || data.prompt,
+      prompt: data.prompt || data.userPrompt,
+      negativePrompt: data.negativePrompt,
+      uploadedImages: data.uploadedImages || (data.faceImageUrl ? [data.faceImageUrl] : []),
+      quality: data.quality || 'HD',
+      aspectRatio: data.aspectRatio || '1:1',
+      modelId: data.modelId, // Pass model selection to backend
+      strength: data.imageStrength, // For I2I strength
+      variations: data.variations || 1,
+    };
+    return api.post('/generation/generate', backendData);
+  },
   getById: (id: string) => api.get(`/generation/${id}`),
   getHistory: (page = 1, limit = 20) => api.get(`/generation/history?page=${page}&limit=${limit}`),
   toggleFavorite: (id: string) => {

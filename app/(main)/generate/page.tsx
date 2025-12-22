@@ -12,6 +12,8 @@ import { PhotoUpload } from "@/components/generate/PhotoUpload";
 import { AITools } from "@/components/generate/AITools";
 import { PromptInput } from "@/components/generate/PromptInput";
 import { GenerationSettings } from "@/components/generate/GenerationSettings";
+import { AIModelSelector } from "@/components/generate/AIModelSelector";
+import { EnhancedSettings } from "@/components/generate/EnhancedSettings";
 import { useWalletStore } from "@/store/walletStore";
 import { useGenerationStore } from "@/store/generationStore";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +38,11 @@ function GenerateContent() {
   const [aspectRatio, setAspectRatio] = useState("1:1");
   const [creativity, setCreativity] = useState(75);
   const [detailLevel, setDetailLevel] = useState("medium");
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [promptEnhancer, setPromptEnhancer] = useState(false);
+  const [variations, setVariations] = useState(1);
+  const [visibility, setVisibility] = useState<"public" | "private">("public");
+  const [imageStrength, setImageStrength] = useState(0.35);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [result, setResult] = useState<Generation | null>(null);
@@ -113,10 +120,15 @@ function GenerateContent() {
       const body = {
         templateId: template?.id,
         userPrompt: prompt,
+        prompt: promptEnhancer ? `enhanced: ${prompt}` : prompt,
         faceImageUrl: photos[0] || '',
         quality: quality,
         aspectRatio: aspectRatio,
         uploadedImages: photos.length ? [photos[0]] : [],
+        modelId: selectedModel,
+        variations: variations,
+        imageStrength: photos.length > 0 ? imageStrength : undefined,
+        visibility: visibility,
       }
       const generation = await generationsApi.create(body as any);
 
@@ -404,7 +416,35 @@ function GenerateContent() {
 
         {/* Settings Column */}
         <div className="space-y-3 sm:space-y-4">
-          {/* Settings Card */}
+          {/* AI Model Selection Card */}
+          <Card>
+            <CardContent className="p-3 sm:p-4 md:p-5">
+              <AIModelSelector
+                selectedModel={selectedModel}
+                onModelChange={setSelectedModel}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Enhanced Settings Card */}
+          <Card>
+            <CardContent className="p-3 sm:p-4 md:p-5">
+              <EnhancedSettings
+                aspectRatio={aspectRatio}
+                onAspectRatioChange={setAspectRatio}
+                promptEnhancer={promptEnhancer}
+                onPromptEnhancerChange={setPromptEnhancer}
+                variations={variations}
+                onVariationsChange={setVariations}
+                visibility={visibility}
+                onVisibilityChange={setVisibility}
+                imageStrength={imageStrength}
+                onImageStrengthChange={photos.length > 0 ? setImageStrength : undefined}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Quality Settings Card */}
           <Card>
             <CardContent className="p-3 sm:p-4 md:p-5">
               <GenerationSettings

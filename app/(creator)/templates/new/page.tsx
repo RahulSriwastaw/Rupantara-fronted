@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Upload, X, Sparkles } from "lucide-react";
@@ -21,7 +21,7 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useTemplateStore } from "@/store/templateStore";
-import { templatesApi } from "@/services/api";
+import { templatesApi, categoryApi } from "@/services/api";
 import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
@@ -38,8 +38,8 @@ export default function CreateTemplatePage() {
   const router = useRouter();
   const { toast } = useToast();
   const { addTemplate } = useTemplateStore();
-  const { 
-    templateCreationStep: currentStep, 
+  const {
+    templateCreationStep: currentStep,
     setTemplateCreationStep,
     nextTemplateCreationStep,
     prevTemplateCreationStep
@@ -52,7 +52,8 @@ export default function CreateTemplatePage() {
     tags: [] as string[],
     ageGroup: "All Ages",
     isActive: true,
-    demoImage: "",
+    inputImage: "",  // User's original photo (BEFORE)
+    demoImage: "",   // Generated result (AFTER)
     exampleImages: [] as string[],
     hiddenPrompt: "",
     visiblePrompt: "",
@@ -63,10 +64,37 @@ export default function CreateTemplatePage() {
     aspectRatio: "1:1",
   });
 
+  // Dynamic categories from admin panel
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
   const [tagInput, setTagInput] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const inputImageInputRef = useRef<HTMLInputElement>(null);
   const demoImageInputRef = useRef<HTMLInputElement>(null);
   const exampleImageInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Fetch categories from backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryApi.getAll();
+        setCategories(response.categories || response || []);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        toast({
+          title: "Warning",
+          description: "Failed to load categories from admin panel.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const addTag = () => {
     if (tagInput && formData.tags.length < 10) {
@@ -86,7 +114,7 @@ export default function CreateTemplatePage() {
   };
 
   // Handle file upload and convert to base64
-  const handleFileUpload = useCallback((file: File, type: 'demo' | 'example', index?: number) => {
+  const handleFileUpload = useCallback((file: File, type: 'input' | 'demo' | 'example', index?: number) => {
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "File too large",
@@ -109,9 +137,19 @@ export default function CreateTemplatePage() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
-      if (type === 'demo') {
+      console.log('📸 Image loaded:', result ? 'Success' : 'Failed');
+      console.log('📏 Image size:', result?.length, 'bytes');
+
+      if (type === 'input') {
+        console.log('✅ Setting input image (BEFORE)');
+        setFormData((prev) => ({ ...prev, inputImage: result }));
+        toast({ title: "✅ Input Image Uploaded", description: "Original photo uploaded!" });
+      } else if (type === 'demo') {
+        console.log('✅ Setting demo image (AFTER)');
         setFormData((prev) => ({ ...prev, demoImage: result }));
+        toast({ title: "✅ Output Image Uploaded", description: "Generated result uploaded!" });
       } else if (type === 'example' && index !== undefined) {
+        console.log('✅ Setting example image', index, 'to formData');
         setFormData((prev) => {
           const newExamples = [...prev.exampleImages];
           newExamples[index] = result;
@@ -119,8 +157,53 @@ export default function CreateTemplatePage() {
         });
       }
     };
+    reader.onerror = (error) => {
+      console.error('❌ FileReader error:', error);
+      toast({
+        title: "Upload Error",
+        description: "Failed to read the image file",
+        variant: "destructive"
+      });
+    };
     reader.readAsDataURL(file);
   }, [toast]);
+
+  // Input image handlers
+  const handleInputImageClick = () => {
+    inputImageInputRef.current?.click();
+  };
+
+  const handleInputImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file, 'input');
+    }
+  };
+
+  const handleInputImageDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleFileUpload(file, 'input');
+    }
+  }, [handleFileUpload]);
+
+  const handleInputImageDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleInputImageDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const removeInputImage = () => {
+    setFormData({ ...formData, inputImage: "" });
+    if (inputImageInputRef.current) {
+      inputImageInputRef.current.value = "";
+    }
+  };
 
   // Demo image handlers
   const handleDemoImageClick = () => {
@@ -209,40 +292,29 @@ export default function CreateTemplatePage() {
         visiblePrompt: formData.visiblePrompt,
         negativePrompt: formData.negativePrompt,
         templateType: formData.templateType,
-        pointsCost: formData.pointsCost,
-        creatorName: user?.fullName || 'Creator',
-        creatorId: user?.id || null,
+        pointsCost: formData.pointsCost
       }
-      const created = await templatesApi.adminCreateTemplate(payload)
+
+      // Use creator-specific endpoint
+      const created = await templatesApi.creatorSubmitTemplate(payload)
+
       addTemplate({
-        title: created.title,
-        description: created.description,
-        demoImage: created.demoImage,
-        additionalImages: created.exampleImages || [],
-        category: created.category,
-        subCategory: created.subCategory,
-        tags: created.tags || [],
-        creatorId: created.creatorId,
-        creatorName: created.creatorName,
-        creatorVerified: created.creatorVerified,
-        hiddenPrompt: created.hiddenPrompt,
-        visiblePrompt: created.visiblePrompt,
-        negativePrompt: created.negativePrompt,
-        isFree: created.isFree,
-        pointsCost: created.pointsCost,
-        usageCount: created.usageCount || 0,
-        likeCount: created.likeCount || 0,
-        saveCount: created.saveCount || 0,
-        rating: created.rating || 0,
-        ratingCount: created.ratingCount || 0,
-        ageGroup: created.ageGroup,
-        state: created.state,
-        status: created.status,
+        ...created.template,
+        additionalImages: created.template.exampleImages || [],
       })
-      toast({ title: "Template Submitted!", description: "Your template has been created and is now pending/approved based on policy." })
+
+      toast({
+        title: "✅ Template Submitted!",
+        description: "Your template is now pending review. You'll be notified when it's approved."
+      })
       router.push("/templates")
     } catch (e: any) {
-      toast({ title: "Submission failed", description: e?.message || 'Please try again', variant: 'destructive' })
+      console.error('Template submission error:', e)
+      toast({
+        title: "❌ Submission failed",
+        description: e?.message || e?.response?.data?.message || 'Please try again',
+        variant: 'destructive'
+      })
     }
   };
 
@@ -266,13 +338,12 @@ export default function CreateTemplatePage() {
         {steps.map((step) => (
           <div
             key={step.id}
-            className={`flex-1 h-1 rounded-full transition-all ${
-              step.id <= currentStep
-                ? "bg-primary"
-                : step.id === currentStep + 1
+            className={`flex-1 h-1 rounded-full transition-all ${step.id <= currentStep
+              ? "bg-primary"
+              : step.id === currentStep + 1
                 ? "bg-primary/50"
                 : "bg-secondary"
-            }`}
+              }`}
           />
         ))}
       </div>
@@ -313,17 +384,25 @@ export default function CreateTemplatePage() {
                 <Label>Category</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, category: value })
-                  }
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, category: value, subCategory: '' }); // Reset sub-category
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="unisex">Unisex</SelectItem>
+                    {loadingCategories ? (
+                      <SelectItem value="loading" disabled>Loading...</SelectItem>
+                    ) : categories.length === 0 ? (
+                      <SelectItem value="none" disabled>No categories available</SelectItem>
+                    ) : (
+                      categories.map((cat: any) => (
+                        <SelectItem key={cat.id || cat._id || cat.name} value={cat.name}>
+                          {cat.name}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -335,15 +414,30 @@ export default function CreateTemplatePage() {
                   onValueChange={(value) =>
                     setFormData({ ...formData, subCategory: value })
                   }
+                  disabled={!formData.category}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a sub-category" />
+                    <SelectValue placeholder={!formData.category ? "Select category first" : "Select a sub-category"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="wedding">Wedding</SelectItem>
-                    <SelectItem value="fashion">Fashion</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
-                    <SelectItem value="cinematic">Cinematic</SelectItem>
+                    {!formData.category ? (
+                      <SelectItem value="none" disabled>Select category first</SelectItem>
+                    ) : (
+                      (() => {
+                        const selectedCategory = categories.find((cat: any) => cat.name === formData.category);
+                        const subCategories = selectedCategory?.subCategories || [];
+
+                        if (subCategories.length === 0) {
+                          return <SelectItem value="none" disabled>No sub-categories available</SelectItem>;
+                        }
+
+                        return subCategories.map((subCat: string) => (
+                          <SelectItem key={subCat} value={subCat}>
+                            {subCat}
+                          </SelectItem>
+                        ));
+                      })()
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -637,11 +731,10 @@ export default function CreateTemplatePage() {
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => setFormData({ ...formData, templateType: "free" })}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    formData.templateType === "free"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-secondary/50"
-                  }`}
+                  className={`p-4 rounded-xl border-2 transition-all ${formData.templateType === "free"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-secondary/50"
+                    }`}
                 >
                   <p className="font-bold mb-1">Free</p>
                   <p className="text-xs text-muted-foreground">
@@ -650,11 +743,10 @@ export default function CreateTemplatePage() {
                 </button>
                 <button
                   onClick={() => setFormData({ ...formData, templateType: "premium" })}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    formData.templateType === "premium"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-secondary/50"
-                  }`}
+                  className={`p-4 rounded-xl border-2 transition-all ${formData.templateType === "premium"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-secondary/50"
+                    }`}
                 >
                   <p className="font-bold mb-1">Premium</p>
                   <p className="text-xs text-muted-foreground">
@@ -766,19 +858,19 @@ export default function CreateTemplatePage() {
               <div className="space-y-3 p-4 rounded-xl bg-secondary/30">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Template Details</span>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => setTemplateCreationStep(1)}>
                     Edit
                   </Button>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Base AI Model</span>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => setTemplateCreationStep(3)}>
                     Edit
                   </Button>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Core Prompt</span>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => setTemplateCreationStep(3)}>
                     Edit
                   </Button>
                 </div>

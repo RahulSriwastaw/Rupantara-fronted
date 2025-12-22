@@ -592,12 +592,10 @@ export default function CreateTemplatePage() {
               />
               {formData.inputImage ? (
                 <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-green-500">
-                  <Image
+                  <img
                     src={formData.inputImage}
                     alt="Input image"
-                    fill
-                    className="object-cover"
-                    unoptimized={formData.inputImage.startsWith('data:')}
+                    className="w-full h-full object-cover"
                   />
                   <Button
                     variant="destructive"
@@ -652,12 +650,10 @@ export default function CreateTemplatePage() {
               />
               {formData.demoImage ? (
                 <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-blue-500">
-                  <Image
+                  <img
                     src={formData.demoImage}
                     alt="Output image"
-                    fill
-                    className="object-cover"
-                    unoptimized={formData.demoImage.startsWith('data:')}
+                    className="w-full h-full object-cover"
                   />
                   <Button
                     variant="destructive"

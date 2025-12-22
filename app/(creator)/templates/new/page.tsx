@@ -69,6 +69,8 @@ export default function CreateTemplatePage() {
 
   const [tagInput, setTagInput] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const demoImageInputRef = useRef<HTMLInputElement>(null);
   const exampleImageInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 

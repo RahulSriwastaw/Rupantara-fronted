@@ -167,14 +167,32 @@ export function TemplateCard({
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        {/* Premium Badge on Image */}
-        {!template.isFree && (
-          <div className="absolute top-3 right-3">
-            <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 border-0 text-[10px] sm:text-xs px-2 py-0.5 shadow-lg">
-              Premium
+        {/* Badges on Image - Top Right */}
+        <div className="absolute top-2 right-2 flex flex-col gap-1.5 items-end z-10">
+          {/* Official/Creator Badge - Show based on template type */}
+          {template.type === 'Official' && (
+            <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 border-0 text-[9px] sm:text-[10px] px-1.5 py-0.5 shadow-lg">
+              ⭐ OFFICIAL
             </Badge>
-          </div>
-        )}
+          )}
+          {template.type === 'Creator' && (
+            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 border-0 text-[9px] sm:text-[10px] px-1.5 py-0.5 shadow-lg">
+              👤 CREATOR
+            </Badge>
+          )}
+          {/* Premium Badge */}
+          {!template.isFree && (
+            <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 border-0 text-[9px] sm:text-[10px] px-1.5 py-0.5 shadow-lg">
+              ⭐ PREMIUM
+            </Badge>
+          )}
+          {/* Live Badge - Only for approved templates */}
+          {template.approvalStatus === 'approved' && (
+            <Badge className="bg-green-500 border-0 text-[9px] sm:text-[10px] px-1.5 py-0.5 shadow-lg text-white">
+              🟢 LIVE
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Action Buttons Row */}

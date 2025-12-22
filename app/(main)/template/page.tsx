@@ -241,74 +241,73 @@ function TemplateContent() {
           })}
         </div>
 
-        {/* Sub-Category Bar - Shows when category is selected */}
+        {/* Sub-Category Bar */}
         {currentSubCategories.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Select Style:</p>
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {/* All sub-categories option */}
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {/* All sub-categories option */}
+            <Badge
+              variant={selectedSubCategory === null ? "default" : "outline"}
+              className={cn(
+                "cursor-pointer whitespace-nowrap flex-shrink-0 text-xs transition-all",
+                selectedSubCategory === null
+                  ? "bg-primary/80 text-white border-primary"
+                  : "text-foreground border-border hover:bg-secondary"
+              )}
+              onClick={() => setSelectedSubCategory(null)}
+            >
+              All Styles
+            </Badge>
+
+            {/* Individual sub-categories */}
+            {currentSubCategories.map((subCat) => (
               <Badge
-                variant={selectedSubCategory === null ? "default" : "outline"}
+                key={subCat}
+                variant={selectedSubCategory === subCat ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer whitespace-nowrap flex-shrink-0 text-xs transition-all",
-                  selectedSubCategory === null
+                  selectedSubCategory === subCat
                     ? "bg-primary/80 text-white border-primary"
                     : "text-foreground border-border hover:bg-secondary"
                 )}
-                onClick={() => setSelectedSubCategory(null)}
+                onClick={() => setSelectedSubCategory(subCat)}
               >
-                All Styles
+                {subCat}
               </Badge>
-
-              {/* Individual sub-categories */}
-              {currentSubCategories.map((subCat) => (
-                <Badge
-                  key={subCat}
-                  variant={selectedSubCategory === subCat ? "default" : "outline"}
-                  className={cn(
-                    "cursor-pointer whitespace-nowrap flex-shrink-0 text-xs transition-all",
-                    selectedSubCategory === subCat
-                      ? "bg-primary/80 text-white border-primary"
-                      : "text-foreground border-border hover:bg-secondary"
-                  )}
-                  onClick={() => setSelectedSubCategory(subCat)}
-                >
-                  {subCat}
-                </Badge>
-              ))}
-            </div>
+            ))}
           </div>
         )}
       </div>
 
       {/* Trending Section */}
-      {selectedCategory === "All" && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
-            <h2 className="text-lg sm:text-xl font-bold">Trending Now</h2>
+      {
+        selectedCategory === "All" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
+              <h2 className="text-lg sm:text-xl font-bold">Trending Now</h2>
+            </div>
+            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {templates
+                .sort((a, b) => b.usageCount - a.usageCount)
+                .slice(0, 5)
+                .map((template) => (
+                  <div key={template.id} className="flex-shrink-0 w-40 sm:w-48 md:w-56">
+                    <TemplateCard
+                      template={template}
+                      isLiked={likedTemplates.includes(template.id)}
+                      isSaved={savedTemplates.includes(template.id)}
+                      onLike={() => handleLike(template.id)}
+                      onSave={() => handleSave(template.id)}
+                      onUse={() => handleUseTemplate(template.id)}
+                      onClick={() => setSelectedTemplate(template)}
+                      compact={true}
+                    />
+                  </div>
+                ))}
+            </div>
           </div>
-          <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {templates
-              .sort((a, b) => b.usageCount - a.usageCount)
-              .slice(0, 5)
-              .map((template) => (
-                <div key={template.id} className="flex-shrink-0 w-40 sm:w-48 md:w-56">
-                  <TemplateCard
-                    template={template}
-                    isLiked={likedTemplates.includes(template.id)}
-                    isSaved={savedTemplates.includes(template.id)}
-                    onLike={() => handleLike(template.id)}
-                    onSave={() => handleSave(template.id)}
-                    onUse={() => handleUseTemplate(template.id)}
-                    onClick={() => setSelectedTemplate(template)}
-                    compact={true}
-                  />
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Templates Grid */}
       <div className="space-y-2 sm:space-y-3">
@@ -367,7 +366,7 @@ function TemplateContent() {
         onLike={() => selectedTemplate && handleLike(selectedTemplate.id)}
         onSave={() => selectedTemplate && handleSave(selectedTemplate.id)}
       />
-    </div>
+    </div >
   );
 }
 

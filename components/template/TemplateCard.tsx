@@ -123,6 +123,12 @@ export function TemplateCard({
                     <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-white stroke-[3]" />
                   </div>
                 )}
+                {/* Official Template Badge */}
+                {template.type === 'Official' && (
+                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 border-0 text-[9px] sm:text-[10px] px-1 py-0 ml-1">
+                    ⭐ OFFICIAL
+                  </Badge>
+                )}
               </div>
             </div>
           </div>

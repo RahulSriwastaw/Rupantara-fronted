@@ -335,7 +335,7 @@ export default function CreateTemplatePage() {
         title: formData.title,
         description: formData.description,
         inputImage: formData.inputImage,
-        demoImage: demoUrl,
+        imageUrl: demoUrl,  // Backend expects imageUrl, not demoImage
         category: formData.category,
         subCategory: formData.subCategory,
         tags: formData.tags,

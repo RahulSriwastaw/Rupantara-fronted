@@ -317,9 +317,9 @@ export const templatesApi = {
     const headers: Record<string, string> = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    // Use the base API URL without /api/v1 for admin upload
-    const baseUrl = API_URL.replace('/api/v1', '');
-    const res = await fetch(`${baseUrl}/api/v1/admin/upload/template-demo`, {
+    // Use the base API URL without /api for admin upload
+    const baseUrl = API_URL.replace('/api', '');
+    const res = await fetch(`${baseUrl}/api/admin/upload/template-demo`, {
       method: 'POST',
       headers,
       body: fd

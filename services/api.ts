@@ -1,27 +1,25 @@
 import type { Template, TemplateCategory, TemplateSubCategory } from "@/types";
-// Normalize backend URL to ensure it ends with /api/v1
+// Normalize backend URL - backend uses /api/* endpoints (not /api/v1/*)
+// Backend has middleware that redirects /api/v1/* to /api/*, but we'll use /api/* directly
 function normalizeBackendUrl() {
   const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || '').trim();
   if (!source) {
     // Default to production backend if env is not set (useful for local quick-start)
-    return 'https://new-backend-g2gw.onrender.com/api/v1';
+    return 'https://new-backend-g2gw.onrender.com/api';
   }
   try {
     const u = new URL(source);
-    // If URL already contains /api/v1, use it as is
-    if (u.pathname.includes('/api/v1')) {
-      return `${u.protocol}//${u.host}${u.pathname}`;
-    }
-    // If URL contains /api, replace with /api/v1
+    // If URL already contains /api, use it as is (but remove /v1 if present)
     if (u.pathname.includes('/api')) {
-      return `${u.protocol}//${u.host}${u.pathname.replace(/\/api.*$/, '/api/v1')}`;
+      const pathWithoutV1 = u.pathname.replace(/\/api\/v1.*$/, '/api').replace(/\/api\/v1$/, '/api');
+      return `${u.protocol}//${u.host}${pathWithoutV1}`;
     }
-    // Otherwise append /api/v1
-    return `${u.protocol}//${u.host}/api/v1`;
+    // Otherwise append /api
+    return `${u.protocol}//${u.host}/api`;
   } catch {
     // If not a valid URL, try to clean it up
-    const cleaned = source.replace(/\/api.*$/, '').replace(/\/$/, '');
-    return `${cleaned}/api/v1`;
+    const cleaned = source.replace(/\/api\/v1.*$/, '').replace(/\/api.*$/, '').replace(/\/$/, '');
+    return `${cleaned}/api`;
   }
 }
 

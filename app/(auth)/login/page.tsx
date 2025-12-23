@@ -14,7 +14,26 @@ import Image from "next/image";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "https://new-backend-g2gw.onrender.com/api";
+// Use centralized API URL from services/api.ts or fallback to production
+function getApiUrl() {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (envUrl) {
+    // If URL already contains /api/v1, use it as is
+    if (envUrl.includes('/api/v1')) {
+      return envUrl;
+    }
+    // If URL contains /api, replace with /api/v1
+    if (envUrl.includes('/api')) {
+      return envUrl.replace(/\/api.*$/, '/api/v1');
+    }
+    // Otherwise append /api/v1
+    return `${envUrl.replace(/\/$/, '')}/api/v1`;
+  }
+  // Default to production backend
+  return 'https://new-backend-g2gw.onrender.com/api/v1';
+}
+
+const API_URL = getApiUrl();
 
 export default function LoginPage() {
   const router = useRouter();

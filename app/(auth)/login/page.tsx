@@ -14,26 +14,21 @@ import Image from "next/image";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
 
-// Use centralized API URL from services/api.ts or fallback to production
+// Use centralized API URL - backend uses /api/auth/* not /api/v1/auth/*
 function getApiUrl() {
   const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL;
   if (envUrl) {
-    // If URL already contains /api/v1, use it as is
-    if (envUrl.includes('/api/v1')) {
-      return envUrl;
-    }
-    // If URL contains /api, replace with /api/v1
-    if (envUrl.includes('/api')) {
-      return envUrl.replace(/\/api.*$/, '/api/v1');
-    }
-    // Otherwise append /api/v1
-    return `${envUrl.replace(/\/$/, '')}/api/v1`;
+    // Remove any /api/v1 or /api suffix and use base URL
+    // Frontend will append /api/auth/* to the base URL
+    const baseUrl = envUrl.replace(/\/api\/v1.*$/, '').replace(/\/api.*$/, '').replace(/\/$/, '');
+    return baseUrl;
   }
-  // Default to production backend
-  return 'https://new-backend-g2gw.onrender.com/api/v1';
+  // Default to production backend base URL
+  return 'https://new-backend-g2gw.onrender.com';
 }
 
-const API_URL = getApiUrl();
+const API_BASE = getApiUrl();
+const API_URL = `${API_BASE}/api`;
 
 export default function LoginPage() {
   const router = useRouter();

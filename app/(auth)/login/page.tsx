@@ -12,7 +12,7 @@ import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "https://new-backend-g2gw.onrender.com/api";
 
@@ -28,22 +28,87 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Simple redirect check
+  // Check for redirect result (for mobile/Capacitor apps)
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const checkAuthAndRedirect = async () => {
+      // First check if user is already logged in
       if (user && user.email) {
         console.log("✅ User already logged in, redirecting...");
         router.replace("/template");
-      } else {
-        setIsCheckingAuth(false);
+        return;
       }
-    }, 100);
 
-    return () => clearTimeout(timer);
-  }, [user, router]);
+      // Check for Google redirect result (for mobile apps)
+      if (auth) {
+        try {
+          const result = await getRedirectResult(auth);
+          if (result && result.user) {
+            console.log("✅ Google redirect login successful");
+            // Handle redirect result inline to avoid dependency issues
+            try {
+              setIsGoogleLoading(true);
+              const idToken = await result.user.getIdToken();
+              const response = await fetch(`${API_URL}/auth/firebase-login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ idToken }),
+              });
+              const data = await response.json();
+              if (!response.ok) {
+                throw new Error(data.msg || data.error || "Failed to sync with backend");
+              }
+              if (data.token) {
+                localStorage.setItem("token", data.token);
+              }
+              const userData = {
+                id: String(data.user?.id || data.user?._id || result.user.uid),
+                fullName: String(data.user?.name || result.user.displayName || "User"),
+                email: String(data.user?.email || result.user.email),
+                phone: String(data.user?.phone || result.user.phoneNumber || ""),
+                isCreator: Boolean(data.user?.isCreator || false),
+                isVerified: Boolean(result.user.emailVerified),
+                memberSince: String(data.user?.joinedDate || new Date().toISOString()),
+                pointsBalance: Number(data.user?.points || 50),
+                profilePicture: String(data.user?.photoURL || result.user.photoURL || ""),
+              };
+              login(userData as any);
+              toast({
+                title: "Welcome! 🎉",
+                description: `Logged in as ${userData.fullName}`,
+              });
+              setTimeout(() => {
+                router.replace("/template");
+              }, 100);
+            } catch (error: any) {
+              console.error("❌ Google sync error:", error);
+              toast({
+                title: "Login Failed",
+                description: error.message || "Could not complete Google login",
+                variant: "destructive",
+              });
+            } finally {
+              setIsGoogleLoading(false);
+            }
+            return;
+          }
+        } catch (error: any) {
+          console.error("❌ Redirect result error:", error);
+          // Don't show error for cancelled redirects
+          if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+            toast({
+              title: "Login Error",
+              description: error.message || "Could not complete Google login",
+              variant: "destructive",
+            });
+          }
+        }
+      }
 
-  // Note: We're using popup now, so no need to check redirect result
-  // This useEffect is kept for backward compatibility but won't be triggered
+      setIsCheckingAuth(false);
+    };
+
+    checkAuthAndRedirect();
+  }, [user, router, toast, login]);
 
   const handleGoogleUser = async (googleUser: any) => {
     try {
@@ -123,18 +188,28 @@ export default function LoginPage() {
     try {
       const provider = new GoogleAuthProvider();
       
-      // Add custom parameters for better UX
+      // Add custom parameters for better UX - always show account selector
       provider.setCustomParameters({
         prompt: 'select_account',
       });
 
-      // Force popup mode - never use redirect
-      // Check if popup is available
-      if (typeof window === 'undefined') {
-        throw new Error('Window not available');
+      // Detect if we're in a mobile app (Capacitor) or mobile browser
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isCapacitor = typeof window !== 'undefined' && (window as any).Capacitor;
+      
+      // For mobile apps and mobile browsers, use redirect (better UX)
+      // For desktop browsers, use popup
+      if (isCapacitor || (isMobile && window.innerWidth < 768)) {
+        console.log("📱 Using redirect for mobile/Capacitor");
+        // Use redirect for mobile - it will come back to the app
+        await signInWithRedirect(auth, provider);
+        // Note: We don't set loading to false here because the page will redirect
+        // The redirect result will be handled in useEffect
+        return;
       }
 
-      // Always use popup - no redirect fallback
+      // For desktop, use popup
+      console.log("🖥️ Using popup for desktop");
       const result = await signInWithPopup(auth, provider);
       
       // Handle the user immediately
@@ -145,11 +220,20 @@ export default function LoginPage() {
 
       // Only show error if user didn't close popup intentionally
       if (error.code === 'auth/popup-blocked') {
-        toast({
-          title: "Popup Blocked",
-          description: "Please allow popups for this site and try again.",
-          variant: "destructive",
-        });
+        // If popup is blocked, fallback to redirect
+        console.log("⚠️ Popup blocked, falling back to redirect");
+        try {
+          const provider = new GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          await signInWithRedirect(auth, provider);
+          return; // Don't set loading to false, page will redirect
+        } catch (redirectError: any) {
+          toast({
+            title: "Login Failed",
+            description: "Please allow popups or try again.",
+            variant: "destructive",
+          });
+        }
       } else if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         // User closed popup - don't show error
         console.log("User closed Google login popup");

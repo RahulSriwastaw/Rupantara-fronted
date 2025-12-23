@@ -43,36 +43,51 @@ async function generateIcons() {
     
     try {
       if (sharp) {
-        // Use sharp to resize logo to proper size
+        // For adaptive icons, we need to create icons with safe zone
+        // Android adaptive icons use 108dp canvas with 72dp safe zone
+        // So we'll resize logo to 75% of the size to leave padding
+        const safeZoneSize = Math.floor(size * 0.75);
+        const padding = Math.floor((size - safeZoneSize) / 2);
+        
+        // Create a transparent canvas
+        const canvas = sharp({
+          create: {
+            width: size,
+            height: size,
+            channels: 4,
+            background: { r: 0, g: 0, b: 0, alpha: 0 }
+          }
+        });
+        
+        // Resize logo to fit in safe zone
+        const resizedLogo = await sharp(sourceLogo)
+          .resize(safeZoneSize, safeZoneSize, {
+            fit: 'contain',
+            background: { r: 0, g: 0, b: 0, alpha: 0 }
+          })
+          .toBuffer();
+        
+        // Composite logo onto transparent canvas (centered)
+        const iconBuffer = await canvas
+          .composite([{
+            input: resizedLogo,
+            top: padding,
+            left: padding
+          }])
+          .png()
+          .toBuffer();
+        
+        // Save icons
         const iconPath = path.join(targetFolder, 'ic_launcher.png');
         const roundIconPath = path.join(targetFolder, 'ic_launcher_round.png');
         const foregroundIconPath = path.join(targetFolder, 'ic_launcher_foreground.png');
         
-        // Generate standard icon (square with transparent background)
-        await sharp(sourceLogo)
-          .resize(size, size, {
-            fit: 'contain',
-            background: { r: 0, g: 0, b: 0, alpha: 0 } // Transparent background
-          })
-          .toFile(iconPath);
+        // Write all three icons (they're the same for now)
+        await sharp(iconBuffer).toFile(iconPath);
+        await sharp(iconBuffer).toFile(roundIconPath);
+        await sharp(iconBuffer).toFile(foregroundIconPath);
         
-        // Generate round icon (same as standard for now)
-        await sharp(sourceLogo)
-          .resize(size, size, {
-            fit: 'contain',
-            background: { r: 0, g: 0, b: 0, alpha: 0 }
-          })
-          .toFile(roundIconPath);
-        
-        // Generate foreground icon (for adaptive icons)
-        await sharp(sourceLogo)
-          .resize(size, size, {
-            fit: 'contain',
-            background: { r: 0, g: 0, b: 0, alpha: 0 }
-          })
-          .toFile(foregroundIconPath);
-        
-        console.log(`✅ Generated icons for ${folder} (${size}px)`);
+        console.log(`✅ Generated icons for ${folder} (${size}px, safe zone: ${safeZoneSize}px)`);
       } else {
         // Fallback: copy logo at original size
         const iconPath = path.join(targetFolder, 'ic_launcher.png');

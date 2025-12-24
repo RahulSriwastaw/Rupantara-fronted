@@ -1,38 +1,24 @@
 import type { Template, TemplateCategory, TemplateSubCategory } from "@/types";
-// Normalize backend URL - backend uses /api/* endpoints (not /api/v1/*)
-// Backend has middleware that redirects /api/v1/* to /api/*, but we'll use /api/* directly
-function normalizeBackendUrl() {
-  const source = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || '').trim();
-  if (!source) {
-    // Default to production backend if env is not set (useful for local quick-start)
-    return 'https://new-backend-g2gw.onrender.com/api';
-  }
-  try {
-    const u = new URL(source);
-    // If URL already contains /api, use it as is (but remove /v1 if present)
-    if (u.pathname.includes('/api')) {
-      const pathWithoutV1 = u.pathname.replace(/\/api\/v1.*$/, '/api').replace(/\/api\/v1$/, '/api');
-      return `${u.protocol}//${u.host}${pathWithoutV1}`;
-    }
-    // Otherwise append /api
-    return `${u.protocol}//${u.host}/api`;
-  } catch {
-    // If not a valid URL, try to clean it up
-    const cleaned = source.replace(/\/api\/v1.*$/, '').replace(/\/api.*$/, '').replace(/\/$/, '');
-    return `${cleaned}/api`;
-  }
-}
+import { getApiUrl } from "@/lib/config";
 
-const API_URL = normalizeBackendUrl();
+// Use centralized config for API URL (handles mobile builds properly)
+const API_URL = getApiUrl();
 const API_TIMEOUT = 30000; // 30 seconds
 
-// Debug logging (only in development)
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  console.log('🔗 API Configuration:', {
-    API_URL,
-    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-  });
+// Debug logging (always log in mobile/Capacitor for debugging)
+if (typeof window !== 'undefined') {
+  const isMobile = (window as any).Capacitor || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  if (isMobile || process.env.NODE_ENV === 'development') {
+    console.log('🔗 API Configuration:', {
+      API_URL,
+      NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+      isMobile,
+      hasCapacitor: !!(window as any).Capacitor,
+    });
+  }
 }
 
 // Helper function to create a timeout promise

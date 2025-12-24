@@ -5,7 +5,16 @@ const config: CapacitorConfig = {
   appName: 'Rupantra AI',
   webDir: 'out',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    hostname: 'rupantar.ai',
+    // Allow cleartext traffic for localhost (development)
+    cleartext: true,
+    // Allow navigation to external URLs (for OAuth)
+    allowNavigation: [
+      'https://accounts.google.com/*',
+      'https://rupantra-ai.firebaseapp.com/*',
+      'https://*.googleapis.com/*'
+    ]
   },
   plugins: {
     SplashScreen: {
@@ -13,6 +22,10 @@ const config: CapacitorConfig = {
       backgroundColor: "#8B5CF6",
       showSpinner: true,
       spinnerColor: "#ffffff"
+    },
+    FirebaseAuthentication: {
+      skipNativeAuth: false,
+      providers: ["google.com"]
     }
   }
 };

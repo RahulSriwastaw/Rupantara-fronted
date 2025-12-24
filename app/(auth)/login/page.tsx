@@ -12,23 +12,12 @@ import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signInWithCredential } from "firebase/auth";
 
-// Use centralized API URL - backend uses /api/auth/* not /api/v1/auth/*
-function getApiUrl() {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (envUrl) {
-    // Remove any /api/v1 or /api suffix and use base URL
-    // Frontend will append /api/auth/* to the base URL
-    const baseUrl = envUrl.replace(/\/api\/v1.*$/, '').replace(/\/api.*$/, '').replace(/\/$/, '');
-    return baseUrl;
-  }
-  // Default to production backend base URL
-  return 'https://new-backend-g2gw.onrender.com';
-}
+import { getApiUrl } from "@/lib/config";
 
-const API_BASE = getApiUrl();
-const API_URL = `${API_BASE}/api`;
+// Use centralized config for API URL (handles mobile builds properly)
+const API_URL = getApiUrl();
 
 export default function LoginPage() {
   const router = useRouter();
@@ -130,6 +119,8 @@ export default function LoginPage() {
 
       // Get Firebase ID token
       const idToken = await googleUser.getIdToken();
+      console.log("🔐 Got Firebase ID token, syncing with backend...");
+      console.log("📡 API URL:", API_URL);
 
       // Sync with backend
       const response = await fetch(`${API_URL}/auth/firebase-login`, {
@@ -139,6 +130,20 @@ export default function LoginPage() {
         },
         body: JSON.stringify({ idToken }),
       });
+
+      console.log("📦 Backend response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Backend error response:", errorText);
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText || `HTTP ${response.status}` };
+        }
+        throw new Error(errorData.msg || errorData.error || "Failed to sync with backend");
+      }
 
       const data = await response.json();
 
@@ -177,9 +182,23 @@ export default function LoginPage() {
 
     } catch (error: any) {
       console.error("❌ Google sync error:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        stack: error.stack,
+        apiUrl: API_URL,
+      });
+      
+      // Better error messages
+      let errorMessage = error.message || "Could not complete Google login";
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        errorMessage = `Unable to connect to server (${API_URL}). Please check your internet connection.`;
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = "Request timeout. Server may be slow or unreachable.";
+      }
+      
       toast({
         title: "Login Failed",
-        description: error.message || "Could not complete Google login",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -200,32 +219,78 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
 
     try {
-      const provider = new GoogleAuthProvider();
+      // Detect if we're running in Capacitor (mobile app)
+      const isCapacitor = typeof window !== 'undefined' && (window as any).Capacitor;
+
+      if (isCapacitor) {
+        // Use native Capacitor Firebase Auth for mobile apps
+        console.log("📱 Using native Firebase Auth for Capacitor");
+
+        try {
+          // Import dynamically to avoid issues in web build
+          const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+
+          // Sign in with native Google Sign-In
+          const result = await FirebaseAuthentication.signInWithGoogle();
+
+          // Get the credential and sign in to Firebase
+          if (result.credential?.idToken) {
+            const credential = GoogleAuthProvider.credential(result.credential.idToken);
+            const userCredential = await signInWithCredential(auth, credential);
+            await handleGoogleUser(userCredential.user);
+            return;
+          } else {
+            throw new Error('No credential returned from native auth');
+          }
+        } catch (nativeError: any) {
+          console.error("❌ Native auth error:", nativeError);
+          console.error("❌ Native error details:", {
+            message: nativeError.message,
+            code: nativeError.code,
+            error: nativeError.error,
+            toString: nativeError.toString(),
+          });
+          
+          // For ANY native plugin error, automatically fallback to redirect
+          // This ensures seamless login experience even if native plugin fails
+          console.log("⚠️ Native plugin error detected, automatically falling back to redirect method");
+          console.log("🔄 Attempting redirect login...");
+          
+          try {
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            await signInWithRedirect(auth, provider);
+            // Don't set loading to false, page will redirect
+            return;
+          } catch (redirectError: any) {
+            console.error("❌ Redirect also failed:", redirectError);
+            // If redirect also fails, show helpful error
+            throw new Error('Google login failed. Please check your internet connection and try again.');
+          }
+        }
+      }
+
+      // For web/desktop, use Firebase Web SDK popup
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       
-      // Add custom parameters for better UX - always show account selector
+      if (isMobile && window.innerWidth < 768) {
+        // Mobile browser - use redirect
+        console.log("📱 Using redirect for mobile browser");
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
+      // Desktop - use popup
+      console.log("🖥️ Using popup for desktop");
+      const provider = new GoogleAuthProvider();
       provider.setCustomParameters({
         prompt: 'select_account',
       });
 
-      // Detect if we're in a mobile app (Capacitor) or mobile browser
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const isCapacitor = typeof window !== 'undefined' && (window as any).Capacitor;
-      
-      // For mobile apps and mobile browsers, use redirect (better UX)
-      // For desktop browsers, use popup
-      if (isCapacitor || (isMobile && window.innerWidth < 768)) {
-        console.log("📱 Using redirect for mobile/Capacitor");
-        // Use redirect for mobile - it will come back to the app
-        await signInWithRedirect(auth, provider);
-        // Note: We don't set loading to false here because the page will redirect
-        // The redirect result will be handled in useEffect
-        return;
-      }
-
-      // For desktop, use popup
-      console.log("🖥️ Using popup for desktop");
       const result = await signInWithPopup(auth, provider);
-      
+
       // Handle the user immediately
       await handleGoogleUser(result.user);
 
@@ -251,10 +316,25 @@ export default function LoginPage() {
       } else if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         // User closed popup - don't show error
         console.log("User closed Google login popup");
-      } else if (error.code === 'auth/unauthorized-domain') {
+      } else if (error.code === 'auth/unauthorized-domain' || error.message?.includes('unauthorized-domain') || error.message?.includes('Domain Not Authorized')) {
+        // Try redirect as fallback
+        console.log("⚠️ Unauthorized domain error, trying redirect as fallback");
+        try {
+          const provider = new GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          await signInWithRedirect(auth, provider);
+          return; // Don't set loading to false, page will redirect
+        } catch (redirectError: any) {
+          toast({
+            title: "Domain Not Authorized",
+            description: "Google login domain not authorized. Please check Firebase Console settings. SHA-1 fingerprint and OAuth client must be properly configured.",
+            variant: "destructive",
+          });
+        }
+      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
         toast({
-          title: "Domain Not Authorized",
-          description: "Please contact support to authorize this domain for Google login.",
+          title: "Network Error",
+          description: "Unable to connect to server. Please check your internet connection and try again.",
           variant: "destructive",
         });
       } else {
@@ -332,9 +412,17 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error("❌ Login error:", error);
 
+      // Better error messages for network issues
+      let errorMessage = error.message || "Please check your credentials";
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        errorMessage = "Unable to connect to server. Please check your internet connection.";
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = "Request timeout. Please check your connection and try again.";
+      }
+
       toast({
         title: "Login Failed",
-        description: error.message || "Please check your credentials",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

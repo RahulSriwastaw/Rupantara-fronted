@@ -270,8 +270,23 @@ export default function RegisterPage() {
             return;
           } catch (redirectError: any) {
             console.error("❌ Redirect also failed:", redirectError);
-            // If redirect also fails, show helpful error
-            throw new Error('Google login failed. Please check your internet connection and try again.');
+            console.error("❌ Redirect error details:", {
+              message: redirectError.message,
+              code: redirectError.code,
+              error: redirectError.error,
+            });
+            
+            // Check for specific redirect errors
+            if (redirectError.code === 'auth/unauthorized-domain' || redirectError.message?.includes('unauthorized-domain')) {
+              throw new Error('Domain not authorized. Please configure Firebase Console settings.');
+            } else if (redirectError.message?.includes('Failed to fetch') || redirectError.message?.includes('NetworkError')) {
+              throw new Error('Network error. Please check your internet connection.');
+            } else if (redirectError.code === 'auth/operation-not-allowed') {
+              throw new Error('Google login is not enabled. Please contact support.');
+            } else {
+              // Generic error - don't throw, let it fall through to outer catch
+              throw redirectError;
+            }
           }
         }
       }
@@ -337,16 +352,41 @@ export default function RegisterPage() {
             variant: "destructive",
           });
         }
-      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.message?.includes('Network request failed')) {
         toast({
           title: "Network Error",
           description: "Unable to connect to server. Please check your internet connection and try again.",
           variant: "destructive",
         });
-      } else {
+      } else if (error.message?.includes('Domain not authorized') || error.code === 'auth/unauthorized-domain') {
         toast({
-          title: "Google Registration Failed",
-          description: error.message || "Could not sign in with Google. Please try again.",
+          title: "Domain Not Authorized",
+          description: "Google login domain not authorized. Please check Firebase Console settings. SHA-1 fingerprint and OAuth client must be properly configured.",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes('Google login failed')) {
+        // This is the error from redirect fallback - show network error
+        toast({
+          title: "Connection Error",
+          description: "Unable to connect to Google. Please check your internet connection and try again.",
+          variant: "destructive",
+        });
+      } else {
+        // More specific error messages
+        let errorTitle = "Google Registration Failed";
+        let errorDescription = error.message || "Could not sign in with Google. Please try again.";
+        
+        if (error.code === 'auth/operation-not-allowed') {
+          errorTitle = "Login Not Available";
+          errorDescription = "Google login is not enabled. Please contact support.";
+        } else if (error.code === 'auth/network-request-failed') {
+          errorTitle = "Network Error";
+          errorDescription = "Unable to connect to Google. Please check your internet connection.";
+        }
+        
+        toast({
+          title: errorTitle,
+          description: errorDescription,
           variant: "destructive",
         });
       }

@@ -400,19 +400,36 @@ export default function RegisterPage() {
     try {
       console.log("📝 Registration attempt:", { email: formData.email, apiUrl: API_URL });
 
-      // Call backend registration endpoint
-      const response = await fetch(`${API_URL}/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-          phone: formData.phone,
-        }),
+      // Create timeout promise (30 seconds)
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 30000);
       });
+
+      // Race between fetch and timeout
+      const response = await Promise.race([
+        fetch(`${API_URL}/auth/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.fullName,
+            email: formData.email,
+            password: formData.password,
+            phone: formData.phone,
+          }),
+        }),
+        timeoutPromise
+      ]);
+
+      // Check if response is valid
+      if (!response || !response.ok) {
+        const errorData = await response.json().catch(() => ({
+          msg: `Server error: ${response?.status || 'Unknown'}`,
+          error: `Server error: ${response?.status || 'Unknown'}`
+        }));
+        throw new Error(errorData.msg || errorData.error || "Registration failed");
+      }
 
       const data = await response.json();
 
@@ -464,17 +481,33 @@ export default function RegisterPage() {
 
     } catch (error: any) {
       console.error("❌ Registration error:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+        apiUrl: API_URL
+      });
 
       // Better error messages for network issues
       let errorMessage = error.message || "Please try again.";
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+      let errorTitle = "Registration Failed";
+      
+      if (error.message === 'Request timeout' || error.message?.includes('timeout')) {
+        errorTitle = "Connection Timeout";
+        errorMessage = "Request took too long. Please check your internet connection and try again.";
+      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.message?.includes('Network request failed')) {
+        errorTitle = "Connection Error";
+        errorMessage = "Unable to connect to server. Please check your internet connection and try again.";
+      } else if (error.message?.includes('CORS') || error.message?.includes('CORS policy')) {
+        errorTitle = "Connection Error";
         errorMessage = "Unable to connect to server. Please check your internet connection.";
-      } else if (error.message?.includes('timeout')) {
-        errorMessage = "Request timeout. Please check your connection and try again.";
+      } else if (error.message?.includes('Server error') || error.message?.includes('500')) {
+        errorTitle = "Server Error";
+        errorMessage = "Server is temporarily unavailable. Please try again later.";
       }
 
       toast({
-        title: "Registration Failed",
+        title: errorTitle,
         description: errorMessage,
         variant: "destructive",
       });

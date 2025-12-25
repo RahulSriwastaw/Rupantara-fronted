@@ -413,16 +413,29 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      console.log("🔐 Login attempt:", { email, apiUrl: API_URL });
+      // Enhanced logging for mobile debugging
+      const isCapacitor = typeof window !== 'undefined' && (window as any).Capacitor;
+      const userAgent = typeof window !== 'undefined' ? navigator.userAgent : 'unknown';
+      
+      console.log("🔐 Login attempt:", { 
+        email, 
+        apiUrl: API_URL,
+        isCapacitor: !!isCapacitor,
+        userAgent: userAgent.substring(0, 50),
+        fullUrl: `${API_URL}/auth/login`
+      });
 
       // Create timeout promise (30 seconds)
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Request timeout')), 30000);
       });
 
+      const requestUrl = `${API_URL}/auth/login`;
+      console.log("📡 Making API request to:", requestUrl);
+
       // Race between fetch and timeout
       const response = await Promise.race([
-        fetch(`${API_URL}/auth/login`, {
+        fetch(requestUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -437,7 +450,9 @@ export default function LoginPage() {
             message: fetchError.message,
             name: fetchError.name,
             stack: fetchError.stack,
-            apiUrl: `${API_URL}/auth/login`,
+            apiUrl: requestUrl,
+            isCapacitor: !!isCapacitor,
+            errorType: fetchError.constructor.name,
           });
           // Re-throw with more context
           if (fetchError.message?.includes('Failed to fetch') || fetchError.message?.includes('NetworkError')) {
@@ -447,6 +462,12 @@ export default function LoginPage() {
         }),
         timeoutPromise
       ]);
+      
+      console.log("✅ API response received:", { 
+        status: response?.status, 
+        statusText: response?.statusText,
+        ok: response?.ok 
+      });
 
       // Check if response is valid
       if (!response || !response.ok) {

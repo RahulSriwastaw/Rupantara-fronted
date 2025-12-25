@@ -43,11 +43,24 @@ export default function LoginPage() {
   // Check for redirect result (for mobile/Capacitor apps)
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
+      // Wait a bit for Zustand to hydrate
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // First check if user is already logged in
-      if (user && user.email) {
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser && currentUser.email) {
         console.log("✅ User already logged in, redirecting...");
         router.replace("/template");
+        setIsCheckingAuth(false);
         return;
+      }
+
+      // Also check localStorage token
+      const token = localStorage.getItem("token");
+      if (token && !currentUser) {
+        console.log("🔍 Token found but user not in store, checking backend...");
+        // Token exists but user not in store - might be a refresh scenario
+        // Don't redirect here, let the user login again or check token validity
       }
 
       // Check for Google redirect result (for mobile apps)
@@ -84,13 +97,16 @@ export default function LoginPage() {
                 profilePicture: String(data.user?.photoURL || result.user.photoURL || ""),
               };
               login(userData as any);
+              
+              // Wait for state to update
+              await new Promise(resolve => setTimeout(resolve, 200));
+              
               toast({
                 title: "Welcome! 🎉",
                 description: `Logged in as ${userData.fullName}`,
               });
-              setTimeout(() => {
-                router.replace("/template");
-              }, 100);
+              
+              router.replace("/template");
             } catch (error: any) {
               console.error("❌ Google sync error:", error);
               toast({
@@ -101,6 +117,7 @@ export default function LoginPage() {
             } finally {
               setIsGoogleLoading(false);
             }
+            setIsCheckingAuth(false);
             return;
           }
         } catch (error: any) {
@@ -120,7 +137,7 @@ export default function LoginPage() {
     };
 
     checkAuthAndRedirect();
-  }, [user, router, toast, login]);
+  }, [router, toast, login]);
 
   const handleGoogleUser = async (googleUser: any) => {
     try {
@@ -163,6 +180,7 @@ export default function LoginPage() {
       // Save token
       if (data.token) {
         localStorage.setItem("token", data.token);
+        console.log("✅ Token saved to localStorage");
       }
 
       // Create user object
@@ -178,16 +196,41 @@ export default function LoginPage() {
         profilePicture: String(data.user?.photoURL || googleUser.photoURL || ""),
       };
 
+      console.log("👤 User data prepared:", userData);
+
+      // Login to store - this updates Zustand state
       login(userData as any);
+      console.log("✅ User logged into Zustand store");
+
+      // Wait a bit for Zustand state to update and persist
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Verify user is in store before redirecting
+      const currentUser = useAuthStore.getState().user;
+      if (!currentUser || !currentUser.email) {
+        console.error("❌ User not found in store after login, retrying...");
+        // Retry login
+        login(userData as any);
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
 
       toast({
         title: "Welcome! 🎉",
         description: `Logged in as ${userData.fullName}`,
       });
 
+      console.log("🔄 Redirecting to /template...");
+      
+      // Use replace to avoid back button issues
+      router.replace("/template");
+      
+      // Force navigation if replace doesn't work
       setTimeout(() => {
-        router.replace("/template");
-      }, 100);
+        if (window.location.pathname === "/login") {
+          console.log("⚠️ Still on login page, forcing redirect...");
+          window.location.href = "/template";
+        }
+      }, 500);
 
     } catch (error: any) {
       console.error("❌ Google sync error:", error);

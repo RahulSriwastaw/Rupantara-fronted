@@ -9,11 +9,13 @@ const config: CapacitorConfig = {
     hostname: 'rupantar.ai',
     // Allow cleartext traffic for localhost (development)
     cleartext: true,
-    // Allow navigation to external URLs (for OAuth)
+    // Allow navigation to external URLs (for OAuth and API calls)
     allowNavigation: [
       'https://accounts.google.com/*',
       'https://rupantra-ai.firebaseapp.com/*',
-      'https://*.googleapis.com/*'
+      'https://*.googleapis.com/*',
+      'https://new-backend-g2gw.onrender.com/*',
+      'https://*.onrender.com/*'
     ]
   },
   plugins: {

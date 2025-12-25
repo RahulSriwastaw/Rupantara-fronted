@@ -428,6 +428,22 @@ export default function LoginPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email, password }),
+          // Add mode and credentials for better compatibility
+          mode: 'cors',
+          credentials: 'omit',
+        }).catch((fetchError) => {
+          // Enhanced error logging
+          console.error("❌ Fetch error details:", {
+            message: fetchError.message,
+            name: fetchError.name,
+            stack: fetchError.stack,
+            apiUrl: `${API_URL}/auth/login`,
+          });
+          // Re-throw with more context
+          if (fetchError.message?.includes('Failed to fetch') || fetchError.message?.includes('NetworkError')) {
+            throw new Error('Network request failed. Please check your internet connection and ensure the server is accessible.');
+          }
+          throw fetchError;
         }),
         timeoutPromise
       ]);

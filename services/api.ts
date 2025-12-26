@@ -365,6 +365,10 @@ export const packagesApi = {
 
 // Generations API
 export const generationsApi = {
+  getCosts: (templateId?: string) => {
+    const params = templateId ? `?templateId=${templateId}` : '';
+    return api.get(`/generation/costs${params}`);
+  },
   downloadProxy: async (imageUrl: string) => {
     // Handle data URLs directly (no proxy needed)
     if (imageUrl.startsWith('data:')) {

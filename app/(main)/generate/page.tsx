@@ -69,22 +69,33 @@ function GenerateContent() {
     }
   }, [templateId, toast]);
 
+  // Fetch costs from backend
+  const [costs, setCosts] = useState<{
+    baseCost: number;
+    qualityCosts: Record<QualityLevel, number>;
+    templateCost: number;
+  }>({
+    baseCost: 20,
+    qualityCosts: { SD: 0, HD: 5, UHD: 10, "2K": 15, "4K": 20, "8K": 30 },
+    templateCost: 0,
+  });
+
+  useEffect(() => {
+    // Fetch costs from backend
+    generationsApi.getCosts(template?.id).then((data: any) => {
+      setCosts({
+        baseCost: data.baseCost || 20,
+        qualityCosts: data.qualityCosts || { SD: 0, HD: 5, UHD: 10, "2K": 15, "4K": 20, "8K": 30 },
+        templateCost: data.templateCost || 0,
+      });
+    }).catch(() => {
+      // Use defaults on error
+    });
+  }, [template?.id]);
+
   // Calculate total cost
   const calculateCost = () => {
-    let cost = 20; // Base cost
-
-    // Quality cost
-    const qualityCosts: Record<QualityLevel, number> = {
-      SD: 0,
-      HD: 5,
-      UHD: 10,
-      "2K": 15,
-      "4K": 20,
-      "8K": 30,
-    };
-    cost += qualityCosts[quality];
-
-    return cost;
+    return costs.baseCost + (costs.qualityCosts[quality] || 0) + costs.templateCost;
   };
 
   const totalCost = calculateCost();
@@ -340,70 +351,59 @@ function GenerateContent() {
         </p>
       </div>
 
-      {/* Selected Template Preview */}
+      {/* Template Selector - Compact Dropdown */}
       <Card>
-        <CardContent className="p-3 sm:p-4">
-          <div className="space-y-2">
-            <label className="text-sm">Select Template</label>
-            <select className="bg-gray-900 border border-gray-700 rounded p-2 w-full" value={template?.id || ''} onChange={(e) => {
-              const t = templates.find(x => (x as any).id === e.target.value)
-              setTemplate(t || null)
-            }}>
-              <option value="">None</option>
+        <CardContent className="p-2 sm:p-3">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium">Template</label>
+            <select 
+              className="w-full text-sm bg-background border border-input rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring" 
+              value={template?.id || ''} 
+              onChange={(e) => {
+                const t = templates.find(x => (x as any).id === e.target.value)
+                setTemplate(t || null)
+              }}
+            >
+              <option value="">None (Free Style)</option>
               {templates.map((t) => (
-                <option key={(t as any).id} value={(t as any).id}>{t.title}</option>
+                <option key={(t as any).id} value={(t as any).id}>
+                  {t.title} {t.isPremium ? '(Premium)' : ''}
+                </option>
               ))}
             </select>
+            {template && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>Using: {template.title}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setTemplate(null);
+                    router.push("/generate");
+                  }}
+                  className="h-5 px-2 text-xs"
+                >
+                  Change
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {template && (
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center gap-3">
-              <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-lg overflow-hidden flex-shrink-0">
-                <Image
-                  src={template.demoImage || (template as any).image || (template.additionalImages?.[0] ?? '/logo.png')}
-                  alt={template.title}
-                  fill
-                  className="object-cover"
-                  sizes="80px"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm text-muted-foreground">Using Template</p>
-                <h3 className="text-sm sm:text-base font-semibold truncate">{template.title}</h3>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setTemplate(null);
-                  router.push("/generate");
-                }}
-                className="text-xs sm:text-sm"
-              >
-                Change
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+      <div className="grid lg:grid-cols-3 gap-2 sm:gap-3">
         {/* Main Column */}
-        <div className="lg:col-span-2 space-y-3 sm:space-y-4">
+        <div className="lg:col-span-2 space-y-2 sm:space-y-3">
           {/* Photo Upload */}
           <Card>
-            <CardContent className="p-3 sm:p-4 md:p-5">
+            <CardContent className="p-2 sm:p-3">
               <PhotoUpload photos={photos} onPhotosChange={setPhotos} />
             </CardContent>
           </Card>
 
           {/* AI Tools */}
           <Card>
-            <CardContent className="p-3 sm:p-4 md:p-5">
+            <CardContent className="p-2 sm:p-3">
               <AITools
                 hasPhotos={photos.length > 0}
                 onToolApply={(tool) => {
@@ -418,7 +418,7 @@ function GenerateContent() {
 
           {/* Prompt Input */}
           <Card>
-            <CardContent className="p-3 sm:p-4 md:p-5">
+            <CardContent className="p-2 sm:p-3">
               <PromptInput
                 prompt={prompt}
                 negativePrompt={negativePrompt}
@@ -430,75 +430,139 @@ function GenerateContent() {
           </Card>
         </div>
 
-        {/* Settings Column */}
-        <div className="space-y-3 sm:space-y-4">
-          {/* AI Model Selection Card */}
+        {/* Settings Column - Compact */}
+        <div className="space-y-2 sm:space-y-3">
+          {/* Combined Settings Card - All in one */}
           <Card>
-            <CardContent className="p-3 sm:p-4 md:p-5">
-              <AIModelSelector
-                selectedModel={selectedModel}
-                onModelChange={setSelectedModel}
-              />
-            </CardContent>
-          </Card>
+            <CardContent className="p-2 sm:p-3 space-y-3">
+              {/* AI Model Selection */}
+              <div>
+                <AIModelSelector
+                  selectedModel={selectedModel}
+                  onModelChange={setSelectedModel}
+                />
+              </div>
 
-          {/* Enhanced Settings Card */}
-          <Card>
-            <CardContent className="p-3 sm:p-4 md:p-5">
-              <EnhancedSettings
-                aspectRatio={aspectRatio}
-                onAspectRatioChange={setAspectRatio}
-                promptEnhancer={promptEnhancer}
-                onPromptEnhancerChange={setPromptEnhancer}
-                variations={variations}
-                onVariationsChange={setVariations}
-                visibility={visibility}
-                onVisibilityChange={setVisibility}
-                imageStrength={imageStrength}
-                onImageStrengthChange={photos.length > 0 ? setImageStrength : undefined}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Quality Settings Card */}
-          <Card>
-            <CardContent className="p-3 sm:p-4 md:p-5">
-              <GenerationSettings
-                quality={quality}
-                aspectRatio={aspectRatio}
-                creativity={creativity}
-                detailLevel={detailLevel}
-                onQualityChange={setQuality}
-                onAspectRatioChange={setAspectRatio}
-                onCreativityChange={setCreativity}
-                onDetailLevelChange={setDetailLevel}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Cost Card - Sticky */}
-          <Card className="sticky top-20">
-            <CardContent className="p-3 sm:p-4 md:p-5 space-y-2 sm:space-y-3">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Base generation</span>
-                  <span>20 points</span>
+              {/* Quality & Aspect Ratio - Inline */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Quality</label>
+                  <select 
+                    className="w-full text-xs bg-background border border-input rounded-md px-2 py-1.5"
+                    value={quality}
+                    onChange={(e) => setQuality(e.target.value as QualityLevel)}
+                  >
+                    <option value="SD">SD (0 pts)</option>
+                    <option value="HD">HD (+{costs.qualityCosts.HD} pts)</option>
+                    <option value="UHD">UHD (+{costs.qualityCosts.UHD} pts)</option>
+                    <option value="2K">2K (+{costs.qualityCosts["2K"]} pts)</option>
+                    <option value="4K">4K (+{costs.qualityCosts["4K"]} pts)</option>
+                    <option value="8K">8K (+{costs.qualityCosts["8K"]} pts)</option>
+                  </select>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span>Quality ({quality})</span>
-                  <span>+{calculateCost() - 20} points</span>
-                </div>
-                <div className="border-t pt-2 flex justify-between font-semibold">
-                  <span>Total Cost</span>
-                  <span>{totalCost} points</span>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Aspect Ratio</label>
+                  <select 
+                    className="w-full text-xs bg-background border border-input rounded-md px-2 py-1.5"
+                    value={aspectRatio}
+                    onChange={(e) => setAspectRatio(e.target.value)}
+                  >
+                    <option value="1:1">Square (1:1)</option>
+                    <option value="4:3">Standard (4:3)</option>
+                    <option value="16:9">Widescreen (16:9)</option>
+                    <option value="9:16">Portrait (9:16)</option>
+                    <option value="3:4">Portrait (3:4)</option>
+                  </select>
                 </div>
               </div>
 
-              <div className="text-sm text-muted-foreground">
+              {/* Advanced Options - Collapsible */}
+              <details className="space-y-2">
+                <summary className="text-xs font-medium cursor-pointer">Advanced Options</summary>
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <label>Prompt Enhancer</label>
+                    <input 
+                      type="checkbox" 
+                      checked={promptEnhancer}
+                      onChange={(e) => setPromptEnhancer(e.target.checked)}
+                      className="h-3 w-3"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs">Variations</label>
+                    <select 
+                      className="w-full text-xs bg-background border border-input rounded-md px-2 py-1.5"
+                      value={variations}
+                      onChange={(e) => setVariations(Number(e.target.value))}
+                    >
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                    </select>
+                  </div>
+                  {photos.length > 0 && (
+                    <div className="space-y-1">
+                      <label className="text-xs">Image Strength: {imageStrength}</label>
+                      <input 
+                        type="range" 
+                        min="0" 
+                        max="1" 
+                        step="0.05"
+                        value={imageStrength}
+                        onChange={(e) => setImageStrength(Number(e.target.value))}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <label className="text-xs">Visibility</label>
+                    <select 
+                      className="w-full text-xs bg-background border border-input rounded-md px-2 py-1.5"
+                      value={visibility}
+                      onChange={(e) => setVisibility(e.target.value as "public" | "private")}
+                    >
+                      <option value="public">Public</option>
+                      <option value="private">Private</option>
+                    </select>
+                  </div>
+                </div>
+              </details>
+            </CardContent>
+          </Card>
+
+          {/* Cost Card - Sticky & Compact */}
+          <Card className="sticky top-20">
+            <CardContent className="p-2 sm:p-3 space-y-2">
+              <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between">
-                  <span>Your Balance</span>
-                  <span className={balance < totalCost ? "text-destructive" : ""}>
-                    {balance} points
+                  <span>Base</span>
+                  <span>{costs.baseCost} pts</span>
+                </div>
+                {costs.qualityCosts[quality] > 0 && (
+                  <div className="flex justify-between">
+                    <span>Quality ({quality})</span>
+                    <span>+{costs.qualityCosts[quality]} pts</span>
+                  </div>
+                )}
+                {costs.templateCost > 0 && (
+                  <div className="flex justify-between">
+                    <span>Template</span>
+                    <span>+{costs.templateCost} pts</span>
+                  </div>
+                )}
+                <div className="border-t pt-1.5 flex justify-between font-semibold text-sm">
+                  <span>Total</span>
+                  <span>{totalCost} pts</span>
+                </div>
+              </div>
+
+              <div className="text-xs text-muted-foreground">
+                <div className="flex justify-between">
+                  <span>Balance</span>
+                  <span className={balance < totalCost ? "text-destructive font-semibold" : ""}>
+                    {balance} pts
                   </span>
                 </div>
               </div>
@@ -506,21 +570,22 @@ function GenerateContent() {
               <Button
                 onClick={handleGenerate}
                 disabled={!canGenerate}
-                className="w-full"
-                size="lg"
+                className="w-full text-sm py-2"
+                size="default"
               >
                 {photos.length === 0
                   ? "Upload Photos First"
                   : balance < totalCost
-                    ? "Insufficient Points"
-                    : `Generate Image (${totalCost} points)`}
+                    ? `Need ${totalCost - balance} more pts`
+                    : `Generate (${totalCost} pts)`}
               </Button>
 
               {balance < totalCost && (
                 <Button
                   variant="outline"
                   onClick={() => router.push("/pro")}
-                  className="w-full"
+                  className="w-full text-xs py-1.5"
+                  size="sm"
                 >
                   Add Points
                 </Button>

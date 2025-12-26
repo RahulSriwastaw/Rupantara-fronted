@@ -453,6 +453,7 @@ export const creatorApi = {
   updateTemplate: (id: string, data: {
     title?: string;
     description?: string;
+    inputImage?: string;  // ✅ Add inputImage field
     imageUrl?: string;
     category?: string;
     subCategory?: string;

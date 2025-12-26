@@ -249,6 +249,7 @@ export const templatesApi = {
       description: String(t.description || t.prompt || ''),
       image: String(t.image || t.imageUrl || t.demoImage || ''),
       demoImage: String(t.demoImage || t.imageUrl || t.image || ''),
+      inputImage: String(t.inputImage || t.inputImageUrl || ''),  // ✅ Include inputImage
       additionalImages: Array.isArray(t.additionalImages) ? t.additionalImages : [],
       category: (String(t.category || 'unisex') as TemplateCategory),
       subCategory: (String(t.subCategory || 'other') as TemplateSubCategory),

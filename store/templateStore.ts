@@ -66,11 +66,12 @@ export const useTemplateStore = create<TemplateState>()(
         try {
           const data = await creatorApi.getTemplates(status, sort, page, 20);
           const templates = (data.templates || []).map((t: any) => ({
-            id: t.id,
+            id: t.id || t._id,
             title: t.title,
             description: t.description || '',
-            image: t.image || t.demoImage || '',
-            demoImage: t.demoImage || t.image || '',
+            image: t.image || t.imageUrl || t.demoImage || '',
+            demoImage: t.demoImage || t.imageUrl || t.image || '',
+            inputImage: t.inputImage || t.inputImageUrl || '',  // ✅ Include inputImage
             additionalImages: t.additionalImages || [],
             category: t.category || 'unisex',
             subCategory: t.subCategory || 'other',
@@ -80,7 +81,7 @@ export const useTemplateStore = create<TemplateState>()(
             creatorAvatar: t.creatorAvatar || '',
             creatorBio: t.creatorBio || '',
             creatorVerified: t.creatorVerified || false,
-            hiddenPrompt: t.hiddenPrompt || '',
+            hiddenPrompt: t.hiddenPrompt || t.prompt || '',
             visiblePrompt: t.visiblePrompt || t.title || '',
             negativePrompt: t.negativePrompt || '',
             isFree: t.isFree !== undefined ? t.isFree : !t.isPremium,

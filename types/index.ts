@@ -29,6 +29,7 @@ export interface Template {
   description: string;
   image?: string;
   demoImage: string;
+  inputImage?: string;  // ✅ User's original photo (BEFORE)
   additionalImages?: string[];
   category: TemplateCategory;
   subCategory: TemplateSubCategory;

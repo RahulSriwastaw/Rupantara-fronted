@@ -128,17 +128,27 @@ function GenerateContent() {
     }, 200);
 
     try {
+      // Build prompt for Gemini - merge template prompt with user prompt
+      let finalPrompt = prompt;
+      if (template?.prompt) {
+        finalPrompt = template.prompt + (prompt ? `, ${prompt}` : '');
+      }
+      if (promptEnhancer && finalPrompt) {
+        finalPrompt = `high quality, professional, detailed, ${finalPrompt}`;
+      }
+
       const body = {
         templateId: template?.id,
         userPrompt: prompt,
-        prompt: promptEnhancer ? `enhanced: ${prompt}` : prompt,
+        prompt: finalPrompt,
+        negativePrompt: negativePrompt || '',
         faceImageUrl: photos[0] || '',
         quality: quality,
         aspectRatio: aspectRatio,
-        uploadedImages: photos.length ? [photos[0]] : [],
+        uploadedImages: photos.length ? photos : [],
         modelId: selectedModel,
         variations: variations,
-        imageStrength: photos.length > 0 ? imageStrength : undefined,
+        strength: photos.length > 0 ? imageStrength : undefined,
         visibility: visibility,
       }
       const generation = await generationsApi.create(body as any);

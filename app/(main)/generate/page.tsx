@@ -128,10 +128,10 @@ function GenerateContent() {
     }, 200);
 
     try {
-      // Build prompt for Gemini - merge template prompt with user prompt
+      // Build prompt for Gemini - merge template hiddenPrompt with user prompt
       let finalPrompt = prompt;
-      if (template?.prompt) {
-        finalPrompt = template.prompt + (prompt ? `, ${prompt}` : '');
+      if (template?.hiddenPrompt) {
+        finalPrompt = template.hiddenPrompt + (prompt ? `, ${prompt}` : '');
       }
       if (promptEnhancer && finalPrompt) {
         finalPrompt = `high quality, professional, detailed, ${finalPrompt}`;

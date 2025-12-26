@@ -39,9 +39,6 @@ function GenerateContent() {
   const [creativity, setCreativity] = useState(75);
   const [detailLevel, setDetailLevel] = useState("medium");
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
-  const [promptEnhancer, setPromptEnhancer] = useState(false);
-  const [variations, setVariations] = useState(1);
-  const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [imageStrength, setImageStrength] = useState(0.35);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -486,59 +483,6 @@ function GenerateContent() {
                 </div>
               </div>
 
-              {/* Advanced Options - Collapsible */}
-              <details className="space-y-2">
-                <summary className="text-xs font-medium cursor-pointer">Advanced Options</summary>
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <label>Prompt Enhancer</label>
-                    <input 
-                      type="checkbox" 
-                      checked={promptEnhancer}
-                      onChange={(e) => setPromptEnhancer(e.target.checked)}
-                      className="h-3 w-3"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs">Variations</label>
-                    <select 
-                      className="w-full text-xs bg-background border border-input rounded-md px-2 py-1.5"
-                      value={variations}
-                      onChange={(e) => setVariations(Number(e.target.value))}
-                    >
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                    </select>
-                  </div>
-                  {photos.length > 0 && (
-                    <div className="space-y-1">
-                      <label className="text-xs">Image Strength: {imageStrength}</label>
-                      <input 
-                        type="range" 
-                        min="0" 
-                        max="1" 
-                        step="0.05"
-                        value={imageStrength}
-                        onChange={(e) => setImageStrength(Number(e.target.value))}
-                        className="w-full"
-                      />
-                    </div>
-                  )}
-                  <div className="space-y-1">
-                    <label className="text-xs">Visibility</label>
-                    <select 
-                      className="w-full text-xs bg-background border border-input rounded-md px-2 py-1.5"
-                      value={visibility}
-                      onChange={(e) => setVisibility(e.target.value as "public" | "private")}
-                    >
-                      <option value="public">Public</option>
-                      <option value="private">Private</option>
-                    </select>
-                  </div>
-                </div>
-              </details>
             </CardContent>
           </Card>
 

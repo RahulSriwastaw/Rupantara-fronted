@@ -435,11 +435,19 @@ export default function CreateTemplatePage() {
       } else {
         // Create new template
         const created = await templatesApi.creatorSubmitTemplate(payload);
+        
+        console.log('📦 Template creation response:', created);
 
-        addTemplate({
-          ...created.template,
-          additionalImages: created.template.exampleImages || [],
-        });
+        // Handle different response structures
+        const templateData = created?.template || created?.data || created;
+        const exampleImages = templateData?.exampleImages || templateData?.additionalImages || formData.exampleImages || [];
+
+        if (templateData) {
+          addTemplate({
+            ...templateData,
+            additionalImages: exampleImages,
+          });
+        }
 
         toast({
           title: "✅ Template Submitted!",
@@ -1027,19 +1035,56 @@ export default function CreateTemplatePage() {
               <div>
                 <Label>Template Preview</Label>
                 <div className="grid grid-cols-2 gap-4 mt-2">
+                  {/* BEFORE Image Preview */}
                   <Card className="p-0 overflow-hidden">
-                    <div className="aspect-square bg-gradient-to-br from-blue-500 to-blue-600" />
+                    {formData.inputImage ? (
+                      <div className="relative aspect-square">
+                        <img
+                          src={formData.inputImage}
+                          alt="Input (BEFORE)"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                          BEFORE
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="aspect-square bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
+                        <p className="text-xs text-muted-foreground text-center px-2">
+                          No input image
+                        </p>
+                      </div>
+                    )}
                     <div className="p-3">
                       <p className="text-xs text-muted-foreground">
-                        Prompt: geometric abstract, neon glow
+                        Input Image (Original Photo)
                       </p>
                     </div>
                   </Card>
+                  
+                  {/* AFTER Image Preview */}
                   <Card className="p-0 overflow-hidden">
-                    <div className="aspect-square bg-gradient-to-br from-blue-400 to-blue-500" />
+                    {formData.demoImage ? (
+                      <div className="relative aspect-square">
+                        <img
+                          src={formData.demoImage}
+                          alt="Output (AFTER)"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                          AFTER
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="aspect-square bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
+                        <p className="text-xs text-muted-foreground text-center px-2">
+                          No output image
+                        </p>
+                      </div>
+                    )}
                     <div className="p-3">
                       <p className="text-xs text-muted-foreground">
-                        Prompt: realistic portrait
+                        Output Image (Generated Result)
                       </p>
                     </div>
                   </Card>

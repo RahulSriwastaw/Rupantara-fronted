@@ -113,13 +113,40 @@ export default function CreateTemplatePage() {
         // If not in store, fetch from API
         if (!templateData) {
           const templates = await creatorApi.getTemplates();
-          templateData = templates.templates?.find((t: any) => t.id === editTemplateId);
+          templateData = templates.templates?.find((t: any) => t.id === editTemplateId || t._id === editTemplateId);
         }
         
         if (templateData) {
           // Pre-fill form with template data
           const template = templateData as any; // Type assertion for edit mode
-          setFormData({
+          
+          console.log('📦 Loading template for edit:', {
+            id: template.id || template._id,
+            inputImage: template.inputImage,
+            image: template.image,
+            demoImage: template.demoImage,
+            imageUrl: template.imageUrl,
+            allKeys: Object.keys(template)
+          });
+          
+          // Determine inputImage - try multiple possible field names
+          const inputImageValue = template.inputImage || 
+                                  template.inputImageUrl || 
+                                  template.beforeImage || 
+                                  template.originalImage ||
+                                  template.before || 
+                                  "";
+          
+          // Determine demoImage - try multiple possible field names  
+          const demoImageValue = template.image || 
+                                 template.imageUrl || 
+                                 template.demoImage || 
+                                 template.afterImage || 
+                                 template.outputImage ||
+                                 template.after ||
+                                 "";
+          
+          const newFormData = {
             title: template.title || "",
             description: template.description || "",
             category: template.category || "",
@@ -127,17 +154,28 @@ export default function CreateTemplatePage() {
             tags: template.tags || [],
             ageGroup: template.ageGroup || "All Ages",
             isActive: template.status === 'active',
-            inputImage: template.inputImage || "",
-            demoImage: template.image || template.demoImage || "",
-            exampleImages: template.additionalImages || [],
-            hiddenPrompt: template.hiddenPrompt || template.visiblePrompt || "",
+            inputImage: inputImageValue,
+            demoImage: demoImageValue,
+            exampleImages: template.additionalImages || template.exampleImages || [],
+            hiddenPrompt: template.hiddenPrompt || template.prompt || template.visiblePrompt || "",
             visiblePrompt: template.visiblePrompt || template.title || "",
             negativePrompt: template.negativePrompt || "",
             templateType: template.isFree ? "free" : "premium",
             pointsCost: template.pointsCost || 25,
             quality: "HD",
             aspectRatio: "1:1",
+          };
+          
+          console.log('✅ Form data prepared:', {
+            hasInputImage: !!newFormData.inputImage,
+            inputImageLength: newFormData.inputImage?.length || 0,
+            hasDemoImage: !!newFormData.demoImage,
+            demoImageLength: newFormData.demoImage?.length || 0,
+            inputImagePreview: newFormData.inputImage?.substring(0, 50) + '...',
+            demoImagePreview: newFormData.demoImage?.substring(0, 50) + '...'
           });
+          
+          setFormData(newFormData);
         } else {
           toast({
             title: "Error",
@@ -1037,12 +1075,29 @@ export default function CreateTemplatePage() {
                 <div className="grid grid-cols-2 gap-4 mt-2">
                   {/* BEFORE Image Preview */}
                   <Card className="p-0 overflow-hidden">
-                    {formData.inputImage ? (
+                    {formData.inputImage && formData.inputImage.trim() ? (
                       <div className="relative aspect-square">
                         <img
                           src={formData.inputImage}
                           alt="Input (BEFORE)"
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            console.error('❌ Failed to load input image:', formData.inputImage?.substring(0, 50));
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            const parent = (e.target as HTMLImageElement).parentElement;
+                            if (parent) {
+                              parent.innerHTML = `
+                                <div class="aspect-square bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
+                                  <p class="text-xs text-muted-foreground text-center px-2">
+                                    Image failed to load
+                                  </p>
+                                </div>
+                              `;
+                            }
+                          }}
+                          onLoad={() => {
+                            console.log('✅ Input image loaded successfully');
+                          }}
                         />
                         <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-semibold">
                           BEFORE
@@ -1059,6 +1114,11 @@ export default function CreateTemplatePage() {
                       <p className="text-xs text-muted-foreground">
                         Input Image (Original Photo)
                       </p>
+                      {isEditMode && !formData.inputImage && (
+                        <p className="text-xs text-red-500 mt-1">
+                          ⚠️ Input image not found in template data
+                        </p>
+                      )}
                     </div>
                   </Card>
                   

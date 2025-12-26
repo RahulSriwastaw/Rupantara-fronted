@@ -439,13 +439,11 @@ function GenerateContent() {
           {/* Combined Settings Card - All in one */}
           <Card>
             <CardContent className="p-2 sm:p-3 space-y-3">
-              {/* AI Model Selection */}
-              <div>
-                <AIModelSelector
-                  selectedModel={selectedModel}
-                  onModelChange={setSelectedModel}
-                />
-              </div>
+              {/* AI Model Selection - Compact Dropdown */}
+              <AIModelSelector
+                selectedModel={selectedModel}
+                onModelChange={setSelectedModel}
+              />
 
               {/* Quality & Aspect Ratio - Inline */}
               <div className="grid grid-cols-2 gap-2">

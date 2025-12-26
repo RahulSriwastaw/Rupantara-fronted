@@ -427,15 +427,38 @@ export default function CreateTemplatePage() {
     }
 
     try {
-      console.log('📤 Submitting template...', formData);
+      console.log('📤 Submitting template...', {
+        hasInputImage: !!formData.inputImage,
+        inputImageType: formData.inputImage?.substring(0, 20),
+        hasDemoImage: !!formData.demoImage,
+        demoImageType: formData.demoImage?.substring(0, 20)
+      });
 
-      const uploadRes = formData.demoImage ? await templatesApi.adminUploadDemo(formData.demoImage) : null;
+      // Upload inputImage if it's base64 (data URL)
+      let inputImageUrl = formData.inputImage;
+      if (formData.inputImage && formData.inputImage.startsWith('data:image')) {
+        console.log('📤 Uploading inputImage to server...');
+        try {
+          const inputUploadRes = await templatesApi.adminUploadDemo(formData.inputImage);
+          inputImageUrl = inputUploadRes?.url || formData.inputImage;
+          console.log('✅ Input image uploaded:', inputImageUrl?.substring(0, 50));
+        } catch (uploadError: any) {
+          console.error('❌ Failed to upload inputImage:', uploadError);
+          // Continue with base64 if upload fails
+          inputImageUrl = formData.inputImage;
+        }
+      }
+
+      // Upload demoImage if it's base64 (data URL)
+      const uploadRes = formData.demoImage && formData.demoImage.startsWith('data:image') 
+        ? await templatesApi.adminUploadDemo(formData.demoImage) 
+        : null;
       const demoUrl = uploadRes?.url || formData.demoImage;
 
       const payload = {
         title: formData.title,
         description: formData.description,
-        inputImage: formData.inputImage,
+        inputImage: inputImageUrl,  // Use uploaded URL or existing URL
         imageUrl: demoUrl,  // Backend expects imageUrl, not demoImage
         category: formData.category,
         subCategory: formData.subCategory,
@@ -451,12 +474,20 @@ export default function CreateTemplatePage() {
         pointsCost: formData.pointsCost
       };
 
+      console.log('📦 Final payload:', {
+        hasInputImage: !!payload.inputImage,
+        inputImageLength: payload.inputImage?.length || 0,
+        hasImageUrl: !!payload.imageUrl,
+        imageUrlLength: payload.imageUrl?.length || 0
+      });
+
       // Check if editing or creating
       if (isEditMode && editTemplateId) {
-        // Update existing template
+        // Update existing template - include inputImage
         await creatorApi.updateTemplate(editTemplateId, {
           title: payload.title,
           description: payload.description,
+          inputImage: payload.inputImage,  // ✅ Include inputImage
           imageUrl: payload.imageUrl,
           category: payload.category,
           subCategory: payload.subCategory,

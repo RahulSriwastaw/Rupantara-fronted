@@ -4,6 +4,7 @@ import { getApiUrl } from "@/lib/config";
 // Use centralized config for API URL (handles mobile builds properly)
 const API_URL = getApiUrl();
 const API_TIMEOUT = 30000; // 30 seconds
+const GENERATION_TIMEOUT = 180000; // 3 minutes for image generation (Replicate can take longer)
 
 // Debug logging (always log in mobile/Capacitor for debugging)
 if (typeof window !== 'undefined') {
@@ -403,7 +404,7 @@ export const generationsApi = {
       throw error;
     }
   },
-  create: (data: any) => {
+  create: async (data: any) => {
     // Map frontend fields to backend expected format
     const backendData = {
       templateId: data.templateId,
@@ -417,7 +418,52 @@ export const generationsApi = {
       strength: data.imageStrength, // For I2I strength
       variations: data.variations || 1,
     };
-    return api.post('/generation/generate', backendData);
+    
+    // Use longer timeout for generation requests
+    try {
+      const fullUrl = `${API_URL}/generation/generate`;
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📡 POST Generation Request:', fullUrl);
+      }
+
+      const response = await Promise.race([
+        fetch(fullUrl, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(backendData),
+        }),
+        timeout(GENERATION_TIMEOUT) as Promise<Response>
+      ]);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({
+          error: `API request failed: ${response.status} ${response.statusText}`,
+          msg: `API request failed: ${response.status} ${response.statusText}`
+        }));
+
+        const errorMessage = error.msg || error.message || error.error || error.details;
+
+        if (response.status >= 500) {
+          throw new Error(errorMessage || 'Server error. Please try again later.');
+        }
+
+        if (response.status === 400) {
+          throw new Error(errorMessage || 'Invalid request. Please check your input.');
+        }
+
+        throw new Error(errorMessage || `API request failed: ${response.status}`);
+      }
+      
+      return response.json();
+    } catch (error: any) {
+      if (error.message === 'Request timeout') {
+        throw new Error('Generation is taking longer than expected. Please wait and try again.');
+      }
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        throw new Error('Unable to connect to server. Please check your internet connection.');
+      }
+      throw error;
+    }
   },
   getById: (id: string) => api.get(`/generation/${id}`),
   getHistory: (page = 1, limit = 20) => api.get(`/generation/history?page=${page}&limit=${limit}`),

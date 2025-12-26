@@ -55,7 +55,17 @@ export default function HistoryPage() {
 
   const handleDownload = async (generation: Generation) => {
     try {
-      const blob = await generationsApi.downloadProxy(generation.generatedImage);
+      let blob: Blob;
+      
+      // Handle data URLs directly
+      if (generation.generatedImage.startsWith('data:')) {
+        const response = await fetch(generation.generatedImage);
+        blob = await response.blob();
+      } else {
+        // Use proxy for regular URLs
+        blob = await generationsApi.downloadProxy(generation.generatedImage);
+      }
+      
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -66,8 +76,12 @@ export default function HistoryPage() {
       URL.revokeObjectURL(url);
       toast({ title: "Downloaded", description: "Image saved successfully" });
     } catch (e: any) {
-      console.error(e);
-      toast({ title: "Download failed", description: "Unable to download image", variant: "destructive" });
+      console.error('Download error:', e);
+      toast({ 
+        title: "Download failed", 
+        description: e?.message || "Unable to download image", 
+        variant: "destructive" 
+      });
     }
   };
 

@@ -366,9 +366,38 @@ export const packagesApi = {
 // Generations API
 export const generationsApi = {
   downloadProxy: async (imageUrl: string) => {
-    const res = await fetch(`${API_URL}/proxy?url=${encodeURIComponent(imageUrl)}`);
-    if (!res.ok) throw new Error("Download failed via proxy");
-    return res.blob();
+    // Handle data URLs directly (no proxy needed)
+    if (imageUrl.startsWith('data:')) {
+      // Convert data URL to blob
+      const response = await fetch(imageUrl);
+      return response.blob();
+    }
+    
+    // For regular URLs, use proxy
+    try {
+      const res = await fetch(`${API_URL}/proxy?url=${encodeURIComponent(imageUrl)}`, {
+        signal: AbortSignal.timeout(30000) // 30 second timeout
+      });
+      if (!res.ok) {
+        throw new Error(`Download failed: ${res.status} ${res.statusText}`);
+      }
+      return res.blob();
+    } catch (error: any) {
+      // If proxy fails, try direct download as fallback
+      if (error.name === 'AbortError' || error.message?.includes('timeout')) {
+        console.warn('Proxy timeout, trying direct download...');
+        try {
+          const directRes = await fetch(imageUrl, {
+            signal: AbortSignal.timeout(30000)
+          });
+          if (!directRes.ok) throw new Error(`Direct download failed: ${directRes.status}`);
+          return directRes.blob();
+        } catch (directError) {
+          throw new Error('Download failed: Unable to fetch image');
+        }
+      }
+      throw error;
+    }
   },
   create: (data: any) => {
     // Map frontend fields to backend expected format

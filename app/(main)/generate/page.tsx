@@ -205,11 +205,22 @@ function GenerateContent() {
     const onDownload = async () => {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        await fetch(`/api/generation/${result.id}/download`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://new-backend-g2gw.onrender.com'}/api/generation/${result.id}/download`, {
           method: 'POST',
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         }).catch(() => { });
-        const blob = await generationsApi.downloadProxy(result.generatedImage);
+        
+        let blob: Blob;
+        
+        // Handle data URLs directly (no proxy needed)
+        if (result.generatedImage.startsWith('data:')) {
+          const response = await fetch(result.generatedImage);
+          blob = await response.blob();
+        } else {
+          // Use proxy for regular URLs
+          blob = await generationsApi.downloadProxy(result.generatedImage);
+        }
+        
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -220,7 +231,12 @@ function GenerateContent() {
         URL.revokeObjectURL(url);
         toast({ title: "Downloaded", description: "Image saved" });
       } catch (e: any) {
-        toast({ title: "Download failed", description: e?.message || "Unable to download", variant: "destructive" });
+        console.error('Download error:', e);
+        toast({ 
+          title: "Download failed", 
+          description: e?.message || "Unable to download", 
+          variant: "destructive" 
+        });
       }
     };
     const onShare = async () => {

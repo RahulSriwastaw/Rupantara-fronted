@@ -377,7 +377,7 @@ function GenerateContent() {
               <option value="">None (Free Style)</option>
               {templates.map((t) => (
                 <option key={(t as any).id} value={(t as any).id}>
-                  {t.title} {t.isPremium ? '(Premium)' : ''}
+                  {t.title} {(!t.isFree || t.pointsCost > 0) ? '(Premium)' : ''}
                 </option>
               ))}
             </select>

@@ -130,9 +130,6 @@ function GenerateContent() {
       if (template?.hiddenPrompt) {
         finalPrompt = template.hiddenPrompt + (prompt ? `, ${prompt}` : '');
       }
-      if (promptEnhancer && finalPrompt) {
-        finalPrompt = `high quality, professional, detailed, ${finalPrompt}`;
-      }
 
       const body = {
         templateId: template?.id,
@@ -144,9 +141,9 @@ function GenerateContent() {
         aspectRatio: aspectRatio,
         uploadedImages: photos.length ? photos : [],
         modelId: selectedModel,
-        variations: variations,
+        variations: 1, // Default to 1 variation
         strength: photos.length > 0 ? imageStrength : undefined,
-        visibility: visibility,
+        visibility: 'public', // Default to public
       }
       const generation = await generationsApi.create(body as any);
 

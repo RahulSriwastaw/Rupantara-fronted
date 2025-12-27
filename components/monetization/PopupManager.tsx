@@ -18,6 +18,7 @@ interface Popup {
 export function PopupManager() {
   const [popup, setPopup] = useState<Popup | null>(null);
   const [show, setShow] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -65,52 +66,36 @@ export function PopupManager() {
   // Different popup types rendering
   if (popup.popupType === 'toast') {
     return (
-      <div className="fixed bottom-4 right-4 z-50 bg-white rounded-lg shadow-lg p-4 max-w-sm animate-in slide-in-from-bottom">
-        <button onClick={handleClose} className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full p-1">
-          <X className="h-4 w-4" />
+      <div className="fixed bottom-4 right-4 z-50 bg-white rounded-xl shadow-2xl p-4 max-w-sm w-[90vw] sm:w-auto animate-in slide-in-from-bottom duration-300 border border-gray-100">
+        <button 
+          onClick={handleClose} 
+          className="absolute top-3 right-3 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4 text-gray-600" />
         </button>
         {popup.image && (
-          <div className="relative w-full rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gray-50">
+          <div className="relative w-full rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 min-h-[150px]">
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+              </div>
+            )}
             <img
               src={popup.image}
               alt={popup.title}
-              className="w-full h-auto max-h-[300px] object-contain"
+              className={`w-full h-auto max-h-[250px] object-contain transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageLoaded(true)}
             />
           </div>
         )}
-        <h3 className="font-bold mb-1 text-gray-900">{popup.title}</h3>
-        <p className="text-sm text-gray-600 mb-2">{popup.description}</p>
-        <button
-          onClick={handleCTAClick}
-          className="w-full bg-indigo-600 text-white py-1.5 rounded text-sm hover:bg-indigo-700"
-        >
-          {popup.ctaText}
-        </button>
-      </div>
-    );
-  }
-
-  if (popup.popupType === 'bottom_sheet') {
-    return (
-      <div className="fixed inset-0 z-50 flex items-end bg-black/50">
-        <div className="bg-white rounded-t-lg p-6 w-full max-w-md mx-auto animate-in slide-in-from-bottom max-h-[90vh] overflow-y-auto">
-          <button onClick={handleClose} className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white rounded-full p-1">
-            <X className="h-5 w-5" />
-          </button>
-          {popup.image && (
-            <div className="relative w-full rounded-lg overflow-hidden mb-4 flex items-center justify-center bg-gray-50 min-h-[200px]">
-              <img
-                src={popup.image}
-                alt={popup.title}
-                className="w-full h-auto max-h-[400px] object-contain"
-              />
-            </div>
-          )}
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">{popup.title}</h2>
-          <p className="text-gray-600 mb-4">{popup.description}</p>
+        <div className="pr-8">
+          <h3 className="font-bold text-lg mb-1.5 text-gray-900">{popup.title}</h3>
+          <p className="text-sm text-gray-600 mb-3 leading-relaxed">{popup.description}</p>
           <button
             onClick={handleCTAClick}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
+            className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-2.5 rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
           >
             {popup.ctaText}
           </button>
@@ -119,33 +104,135 @@ export function PopupManager() {
     );
   }
 
+  if (popup.popupType === 'bottom_sheet') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="bg-white rounded-t-2xl p-6 w-full max-w-lg mx-auto animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto shadow-2xl">
+          {/* Drag Handle */}
+          <div className="flex justify-center mb-4">
+            <div className="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+          </div>
+          
+          <button 
+            onClick={handleClose} 
+            className="absolute top-5 right-5 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5 text-gray-600" />
+          </button>
+          
+          {popup.image && (
+            <div className="relative w-full rounded-xl overflow-hidden mb-5 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 min-h-[200px] max-h-[400px]">
+              {!imageLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                </div>
+              )}
+              <img
+                src={popup.image}
+                alt={popup.title}
+                className={`w-full h-auto max-h-[400px] object-contain transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(true)}
+              />
+            </div>
+          )}
+          
+          <div className="pr-12">
+            <h2 className="text-2xl font-bold mb-3 text-gray-900">{popup.title}</h2>
+            <p className="text-gray-600 mb-5 leading-relaxed">{popup.description}</p>
+            <button
+              onClick={handleCTAClick}
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 rounded-xl font-medium hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            >
+              {popup.ctaText}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Exit Intent Popup
+  if (popup.popupType === 'exit_intent') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="bg-white rounded-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300">
+          <button 
+            onClick={handleClose} 
+            className="absolute top-5 right-5 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5 text-gray-600" />
+          </button>
+          
+          {popup.image && (
+            <div className="relative w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 min-h-[300px] max-h-[500px]">
+              {!imageLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                </div>
+              )}
+              <img
+                src={popup.image}
+                alt={popup.title}
+                className={`w-full h-auto max-h-[500px] object-contain transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(true)}
+              />
+            </div>
+          )}
+          
+          <div className="p-8 flex-1 flex flex-col">
+            <h2 className="text-3xl font-bold mb-3 text-gray-900">{popup.title}</h2>
+            <p className="text-gray-600 mb-6 flex-1 leading-relaxed text-lg">{popup.description}</p>
+            <button
+              onClick={handleCTAClick}
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-4 rounded-xl font-semibold text-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            >
+              {popup.ctaText}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Default: center_modal or full_screen
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className={`bg-white rounded-lg ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'max-w-lg w-full mx-4 max-h-[90vh]'} relative overflow-hidden flex flex-col`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl max-w-2xl w-full mx-4 max-h-[90vh]'} relative overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300`}>
         <button 
           onClick={handleClose} 
-          className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md"
+          className="absolute top-5 right-5 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2.5 transition-colors shadow-md"
+          aria-label="Close"
         >
           <X className="h-5 w-5 text-gray-700" />
         </button>
         
         {popup.image && (
-          <div className={`relative w-full overflow-hidden flex items-center justify-center bg-gray-50 ${popup.popupType === 'full_screen' ? 'h-1/2' : 'min-h-[250px]'}`}>
+          <div className={`relative w-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 ${popup.popupType === 'full_screen' ? 'h-1/2' : 'min-h-[300px] max-h-[500px]'}`}>
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+              </div>
+            )}
             <img
               src={popup.image}
               alt={popup.title}
-              className={`w-full h-auto object-contain ${popup.popupType === 'full_screen' ? 'max-h-full' : 'max-h-[500px]'}`}
+              className={`w-full h-auto object-contain transition-opacity duration-300 ${popup.popupType === 'full_screen' ? 'max-h-full' : 'max-h-[500px]'} ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageLoaded(true)}
             />
           </div>
         )}
         
-        <div className="p-6 flex-1 flex flex-col">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">{popup.title}</h2>
-          <p className="text-gray-600 mb-4 flex-1">{popup.description}</p>
+        <div className={`p-8 flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'justify-center' : ''}`}>
+          <h2 className={`${popup.popupType === 'full_screen' ? 'text-4xl' : 'text-3xl'} font-bold mb-4 text-gray-900`}>{popup.title}</h2>
+          <p className={`text-gray-600 mb-6 flex-1 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-xl' : 'text-lg'}`}>{popup.description}</p>
           <button
             onClick={handleCTAClick}
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 font-medium text-base"
+            className={`w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white ${popup.popupType === 'full_screen' ? 'py-5 text-xl' : 'py-4 text-lg'} rounded-xl font-semibold hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]`}
           >
             {popup.ctaText}
           </button>

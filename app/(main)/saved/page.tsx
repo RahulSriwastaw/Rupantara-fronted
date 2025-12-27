@@ -39,11 +39,11 @@ export default function SavedTemplatesPage() {
         
         // Extract saved and liked template IDs
         const savedIds = templates
-          .filter(t => t.isSaved)
-          .map(t => t.id);
+          .filter((t: Template) => t.isSaved)
+          .map((t: Template) => t.id);
         const likedIds = templates
-          .filter(t => t.isLiked)
-          .map(t => t.id);
+          .filter((t: Template) => t.isLiked)
+          .map((t: Template) => t.id);
         
         setSavedTemplatesIds(savedIds);
         setLikedTemplates(likedIds);

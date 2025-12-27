@@ -322,6 +322,7 @@ export const templatesApi = {
   creatorDeleteTemplate: (id: string) => api.delete(`/creator/templates/${id}`),
   likeTemplate: (id: string) => api.post(`/templates/${id}/like`, {}),
   viewTemplate: (id: string) => api.post(`/templates/${id}/view`, {}),
+  shareTemplate: (id: string, platform?: string) => api.post(`/templates/${id}/share`, { platform }),
 };
 
 // Category API

@@ -42,12 +42,19 @@ function TemplateContent() {
     }
   }, [searchParams, router]);
 
-  // Track template views
+  // Track template views when modal opens
   useEffect(() => {
     if (selectedTemplate?.id) {
       templatesApi.viewTemplate(selectedTemplate.id).catch(err => console.error("View track failed", err));
     }
   }, [selectedTemplate]);
+
+  // Track template views when card is clicked (for analytics)
+  const handleTemplateClick = (template: Template) => {
+    setSelectedTemplate(template);
+    // Track view when template card is clicked
+    templatesApi.viewTemplate(template.id).catch(err => console.error("View track failed", err));
+  };
 
   const {
     savedTemplates,
@@ -299,7 +306,7 @@ function TemplateContent() {
                       onLike={() => handleLike(template.id)}
                       onSave={() => handleSave(template.id)}
                       onUse={() => handleUseTemplate(template.id)}
-                      onClick={() => setSelectedTemplate(template)}
+                      onClick={() => handleTemplateClick(template)}
                       compact={true}
                     />
                   </div>
@@ -345,7 +352,7 @@ function TemplateContent() {
                 onLike={() => handleLike(template.id)}
                 onSave={() => handleSave(template.id)}
                 onUse={() => handleUseTemplate(template.id)}
-                onClick={() => setSelectedTemplate(template)}
+                onClick={() => handleTemplateClick(template)}
               />
             ))}
           </div>

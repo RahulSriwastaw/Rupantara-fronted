@@ -17,6 +17,8 @@ import type { Template } from "@/types";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 import { useToast } from "@/hooks/use-toast";
+import { templatesApi } from "@/services/api";
+import { useState, useRef } from "react";
 
 interface TemplateCardProps {
   template: Template;
@@ -41,6 +43,9 @@ export function TemplateCard({
 }: TemplateCardProps) {
   const { user, followCreator, unfollowCreator } = useAuthStore();
   const { toast } = useToast();
+  const [localLikeCount, setLocalLikeCount] = useState(template.likeCount || 0);
+  const [localIsLiked, setLocalIsLiked] = useState(isLiked || false);
+  const lastTapRef = useRef<number>(0);
   const isFollowing = (user?.followingCreators || []).some(
     (c) => c.id === template.creatorId
   );
@@ -61,6 +66,32 @@ export function TemplateCard({
     } else {
       followCreator(template.creatorId, template.creatorName);
       toast({ title: "Following", description: `You are now following ${template.creatorName}.` });
+    }
+  };
+
+  const handleLike = async () => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to like templates.",
+      });
+      return;
+    }
+
+    try {
+      const response = await templatesApi.likeTemplate(template.id);
+      if (response.success) {
+        setLocalIsLiked(response.liked || false);
+        setLocalLikeCount(response.likes || 0);
+        onLike?.(); // Call parent handler for state sync
+      }
+    } catch (error: any) {
+      console.error("Like error:", error);
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to like template",
+        variant: "destructive",
+      });
     }
   };
 
@@ -87,8 +118,8 @@ export function TemplateCard({
         <CardContent className="p-2 space-y-1">
           <h3 className="text-xs font-semibold line-clamp-1">{template.title}</h3>
           <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-            <Heart className={cn("h-3 w-3", isLiked && "fill-red-500 text-red-500")} />
-            <span>{template.likeCount}</span>
+            <Heart className={cn("h-3 w-3", localIsLiked && "fill-red-500 text-red-500")} />
+            <span>{localLikeCount}</span>
             <Eye className="h-3 w-3" />
             <span>{template.usageCount}</span>
           </div>
@@ -143,6 +174,13 @@ export function TemplateCard({
       <div
         className="relative w-full aspect-square overflow-hidden bg-muted cursor-pointer group"
         onClick={onClick}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          // Double-tap to like
+          if (!localIsLiked) {
+            handleLike();
+          }
+        }}
       >
         <Image
           src={imageSrc}
@@ -178,17 +216,17 @@ export function TemplateCard({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onLike?.();
+                handleLike();
               }}
               className={cn(
                 "transition-all duration-200 hover:scale-110 active:scale-95",
-                isLiked ? "text-red-500" : "text-foreground/70 hover:text-red-500"
+                localIsLiked ? "text-red-500" : "text-foreground/70 hover:text-red-500"
               )}
             >
               <Heart
                 className={cn(
                   "h-5 w-5 sm:h-6 sm:w-6 transition-all",
-                  isLiked && "fill-red-500 scale-110"
+                  localIsLiked && "fill-red-500 scale-110"
                 )}
               />
             </button>
@@ -211,6 +249,12 @@ export function TemplateCard({
                   const shareTitle = template.title;
 
                   const handleShare = async (platform: string) => {
+                    // Track share in backend
+                    try {
+                      await templatesApi.shareTemplate(template.id, platform);
+                    } catch (error) {
+                      console.error("Share tracking error:", error);
+                    }
 
                     if (platform === "native") {
                       // For native share, prioritize image file sharing
@@ -429,8 +473,8 @@ export function TemplateCard({
         {/* Engagement Stats - Professional styling */}
         <div className="flex items-center gap-2 text-xs sm:text-sm text-foreground/80">
           <div className="flex items-center gap-1">
-            <Heart className={cn("h-3.5 w-3.5", isLiked && "fill-red-500 text-red-500")} />
-            <span className="font-semibold">{template.likeCount.toLocaleString()}</span>
+            <Heart className={cn("h-3.5 w-3.5", localIsLiked && "fill-red-500 text-red-500")} />
+            <span className="font-semibold">{localLikeCount.toLocaleString()}</span>
           </div>
           <span className="text-muted-foreground/50">•</span>
           <div className="flex items-center gap-1">

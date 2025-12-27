@@ -175,21 +175,29 @@ export const useTemplateStore = create<TemplateState>()(
         };
       }),
 
-      toggleLikeTemplate: (templateId) => {
-        set((state) => {
-          const isLiked = state.likedTemplates.includes(templateId);
+      toggleLikeTemplate: async (templateId) => {
+        const state = get();
+        const isLiked = state.likedTemplates.includes(templateId);
 
-          // Call API asynchronously if we are Liking (not Unliking)
-          if (!isLiked) {
-            templatesApi.likeTemplate(templateId).catch(err => console.error("Failed to sync like", err));
+        try {
+          // Call API to toggle like/unlike
+          const response = await templatesApi.likeTemplate(templateId);
+          if (response.success) {
+            set({
+              likedTemplates: response.liked
+                ? [...state.likedTemplates.filter(id => id !== templateId), templateId]
+                : state.likedTemplates.filter(id => id !== templateId)
+            });
           }
-
-          return {
+        } catch (err) {
+          console.error("Failed to sync like", err);
+          // Still update local state on error for better UX
+          set({
             likedTemplates: isLiked
               ? state.likedTemplates.filter(id => id !== templateId)
               : [...state.likedTemplates, templateId]
-          };
-        });
+          });
+        }
       },
 
       setFilters: (newFilters) => set((state) => ({

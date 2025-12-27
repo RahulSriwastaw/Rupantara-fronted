@@ -183,20 +183,28 @@ export const useTemplateStore = create<TemplateState>()(
           // Call API to toggle like/unlike
           const response = await templatesApi.likeTemplate(templateId);
           if (response.success) {
-            set({
-              likedTemplates: response.liked
-                ? [...state.likedTemplates.filter(id => id !== templateId), templateId]
-                : state.likedTemplates.filter(id => id !== templateId)
-            });
+            // Update store based on backend response
+            const currentLiked = new Set(state.likedTemplates);
+            if (response.liked) {
+              // Add to liked if not already there
+              if (!currentLiked.has(templateId)) {
+                set({
+                  likedTemplates: [...state.likedTemplates, templateId]
+                });
+              }
+            } else {
+              // Remove from liked if present
+              if (currentLiked.has(templateId)) {
+                set({
+                  likedTemplates: state.likedTemplates.filter(id => id !== templateId)
+                });
+              }
+            }
           }
         } catch (err) {
           console.error("Failed to sync like", err);
-          // Still update local state on error for better UX
-          set({
-            likedTemplates: isLiked
-              ? state.likedTemplates.filter(id => id !== templateId)
-              : [...state.likedTemplates, templateId]
-          });
+          // Don't update local state on error - let backend response handle it
+          // This prevents race conditions
         }
       },
 

@@ -13,6 +13,35 @@ interface Popup {
   ctaAction: string;
   ctaUrl?: string;
   popupType: string;
+  textContent?: {
+    brandText?: string;
+    showBrandText?: boolean;
+    tags?: Array<{
+      text: string;
+      color: string;
+      customColor?: string;
+      isEnabled: boolean;
+      order: number;
+    }>;
+    mainTitle?: string;
+    subTitle?: string;
+    autoUppercase?: boolean;
+    description?: string;
+    validityText?: string;
+    features?: Array<{
+      text: string;
+      badge?: string;
+      badgeText?: string;
+      tooltip?: string;
+      isEnabled: boolean;
+      order: number;
+    }>;
+    ctaText?: string;
+    ctaSubText?: string;
+    couponText?: string;
+    showCoupon?: boolean;
+  };
+  endTime?: string;
 }
 
 export function PopupManager() {

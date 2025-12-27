@@ -35,7 +35,7 @@ interface TemplateState {
   getTemplatesByStatus: (status: Template['status']) => Template[];
   getTemplateById: (id: string) => Template | undefined;
   toggleSaveTemplate: (templateId: string) => void;
-  toggleLikeTemplate: (templateId: string) => void;
+  toggleLikeTemplate: (templateId: string) => Promise<void>;
   setFilters: (filters: Partial<Filters>) => void;
   setSearchQuery: (query: string) => void;
   resetFilters: () => void;

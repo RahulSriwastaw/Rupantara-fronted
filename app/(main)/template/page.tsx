@@ -195,10 +195,8 @@ function TemplateContent() {
 
   const handleLike = (templateId: string) => {
     // Don't show toast here - TemplateCard handles it
-    // Just sync the store
-    toggleLikeTemplate(templateId).catch(err => {
-      console.error("Failed to toggle like:", err);
-    });
+    // Just sync the store (async, but we don't need to await)
+    toggleLikeTemplate(templateId);
   };
 
   const handleSave = (templateId: string) => {

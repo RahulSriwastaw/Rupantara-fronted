@@ -214,8 +214,8 @@ export function TemplateCard({
         onClick={onClick}
         onDoubleClick={(e) => {
           e.stopPropagation();
-          // Double-tap to like
-          if (!localIsLiked) {
+          // Double-tap to like (only if not already liking)
+          if (!localIsLiked && !isLiking) {
             handleLike();
           }
         }}
@@ -254,11 +254,16 @@ export function TemplateCard({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleLike();
+                e.preventDefault();
+                if (!isLiking) {
+                  handleLike();
+                }
               }}
+              disabled={isLiking}
               className={cn(
                 "transition-all duration-200 hover:scale-110 active:scale-95",
-                localIsLiked ? "text-red-500" : "text-foreground/70 hover:text-red-500"
+                localIsLiked ? "text-red-500" : "text-foreground/70 hover:text-red-500",
+                isLiking && "opacity-50 cursor-not-allowed"
               )}
             >
               <Heart

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { monetizationApi } from '@/services/monetizationApi';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface Popup {
   _id: string;
@@ -66,13 +67,22 @@ export function PopupManager() {
   if (popup.popupType === 'toast') {
     return (
       <div className="fixed bottom-4 right-4 z-50 bg-white rounded-lg shadow-lg p-4 max-w-sm animate-in slide-in-from-bottom">
-        <button onClick={handleClose} className="absolute top-2 right-2">
+        <button onClick={handleClose} className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full p-1">
           <X className="h-4 w-4" />
         </button>
         {popup.image && (
-          <img src={popup.image} alt={popup.title} className="w-full h-32 object-cover rounded mb-2" />
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-3">
+            <Image
+              src={popup.image}
+              alt={popup.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 384px) 100vw, 384px"
+              unoptimized
+            />
+          </div>
         )}
-        <h3 className="font-bold mb-1">{popup.title}</h3>
+        <h3 className="font-bold mb-1 text-gray-900">{popup.title}</h3>
         <p className="text-sm text-gray-600 mb-2">{popup.description}</p>
         <button
           onClick={handleCTAClick}
@@ -87,14 +97,23 @@ export function PopupManager() {
   if (popup.popupType === 'bottom_sheet') {
     return (
       <div className="fixed inset-0 z-50 flex items-end bg-black/50">
-        <div className="bg-white rounded-t-lg p-6 w-full max-w-md mx-auto animate-in slide-in-from-bottom">
-          <button onClick={handleClose} className="absolute top-4 right-4">
+        <div className="bg-white rounded-t-lg p-6 w-full max-w-md mx-auto animate-in slide-in-from-bottom max-h-[90vh] overflow-y-auto">
+          <button onClick={handleClose} className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white rounded-full p-1">
             <X className="h-5 w-5" />
           </button>
           {popup.image && (
-            <img src={popup.image} alt={popup.title} className="w-full h-48 object-cover rounded mb-4" />
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-4">
+              <Image
+                src={popup.image}
+                alt={popup.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 448px) 100vw, 448px"
+                unoptimized
+              />
+            </div>
           )}
-          <h2 className="text-2xl font-bold mb-2">{popup.title}</h2>
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">{popup.title}</h2>
           <p className="text-gray-600 mb-4">{popup.description}</p>
           <button
             onClick={handleCTAClick}
@@ -109,22 +128,39 @@ export function PopupManager() {
 
   // Default: center_modal or full_screen
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className={`bg-white rounded-lg p-6 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'max-w-md w-full mx-4'} relative`}>
-        <button onClick={handleClose} className="absolute top-4 right-4">
-          <X className="h-5 w-5" />
-        </button>
-        {popup.image && (
-          <img src={popup.image} alt={popup.title} className="w-full h-48 object-cover rounded mb-4" />
-        )}
-        <h2 className="text-2xl font-bold mb-2">{popup.title}</h2>
-        <p className="text-gray-600 mb-4">{popup.description}</p>
-        <button
-          onClick={handleCTAClick}
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className={`bg-white rounded-lg ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'max-w-lg w-full mx-4 max-h-[90vh]'} relative overflow-hidden flex flex-col`}>
+        <button 
+          onClick={handleClose} 
+          className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md"
         >
-          {popup.ctaText}
+          <X className="h-5 w-5 text-gray-700" />
         </button>
+        
+        {popup.image && (
+          <div className={`relative w-full ${popup.popupType === 'full_screen' ? 'h-1/2' : 'aspect-video'} overflow-hidden`}>
+            <Image
+              src={popup.image}
+              alt={popup.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 512px) 100vw, 512px"
+              priority
+              unoptimized
+            />
+          </div>
+        )}
+        
+        <div className="p-6 flex-1 flex flex-col">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">{popup.title}</h2>
+          <p className="text-gray-600 mb-4 flex-1">{popup.description}</p>
+          <button
+            onClick={handleCTAClick}
+            className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 font-medium text-base"
+          >
+            {popup.ctaText}
+          </button>
+        </div>
       </div>
     </div>
   );

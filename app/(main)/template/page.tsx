@@ -152,28 +152,34 @@ function TemplateContent() {
 
         const data = await templatesApi.getAll(params.toString());
         const safeData = Array.isArray(data) ? data : [];
-        setTemplates(safeData);
-        setFilteredTemplates(safeData); // Backend handles filtering
-
-        // Sync liked templates from backend response to store
+        
+        // Sync liked templates from backend response to store FIRST (before rendering)
+        // Backend is the source of truth for like status
         const likedTemplateIds = safeData
-          .filter(t => t.isLiked)
+          .filter(t => t.isLiked === true) // Only include explicitly liked templates
           .map(t => t.id);
         
-        // Update store to match backend state (without API calls)
-        const currentLiked = new Set(likedTemplates);
-        const backendLiked = new Set(likedTemplateIds);
-        
-        // Only update if there's a difference
-        const needsUpdate = 
-          likedTemplateIds.length !== likedTemplates.length ||
-          likedTemplateIds.some(id => !currentLiked.has(id)) ||
-          likedTemplates.some(id => !backendLiked.has(id));
-        
-        if (needsUpdate) {
-          // Directly set the liked templates from backend
-          useTemplateStore.setState({ likedTemplates: likedTemplateIds });
+        // Always sync store with backend state
+        if (likedTemplateIds.length > 0 || likedTemplates.length > 0) {
+          const currentLiked = new Set(likedTemplates);
+          const backendLiked = new Set(likedTemplateIds);
+          
+          // Check if update is needed
+          const needsUpdate = 
+            likedTemplateIds.length !== likedTemplates.length ||
+            likedTemplateIds.some(id => !currentLiked.has(id)) ||
+            likedTemplates.some(id => !backendLiked.has(id));
+          
+          if (needsUpdate) {
+            // Directly set the liked templates from backend (source of truth)
+            useTemplateStore.setState({ likedTemplates: likedTemplateIds });
+            console.log('✅ Synced liked templates from backend:', likedTemplateIds.length, 'templates');
+          }
         }
+        
+        // Set templates after store sync (ensures correct isLiked prop)
+        setTemplates(safeData);
+        setFilteredTemplates(safeData); // Backend handles filtering
 
       } catch (error: any) {
         console.error("API error:", error);
@@ -367,7 +373,8 @@ function TemplateContent() {
               <TemplateCard
                 key={template.id}
                 template={template}
-                isLiked={likedTemplates.includes(template.id)}
+                // Use backend isLiked status as primary source, fallback to store
+                isLiked={template.isLiked !== undefined ? template.isLiked : likedTemplates.includes(template.id)}
                 isSaved={savedTemplates.includes(template.id)}
                 onLike={() => handleLike(template.id)}
                 onSave={() => handleSave(template.id)}

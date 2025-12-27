@@ -54,11 +54,15 @@ export function TemplateCard({
 
   // Sync with backend isLiked status when template changes
   useEffect(() => {
+    // Always prioritize backend isLiked status
     if (template.isLiked !== undefined) {
       setLocalIsLiked(template.isLiked);
+    } else if (isLiked !== undefined) {
+      // Fallback to prop if backend status not available
+      setLocalIsLiked(isLiked);
     }
     setLocalLikeCount(template.likeCount || 0);
-  }, [template.isLiked, template.likeCount]);
+  }, [template.isLiked, template.likeCount, isLiked]);
 
   const handleToggleFollow = (e: React.MouseEvent) => {
     e.stopPropagation();

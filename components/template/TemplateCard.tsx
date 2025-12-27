@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 import { useToast } from "@/hooks/use-toast";
 import { templatesApi } from "@/services/api";
+import { useTemplateStore } from "@/store/templateStore";
 import { useState, useRef, useEffect } from "react";
 
 interface TemplateCardProps {
@@ -43,6 +44,7 @@ export function TemplateCard({
 }: TemplateCardProps) {
   const { user, followCreator, unfollowCreator } = useAuthStore();
   const { toast } = useToast();
+  const { updateLikeStatus } = useTemplateStore();
   const [localLikeCount, setLocalLikeCount] = useState(template.likeCount || 0);
   // Use backend isLiked status if available, otherwise use prop
   const [localIsLiked, setLocalIsLiked] = useState(template.isLiked !== undefined ? template.isLiked : (isLiked || false));
@@ -112,7 +114,12 @@ export function TemplateCard({
         // Update with actual backend response
         setLocalIsLiked(response.liked || false);
         setLocalLikeCount(response.likes || 0);
-        onLike?.(); // Call parent handler for state sync
+        
+        // Update store WITHOUT calling API again (just sync state)
+        updateLikeStatus(template.id, response.liked || false);
+        
+        // Don't call onLike - it would trigger another API call
+        // onLike?.(); // REMOVED - prevents double API call
       } else {
         // Revert optimistic update on failure
         setLocalIsLiked(previousLiked);

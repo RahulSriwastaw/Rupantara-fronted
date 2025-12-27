@@ -194,9 +194,9 @@ function TemplateContent() {
   };
 
   const handleLike = (templateId: string) => {
-    // Don't show toast here - TemplateCard handles it
-    // Just sync the store (async, but we don't need to await)
-    toggleLikeTemplate(templateId);
+    // TemplateCard handles the API call directly
+    // This function is kept for compatibility but doesn't do anything
+    // to prevent double API calls
   };
 
   const handleSave = (templateId: string) => {

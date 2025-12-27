@@ -36,6 +36,7 @@ interface TemplateState {
   getTemplateById: (id: string) => Template | undefined;
   toggleSaveTemplate: (templateId: string) => void;
   toggleLikeTemplate: (templateId: string) => Promise<void>;
+  updateLikeStatus: (templateId: string, isLiked: boolean) => void; // Update store without API call
   setFilters: (filters: Partial<Filters>) => void;
   setSearchQuery: (query: string) => void;
   resetFilters: () => void;
@@ -205,6 +206,28 @@ export const useTemplateStore = create<TemplateState>()(
           console.error("Failed to sync like", err);
           // Don't update local state on error - let backend response handle it
           // This prevents race conditions
+        }
+      },
+
+      // Update like status in store without API call (used after API call succeeds)
+      updateLikeStatus: (templateId, isLiked) => {
+        const state = get();
+        const currentLiked = new Set(state.likedTemplates);
+        
+        if (isLiked) {
+          // Add to liked if not already there
+          if (!currentLiked.has(templateId)) {
+            set({
+              likedTemplates: [...state.likedTemplates, templateId]
+            });
+          }
+        } else {
+          // Remove from liked if present
+          if (currentLiked.has(templateId)) {
+            set({
+              likedTemplates: state.likedTemplates.filter(id => id !== templateId)
+            });
+          }
         }
       },
 

@@ -155,6 +155,26 @@ function TemplateContent() {
         setTemplates(safeData);
         setFilteredTemplates(safeData); // Backend handles filtering
 
+        // Sync liked templates from backend response to store
+        const likedTemplateIds = safeData
+          .filter(t => t.isLiked)
+          .map(t => t.id);
+        
+        // Update store to match backend state (without API calls)
+        const currentLiked = new Set(likedTemplates);
+        const backendLiked = new Set(likedTemplateIds);
+        
+        // Only update if there's a difference
+        const needsUpdate = 
+          likedTemplateIds.length !== likedTemplates.length ||
+          likedTemplateIds.some(id => !currentLiked.has(id)) ||
+          likedTemplates.some(id => !backendLiked.has(id));
+        
+        if (needsUpdate) {
+          // Directly set the liked templates from backend
+          useTemplateStore.setState({ likedTemplates: likedTemplateIds });
+        }
+
       } catch (error: any) {
         console.error("API error:", error);
         setTemplates([]);

@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 import { useToast } from "@/hooks/use-toast";
 import { templatesApi } from "@/services/api";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface TemplateCardProps {
   template: Template;
@@ -44,12 +44,21 @@ export function TemplateCard({
   const { user, followCreator, unfollowCreator } = useAuthStore();
   const { toast } = useToast();
   const [localLikeCount, setLocalLikeCount] = useState(template.likeCount || 0);
-  const [localIsLiked, setLocalIsLiked] = useState(isLiked || false);
+  // Use backend isLiked status if available, otherwise use prop
+  const [localIsLiked, setLocalIsLiked] = useState(template.isLiked !== undefined ? template.isLiked : (isLiked || false));
   const lastTapRef = useRef<number>(0);
   const isFollowing = (user?.followingCreators || []).some(
     (c) => c.id === template.creatorId
   );
   const imageSrc = template.demoImage || (template as any).image || (template.additionalImages?.[0] ?? '/logo.png');
+
+  // Sync with backend isLiked status when template changes
+  useEffect(() => {
+    if (template.isLiked !== undefined) {
+      setLocalIsLiked(template.isLiked);
+    }
+    setLocalLikeCount(template.likeCount || 0);
+  }, [template.isLiked, template.likeCount]);
 
   const handleToggleFollow = (e: React.MouseEvent) => {
     e.stopPropagation();

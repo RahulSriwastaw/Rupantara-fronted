@@ -55,6 +55,7 @@ export interface Template {
   views?: number;
   earnings?: number;
   likeCount: number;
+  isLiked?: boolean; // Whether current user has liked this template
   saveCount: number;
   rating: number;
   ratingCount: number;

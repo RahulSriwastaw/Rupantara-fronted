@@ -270,6 +270,7 @@ export const templatesApi = {
       earnings: Number(t.earnings ?? 0),
       likeCount: Number(t.likeCount ?? 0),
       saveCount: Number(t.saveCount ?? 0),
+      isLiked: Boolean(t.isLiked || false), // Include like status from backend
       rating: Number(t.rating ?? 0),
       ratingCount: Number(t.ratingCount ?? 0),
       ageGroup: t.ageGroup ? String(t.ageGroup) : undefined,

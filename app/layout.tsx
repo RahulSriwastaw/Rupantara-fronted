@@ -8,6 +8,7 @@ import { OfflineIndicator } from "@/components/offline/OfflineIndicator";
 import { SkipToContent } from "@/components/accessibility/SkipToContent";
 import { ScrollToTop } from "@/components/scroll/ScrollToTop";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { PopupManager } from "@/components/monetization/PopupManager";
 import { defaultMetadata } from "./metadata";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -44,6 +45,7 @@ export default function RootLayout({
               <Toaster />
               <OfflineIndicator />
               <ScrollToTop />
+              <PopupManager />
             </AnalyticsProvider>
           </ErrorBoundary>
         </ThemeProvider>

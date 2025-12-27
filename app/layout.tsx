@@ -9,6 +9,7 @@ import { SkipToContent } from "@/components/accessibility/SkipToContent";
 import { ScrollToTop } from "@/components/scroll/ScrollToTop";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { PopupManager } from "@/components/monetization/PopupManager";
+import { TopBanner } from "@/components/monetization/TopBanner";
 import { defaultMetadata } from "./metadata";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -41,6 +42,7 @@ export default function RootLayout({
           <SkipToContent />
           <ErrorBoundary>
             <AnalyticsProvider>
+              <TopBanner />
               {children}
               <Toaster />
               <OfflineIndicator />

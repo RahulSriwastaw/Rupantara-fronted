@@ -70,12 +70,11 @@ export function PopupManager() {
           <X className="h-4 w-4" />
         </button>
         {popup.image && (
-          <div className="relative w-full rounded-lg overflow-hidden mb-3" style={{ maxHeight: '300px' }}>
+          <div className="relative w-full rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gray-50">
             <img
               src={popup.image}
               alt={popup.title}
-              className="w-full h-auto object-contain"
-              style={{ maxHeight: '300px' }}
+              className="w-full h-auto max-h-[300px] object-contain"
             />
           </div>
         )}
@@ -99,12 +98,11 @@ export function PopupManager() {
             <X className="h-5 w-5" />
           </button>
           {popup.image && (
-            <div className="relative w-full rounded-lg overflow-hidden mb-4 flex items-center justify-center bg-gray-50" style={{ maxHeight: '400px', minHeight: '200px' }}>
+            <div className="relative w-full rounded-lg overflow-hidden mb-4 flex items-center justify-center bg-gray-50 min-h-[200px]">
               <img
                 src={popup.image}
                 alt={popup.title}
-                className="w-full h-auto object-contain"
-                style={{ maxHeight: '400px' }}
+                className="w-full h-auto max-h-[400px] object-contain"
               />
             </div>
           )}
@@ -133,12 +131,11 @@ export function PopupManager() {
         </button>
         
         {popup.image && (
-          <div className={`relative w-full overflow-hidden flex items-center justify-center bg-gray-50 ${popup.popupType === 'full_screen' ? 'h-1/2' : ''}`} style={popup.popupType !== 'full_screen' ? { maxHeight: '500px', minHeight: '250px' } : {}}>
+          <div className={`relative w-full overflow-hidden flex items-center justify-center bg-gray-50 ${popup.popupType === 'full_screen' ? 'h-1/2' : 'min-h-[250px]'}`}>
             <img
               src={popup.image}
               alt={popup.title}
-              className={`w-full h-auto object-contain ${popup.popupType === 'full_screen' ? 'h-full' : ''}`}
-              style={popup.popupType === 'full_screen' ? { height: '100%', objectFit: 'contain' } : { maxHeight: '500px' }}
+              className={`w-full h-auto object-contain ${popup.popupType === 'full_screen' ? 'max-h-full' : 'max-h-[500px]'}`}
             />
           </div>
         )}

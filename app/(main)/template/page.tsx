@@ -154,28 +154,15 @@ function TemplateContent() {
         const safeData = Array.isArray(data) ? data : [];
         
         // Sync liked templates from backend response to store FIRST (before rendering)
-        // Backend is the source of truth for like status
+        // Backend is the source of truth for like status - ALWAYS sync, don't check conditions
         const likedTemplateIds = safeData
           .filter(t => t.isLiked === true) // Only include explicitly liked templates
           .map(t => t.id);
         
-        // Always sync store with backend state
-        if (likedTemplateIds.length > 0 || likedTemplates.length > 0) {
-          const currentLiked = new Set(likedTemplates);
-          const backendLiked = new Set(likedTemplateIds);
-          
-          // Check if update is needed
-          const needsUpdate = 
-            likedTemplateIds.length !== likedTemplates.length ||
-            likedTemplateIds.some(id => !currentLiked.has(id)) ||
-            likedTemplates.some(id => !backendLiked.has(id));
-          
-          if (needsUpdate) {
-            // Directly set the liked templates from backend (source of truth)
-            useTemplateStore.setState({ likedTemplates: likedTemplateIds });
-            console.log('✅ Synced liked templates from backend:', likedTemplateIds.length, 'templates');
-          }
-        }
+        // ALWAYS sync store with backend state (backend is source of truth)
+        // This ensures refresh always shows correct like status
+        useTemplateStore.setState({ likedTemplates: likedTemplateIds });
+        console.log('✅ Synced liked templates from backend:', likedTemplateIds.length, 'templates');
         
         // Set templates after store sync (ensures correct isLiked prop)
         setTemplates(safeData);

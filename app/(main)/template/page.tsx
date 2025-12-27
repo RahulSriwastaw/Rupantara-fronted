@@ -327,7 +327,8 @@ function TemplateContent() {
                   <div key={template.id} className="flex-shrink-0 w-40 sm:w-48 md:w-56">
                     <TemplateCard
                       template={template}
-                      isLiked={likedTemplates.includes(template.id)}
+                      // Use backend isLiked status as primary source, fallback to store
+                      isLiked={template.isLiked !== undefined ? template.isLiked : likedTemplates.includes(template.id)}
                       isSaved={savedTemplates.includes(template.id)}
                       onLike={() => handleLike(template.id)}
                       onSave={() => handleSave(template.id)}

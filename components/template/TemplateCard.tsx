@@ -46,6 +46,7 @@ export function TemplateCard({
   const [localLikeCount, setLocalLikeCount] = useState(template.likeCount || 0);
   // Use backend isLiked status if available, otherwise use prop
   const [localIsLiked, setLocalIsLiked] = useState(template.isLiked !== undefined ? template.isLiked : (isLiked || false));
+  const [isLiking, setIsLiking] = useState(false); // Prevent double-clicks
   const lastTapRef = useRef<number>(0);
   const isFollowing = (user?.followingCreators || []).some(
     (c) => c.id === template.creatorId
@@ -91,20 +92,44 @@ export function TemplateCard({
       return;
     }
 
+    // Prevent double-clicks and race conditions
+    if (isLiking) {
+      console.log('⏳ Like operation already in progress, ignoring...');
+      return;
+    }
+
+    setIsLiking(true);
+    const previousLiked = localIsLiked;
+    const previousCount = localLikeCount;
+
+    // Optimistic update
+    setLocalIsLiked(!previousLiked);
+    setLocalLikeCount(previousLiked ? Math.max(0, previousCount - 1) : previousCount + 1);
+
     try {
       const response = await templatesApi.likeTemplate(template.id);
       if (response.success) {
+        // Update with actual backend response
         setLocalIsLiked(response.liked || false);
         setLocalLikeCount(response.likes || 0);
         onLike?.(); // Call parent handler for state sync
+      } else {
+        // Revert optimistic update on failure
+        setLocalIsLiked(previousLiked);
+        setLocalLikeCount(previousCount);
       }
     } catch (error: any) {
       console.error("Like error:", error);
+      // Revert optimistic update on error
+      setLocalIsLiked(previousLiked);
+      setLocalLikeCount(previousCount);
       toast({
         title: "Error",
         description: error?.message || "Failed to like template",
         variant: "destructive",
       });
+    } finally {
+      setIsLiking(false);
     }
   };
 

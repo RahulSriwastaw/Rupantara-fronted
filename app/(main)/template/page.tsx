@@ -194,12 +194,10 @@ function TemplateContent() {
   };
 
   const handleLike = (templateId: string) => {
-    toggleLikeTemplate(templateId);
-    toast({
-      title: likedTemplates.includes(templateId) ? "Unliked" : "Liked",
-      description: likedTemplates.includes(templateId)
-        ? "Removed from liked templates"
-        : "Added to liked templates",
+    // Don't show toast here - TemplateCard handles it
+    // Just sync the store
+    toggleLikeTemplate(templateId).catch(err => {
+      console.error("Failed to toggle like:", err);
     });
   };
 

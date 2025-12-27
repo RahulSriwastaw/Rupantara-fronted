@@ -390,8 +390,9 @@ export default function ProfilePage() {
       )}
 
       <Tabs defaultValue="account" className="space-y-3 sm:space-y-4 w-full overflow-hidden">
-        <TabsList className="grid w-full grid-cols-3 h-9 sm:h-10 overflow-x-auto scrollbar-hide">
+        <TabsList className="grid w-full grid-cols-4 h-9 sm:h-10 overflow-x-auto scrollbar-hide">
           <TabsTrigger value="account" className="text-xs sm:text-sm">Account</TabsTrigger>
+          <TabsTrigger value="saved" className="text-xs sm:text-sm">Saved</TabsTrigger>
           <TabsTrigger value="preferences" className="text-xs sm:text-sm">Preferences</TabsTrigger>
           <TabsTrigger value="support" className="text-xs sm:text-sm">Support</TabsTrigger>
         </TabsList>

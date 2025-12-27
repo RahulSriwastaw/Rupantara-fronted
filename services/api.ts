@@ -322,6 +322,8 @@ export const templatesApi = {
   creatorUpdateTemplate: (id: string, payload: any) => api.put(`/creator/templates/${id}`, payload),
   creatorDeleteTemplate: (id: string) => api.delete(`/creator/templates/${id}`),
   likeTemplate: (id: string) => api.post(`/templates/${id}/like`, {}),
+  saveTemplate: (id: string) => api.post(`/templates/${id}/save`, {}),
+  getSavedTemplates: (page?: number, limit?: number) => api.get(`/templates/saved?page=${page || 1}&limit=${limit || 50}`),
   viewTemplate: (id: string) => api.post(`/templates/${id}/view`, {}),
   shareTemplate: (id: string, platform?: string) => api.post(`/templates/${id}/share`, { platform }),
 };

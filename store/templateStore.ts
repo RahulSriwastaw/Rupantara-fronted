@@ -37,6 +37,7 @@ interface TemplateState {
   toggleSaveTemplate: (templateId: string) => void;
   toggleLikeTemplate: (templateId: string) => Promise<void>;
   updateLikeStatus: (templateId: string, isLiked: boolean) => void; // Update store without API call
+  updateSaveStatus: (templateId: string, isSaved: boolean) => void; // Update store without API call
   setFilters: (filters: Partial<Filters>) => void;
   setSearchQuery: (query: string) => void;
   resetFilters: () => void;
@@ -226,6 +227,28 @@ export const useTemplateStore = create<TemplateState>()(
           if (currentLiked.has(templateId)) {
             set({
               likedTemplates: state.likedTemplates.filter(id => id !== templateId)
+            });
+          }
+        }
+      },
+
+      // Update save status in store without API call (used after API call succeeds)
+      updateSaveStatus: (templateId, isSaved) => {
+        const state = get();
+        const currentSaved = new Set(state.savedTemplates);
+        
+        if (isSaved) {
+          // Add to saved if not already there
+          if (!currentSaved.has(templateId)) {
+            set({
+              savedTemplates: [...state.savedTemplates, templateId]
+            });
+          }
+        } else {
+          // Remove from saved if present
+          if (currentSaved.has(templateId)) {
+            set({
+              savedTemplates: state.savedTemplates.filter(id => id !== templateId)
             });
           }
         }

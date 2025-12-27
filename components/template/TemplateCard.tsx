@@ -44,18 +44,21 @@ export function TemplateCard({
 }: TemplateCardProps) {
   const { user, followCreator, unfollowCreator } = useAuthStore();
   const { toast } = useToast();
-  const { updateLikeStatus } = useTemplateStore();
+  const { updateLikeStatus, updateSaveStatus } = useTemplateStore();
   const [localLikeCount, setLocalLikeCount] = useState(template.likeCount || 0);
+  const [localSaveCount, setLocalSaveCount] = useState(template.saveCount || 0);
   // Use backend isLiked status if available, otherwise use prop
   const [localIsLiked, setLocalIsLiked] = useState(template.isLiked !== undefined ? template.isLiked : (isLiked || false));
+  const [localIsSaved, setLocalIsSaved] = useState(template.isSaved !== undefined ? template.isSaved : (isSaved || false));
   const [isLiking, setIsLiking] = useState(false); // Prevent double-clicks
+  const [isSaving, setIsSaving] = useState(false); // Prevent double-clicks
   const lastTapRef = useRef<number>(0);
   const isFollowing = (user?.followingCreators || []).some(
     (c) => c.id === template.creatorId
   );
   const imageSrc = template.demoImage || (template as any).image || (template.additionalImages?.[0] ?? '/logo.png');
 
-  // Sync with backend isLiked status when template changes
+  // Sync with backend isLiked and isSaved status when template changes
   useEffect(() => {
     // Always prioritize backend isLiked status
     if (template.isLiked !== undefined) {
@@ -64,8 +67,17 @@ export function TemplateCard({
       // Fallback to prop if backend status not available
       setLocalIsLiked(isLiked);
     }
+    
+    // Sync saved status
+    if (template.isSaved !== undefined) {
+      setLocalIsSaved(template.isSaved);
+    } else if (isSaved !== undefined) {
+      setLocalIsSaved(isSaved);
+    }
+    
     setLocalLikeCount(template.likeCount || 0);
-  }, [template.isLiked, template.likeCount, isLiked]);
+    setLocalSaveCount(template.saveCount || 0);
+  }, [template.isLiked, template.likeCount, template.isSaved, template.saveCount, isLiked, isSaved]);
 
   const handleToggleFollow = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -137,6 +149,65 @@ export function TemplateCard({
       });
     } finally {
       setIsLiking(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to save templates.",
+      });
+      return;
+    }
+
+    // Prevent double-clicks and race conditions
+    if (isSaving) {
+      console.log('⏳ Save operation already in progress, ignoring...');
+      return;
+    }
+
+    setIsSaving(true);
+    const previousSaved = localIsSaved;
+    const previousCount = localSaveCount;
+
+    // Optimistic update
+    setLocalIsSaved(!previousSaved);
+    setLocalSaveCount(previousSaved ? Math.max(0, previousCount - 1) : previousCount + 1);
+
+    try {
+      const response = await templatesApi.saveTemplate(template.id);
+      if (response.success) {
+        // Update with actual backend response
+        setLocalIsSaved(response.saved || false);
+        setLocalSaveCount(response.saves || 0);
+        
+        // Update store WITHOUT calling API again (just sync state)
+        updateSaveStatus(template.id, response.saved || false);
+        
+        toast({
+          title: response.saved ? "Saved" : "Unsaved",
+          description: response.saved 
+            ? "Template saved to your collection" 
+            : "Template removed from saved",
+        });
+      } else {
+        // Revert optimistic update on failure
+        setLocalIsSaved(previousSaved);
+        setLocalSaveCount(previousCount);
+      }
+    } catch (error: any) {
+      console.error("Save error:", error);
+      // Revert optimistic update on error
+      setLocalIsSaved(previousSaved);
+      setLocalSaveCount(previousCount);
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to save template",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -504,17 +575,22 @@ export function TemplateCard({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onSave?.();
+              e.preventDefault();
+              if (!isSaving) {
+                handleSave();
+              }
             }}
+            disabled={isSaving}
             className={cn(
               "transition-all duration-200 hover:scale-110 active:scale-95",
-              isSaved ? "text-primary" : "text-foreground/70 hover:text-primary"
+              localIsSaved ? "text-primary" : "text-foreground/70 hover:text-primary",
+              isSaving && "opacity-50 cursor-not-allowed"
             )}
           >
             <Bookmark
               className={cn(
                 "h-5 w-5 sm:h-6 sm:w-6 transition-all",
-                isSaved && "fill-primary scale-110"
+                localIsSaved && "fill-primary scale-110"
               )}
             />
           </button>

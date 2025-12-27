@@ -465,6 +465,26 @@ export default function ProfilePage() {
           <DataExport />
         </TabsContent>
 
+        <TabsContent value="saved" className="space-y-3 sm:space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bookmark className="h-5 w-5" />
+                Saved Templates
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                View and manage your saved templates
+              </p>
+              <Button onClick={() => router.push("/saved")} className="w-full sm:w-auto">
+                <Bookmark className="h-4 w-4 mr-2" />
+                View All Saved Templates
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="preferences" className="space-y-3 sm:space-y-4">
           <Card>
             <CardHeader>

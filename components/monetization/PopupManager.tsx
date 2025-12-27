@@ -75,7 +75,7 @@ export function PopupManager() {
           <X className="h-4 w-4 text-gray-600" />
         </button>
         {popup.image && (
-          <div className="relative w-full rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 min-h-[150px]">
+          <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -84,7 +84,7 @@ export function PopupManager() {
             <img
               src={popup.image}
               alt={popup.title}
-              className={`w-full h-auto max-h-[250px] object-contain transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
             />
@@ -122,7 +122,7 @@ export function PopupManager() {
           </button>
           
           {popup.image && (
-            <div className="relative w-full rounded-xl overflow-hidden mb-5 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 min-h-[200px] max-h-[400px]">
+            <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-5 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
               {!imageLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -131,7 +131,7 @@ export function PopupManager() {
               <img
                 src={popup.image}
                 alt={popup.title}
-                className={`w-full h-auto max-h-[400px] object-contain transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(true)}
               />
@@ -167,7 +167,7 @@ export function PopupManager() {
           </button>
           
           {popup.image && (
-            <div className="relative w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 min-h-[300px] max-h-[500px]">
+            <div className="relative w-full aspect-square flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
               {!imageLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -176,7 +176,7 @@ export function PopupManager() {
               <img
                 src={popup.image}
                 alt={popup.title}
-                className={`w-full h-auto max-h-[500px] object-contain transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(true)}
               />
@@ -211,7 +211,7 @@ export function PopupManager() {
         </button>
         
         {popup.image && (
-          <div className={`relative w-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 ${popup.popupType === 'full_screen' ? 'h-1/2' : 'min-h-[300px] max-h-[500px]'}`}>
+          <div className={`relative w-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 ${popup.popupType === 'full_screen' ? 'aspect-square max-h-[50vh]' : 'aspect-square'}`}>
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -220,7 +220,7 @@ export function PopupManager() {
             <img
               src={popup.image}
               alt={popup.title}
-              className={`w-full h-auto object-contain transition-opacity duration-300 ${popup.popupType === 'full_screen' ? 'max-h-full' : 'max-h-[500px]'} ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
             />

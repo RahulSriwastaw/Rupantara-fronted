@@ -171,8 +171,8 @@ export function TemplateDetailModal({
             </p>
           </div>
 
-          {/* Tags */}
-          <div className="space-y-2">
+          {/* Tags - Hidden as per requirement */}
+          {/* <div className="space-y-2">
             <h3 className="font-semibold">Tags</h3>
             <div className="flex flex-wrap gap-2">
               {template.tags.map((tag) => (
@@ -181,7 +181,7 @@ export function TemplateDetailModal({
                 </Badge>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Details */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-lg bg-muted/50">

@@ -458,8 +458,8 @@ export function TemplateCard({
           </p>
         </div>
 
-        {/* Tags */}
-        {template.tags.length > 0 && (
+        {/* Tags - Hidden as per requirement */}
+        {/* {template.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {template.tags.slice(0, 3).map((tag) => (
               <button
@@ -479,7 +479,7 @@ export function TemplateCard({
               </span>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Use Template Button */}
         <Button

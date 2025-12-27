@@ -38,10 +38,14 @@ export function TopBanner() {
         // Check if banner was dismissed
         const dismissedBanners = JSON.parse(localStorage.getItem('dismissedBanners') || '[]');
         
+        const token = localStorage.getItem('token') || '';
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://new-backend-g2gw.onrender.com'}/api/banners/top/active`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-          }
+          headers
         });
         
         if (response.ok) {

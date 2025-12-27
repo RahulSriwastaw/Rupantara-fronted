@@ -198,20 +198,21 @@ export function PopupManager() {
     );
   }
 
-  // Default: center_modal or full_screen
+  // Default: center_modal or full_screen - Split Layout Design
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl max-w-2xl w-full mx-4 max-h-[90vh]'} relative overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300`}>
+      <div className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl max-w-5xl w-full mx-4 max-h-[90vh]'} relative overflow-hidden flex shadow-2xl animate-in zoom-in duration-300`}>
         <button 
           onClick={handleClose} 
-          className="absolute top-5 right-5 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2.5 transition-colors shadow-md"
+          className="absolute top-5 right-5 z-10 bg-white/90 hover:bg-white rounded-full p-2.5 transition-colors shadow-lg border border-gray-200"
           aria-label="Close"
         >
           <X className="h-5 w-5 text-gray-700" />
         </button>
         
+        {/* Left Side - Image */}
         {popup.image && (
-          <div className={`relative w-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 ${popup.popupType === 'full_screen' ? 'aspect-square max-h-[50vh]' : 'aspect-square'}`}>
+          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-1/2' : 'w-2/5 min-w-[300px]'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -227,14 +228,79 @@ export function PopupManager() {
           </div>
         )}
         
-        <div className={`p-8 flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'justify-center' : ''}`}>
-          <h2 className={`${popup.popupType === 'full_screen' ? 'text-4xl' : 'text-3xl'} font-bold mb-4 text-gray-900`}>{popup.title}</h2>
-          <p className={`text-gray-600 mb-6 flex-1 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-xl' : 'text-lg'}`}>{popup.description}</p>
+        {/* Right Side - Content */}
+        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-12 justify-center' : 'p-8'} overflow-y-auto`}>
+          {/* Badges */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
+              <span className="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+              Limited offer
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+              <span className="w-1.5 h-1.5 bg-orange-600 rounded-full"></span>
+              Holiday sale
+            </span>
+          </div>
+
+          {/* Title */}
+          <h2 className={`${popup.popupType === 'full_screen' ? 'text-5xl' : 'text-4xl'} font-bold mb-3 text-gray-900 leading-tight`}>
+            {popup.title}
+          </h2>
+
+          {/* Discount/Offer Text */}
+          <p className={`${popup.popupType === 'full_screen' ? 'text-2xl' : 'text-xl'} font-bold mb-2 text-gray-900`}>
+            UPTO 81% OFF
+          </p>
+
+          {/* Description */}
+          <p className={`text-gray-600 mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-lg' : 'text-base'}`}>
+            {popup.description}
+          </p>
+
+          {/* Features List */}
+          <div className="space-y-3 mb-6">
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span>Limited-time offer — ends 28th Dec</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="flex-1">Seedance Pro Fast</span>
+              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Unlimited</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="flex-1">ChatGPT 1.5, Nano Banana PRO, Flux.2</span>
+              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Unlimited</span>
+              <button className="w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                i
+              </button>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="flex-1">ImagineArt 1.5, Nano Banana PRO, Flux.2</span>
+              <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">Unlimited</span>
+              <button className="w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                i
+              </button>
+            </div>
+          </div>
+
+          {/* CTA Button */}
           <button
             onClick={handleCTAClick}
-            className={`w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white ${popup.popupType === 'full_screen' ? 'py-5 text-xl' : 'py-4 text-lg'} rounded-xl font-semibold hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]`}
+            className={`w-full bg-gradient-to-r from-red-600 to-red-700 text-white ${popup.popupType === 'full_screen' ? 'py-5 text-xl' : 'py-4 text-lg'} rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] relative overflow-hidden`}
           >
-            {popup.ctaText}
+            <span className="relative z-10">{popup.ctaText}</span>
+            <div className="absolute top-0 left-0 right-0 h-1 bg-white/30"></div>
           </button>
         </div>
       </div>

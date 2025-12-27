@@ -324,14 +324,125 @@ export function PopupManager() {
           )}
           
           <div className="p-8 flex-1 flex flex-col">
-            <h2 className="text-3xl font-bold mb-3 text-gray-900">{popup.title}</h2>
-            <p className="text-gray-600 mb-6 flex-1 leading-relaxed text-lg">{popup.description}</p>
+            {/* Brand Text */}
+            {popup.textContent?.showBrandText && popup.textContent.brandText && (
+              <div className="text-xs font-semibold text-gray-500 mb-2">{popup.textContent.brandText}</div>
+            )}
+
+            {/* Tags */}
+            {popup.textContent?.tags && popup.textContent.tags.filter((t: any) => t.isEnabled && t.text).length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3 justify-center">
+                {popup.textContent.tags
+                  .filter((t: any) => t.isEnabled && t.text)
+                  .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                  .map((tag: any, idx: number) => {
+                    const colorClasses: Record<string, string> = {
+                      red: 'bg-red-100 text-red-700',
+                      orange: 'bg-orange-100 text-orange-700',
+                      green: 'bg-green-100 text-green-700',
+                      blue: 'bg-blue-100 text-blue-700',
+                      yellow: 'bg-yellow-100 text-yellow-700',
+                      purple: 'bg-purple-100 text-purple-700'
+                    };
+                    const bgClass = tag.color === 'custom' && tag.customColor
+                      ? ''
+                      : colorClasses[tag.color] || colorClasses.red;
+                    return (
+                      <span
+                        key={idx}
+                        className={`inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded-full ${bgClass}`}
+                        style={tag.color === 'custom' && tag.customColor ? { backgroundColor: tag.customColor + '20', color: tag.customColor } : {}}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                        {tag.text}
+                      </span>
+                    );
+                  })}
+              </div>
+            )}
+
+            {/* Main Title */}
+            {popup.textContent?.mainTitle ? (
+              <h2 className="text-3xl font-bold mb-3 text-gray-900">{popup.textContent.mainTitle}</h2>
+            ) : popup.title && (
+              <h2 className="text-3xl font-bold mb-3 text-gray-900">{popup.title}</h2>
+            )}
+
+            {/* Sub Title */}
+            {popup.textContent?.subTitle && (
+              <p className="text-2xl font-bold text-gray-800 mb-2">{popup.textContent.subTitle}</p>
+            )}
+
+            {/* Description */}
+            {popup.textContent?.description ? (
+              <p className="text-gray-600 mb-6 flex-1 leading-relaxed text-lg">{popup.textContent.description}</p>
+            ) : popup.description && (
+              <p className="text-gray-600 mb-6 flex-1 leading-relaxed text-lg">{popup.description}</p>
+            )}
+
+            {/* Validity Text */}
+            {popup.textContent?.validityText && (
+              <div className="flex items-center gap-2 text-sm text-gray-600 mb-4 justify-center">
+                <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>{popup.textContent.validityText}</span>
+              </div>
+            )}
+
+            {/* Features List */}
+            {popup.textContent?.features && popup.textContent.features.filter((f: any) => f.isEnabled && f.text).length > 0 && (
+              <div className="space-y-2.5 mb-6">
+                {popup.textContent.features
+                  .filter((f: any) => f.isEnabled && f.text)
+                  .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                  .map((feature: any, idx: number) => {
+                    const badgeClasses: Record<string, string> = {
+                      unlimited: 'bg-green-100 text-green-700',
+                      pro: 'bg-blue-100 text-blue-700',
+                      premium: 'bg-purple-100 text-purple-700'
+                    };
+                    const badgeClass = badgeClasses[feature.badge] || 'bg-gray-100 text-gray-700';
+                    const badgeText = feature.badge === 'custom' ? feature.badgeText : feature.badge;
+                    return (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 justify-center">
+                        <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="flex-1">{feature.text}</span>
+                        {feature.badge && badgeText && (
+                          <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${badgeClass}`}>
+                            {badgeText}
+                          </span>
+                        )}
+                        {feature.tooltip && (
+                          <button className="w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 text-xs" title={feature.tooltip}>
+                            i
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+
+            {/* CTA Button */}
             <button
               onClick={handleCTAClick}
               className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-4 rounded-xl font-semibold text-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
             >
-              {popup.ctaText}
+              {popup.textContent?.ctaText || popup.ctaText}
             </button>
+
+            {/* CTA Subtext */}
+            {popup.textContent?.ctaSubText && (
+              <p className="text-xs text-gray-500 text-center mt-2">{popup.textContent.ctaSubText}</p>
+            )}
+
+            {/* Coupon Text */}
+            {popup.textContent?.showCoupon && popup.textContent.couponText && (
+              <p className="text-sm text-gray-600 text-center mt-3">{popup.textContent.couponText}</p>
+            )}
           </div>
         </div>
       </div>
@@ -370,78 +481,147 @@ export function PopupManager() {
         
         {/* Content Section - Bottom on Mobile, Right on Desktop */}
         <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-6 sm:p-12 justify-center' : 'p-4 sm:p-8'} overflow-y-auto`}>
-          {/* Badges */}
-          <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
-            <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
-              <span className="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
-              Limited offer
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
-              <span className="w-1.5 h-1.5 bg-orange-600 rounded-full"></span>
-              Holiday sale
-            </span>
-          </div>
+          {/* Brand Text */}
+          {popup.textContent?.showBrandText && popup.textContent.brandText && (
+            <div className="text-xs sm:text-sm font-semibold text-gray-500 mb-2">
+              {popup.textContent.brandText}
+            </div>
+          )}
 
-          {/* Title */}
-          <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
-            {popup.title}
-          </h2>
+          {/* Tags / Badges */}
+          {popup.textContent?.tags && popup.textContent.tags.filter((t: any) => t.isEnabled && t.text).length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
+              {popup.textContent.tags
+                .filter((t: any) => t.isEnabled && t.text)
+                .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                .map((tag: any, idx: number) => {
+                  const colorClasses: Record<string, string> = {
+                    red: 'bg-red-100 text-red-700',
+                    orange: 'bg-orange-100 text-orange-700',
+                    green: 'bg-green-100 text-green-700',
+                    blue: 'bg-blue-100 text-blue-700',
+                    yellow: 'bg-yellow-100 text-yellow-700',
+                    purple: 'bg-purple-100 text-purple-700'
+                  };
+                  const bgClass = tag.color === 'custom' && tag.customColor
+                    ? ''
+                    : colorClasses[tag.color] || colorClasses.red;
+                  return (
+                    <span
+                      key={idx}
+                      className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-full ${bgClass}`}
+                      style={tag.color === 'custom' && tag.customColor ? { backgroundColor: tag.customColor + '20', color: tag.customColor } : {}}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                      {tag.text}
+                    </span>
+                  );
+                })}
+            </div>
+          )}
 
-          {/* Discount/Offer Text */}
-          <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} font-bold mb-2 text-gray-900`}>
-            UPTO 81% OFF
-          </p>
+          {/* Main Title */}
+          {popup.textContent?.mainTitle && (
+            <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
+              {popup.textContent.mainTitle}
+            </h2>
+          )}
+
+          {/* Fallback to legacy title if textContent.mainTitle not available */}
+          {!popup.textContent?.mainTitle && popup.title && (
+            <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
+              {popup.title}
+            </h2>
+          )}
+
+          {/* Sub Title */}
+          {popup.textContent?.subTitle && (
+            <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} font-bold mb-2 text-gray-800`}>
+              {popup.textContent.subTitle}
+            </p>
+          )}
 
           {/* Description */}
-          <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
-            {popup.description}
-          </p>
+          {popup.textContent?.description && (
+            <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
+              {popup.textContent.description}
+            </p>
+          )}
+
+          {/* Fallback to legacy description */}
+          {!popup.textContent?.description && popup.description && (
+            <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
+              {popup.description}
+            </p>
+          )}
+
+          {/* Validity Text */}
+          {popup.textContent?.validityText && (
+            <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-700 mb-3">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="flex-1">{popup.textContent.validityText}</span>
+            </div>
+          )}
 
           {/* Features List */}
-          <div className="space-y-2.5 sm:space-y-3 mb-4 sm:mb-6">
-            <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="flex-1">Limited-time offer — ends 28th Dec</span>
+          {popup.textContent?.features && popup.textContent.features.filter((f: any) => f.isEnabled && f.text).length > 0 && (
+            <div className="space-y-2.5 sm:space-y-3 mb-4 sm:mb-6">
+              {popup.textContent.features
+                .filter((f: any) => f.isEnabled && f.text)
+                .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                .map((feature: any, idx: number) => {
+                  const badgeClasses: Record<string, string> = {
+                    unlimited: 'bg-green-100 text-green-700',
+                    pro: 'bg-blue-100 text-blue-700',
+                    premium: 'bg-purple-100 text-purple-700'
+                  };
+                  const badgeClass = badgeClasses[feature.badge] || 'bg-gray-100 text-gray-700';
+                  const badgeText = feature.badge === 'custom' ? feature.badgeText : feature.badge;
+                  return (
+                    <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="flex-1 min-w-0">{feature.text}</span>
+                      {feature.badge && badgeText && (
+                        <span className={`px-1.5 sm:px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap ${badgeClass}`}>
+                          {badgeText}
+                        </span>
+                      )}
+                      {feature.tooltip && (
+                        <button
+                          className="w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 text-xs flex-shrink-0"
+                          title={feature.tooltip}
+                        >
+                          i
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
-            <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="flex-1">Seedance Pro Fast</span>
-              <span className="px-1.5 sm:px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full whitespace-nowrap">Unlimited</span>
-            </div>
-            <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="flex-1 min-w-0">ChatGPT 1.5, Nano Banana PRO, Flux.2</span>
-              <span className="px-1.5 sm:px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full whitespace-nowrap">Unlimited</span>
-              <button className="w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 text-xs flex-shrink-0">
-                i
-              </button>
-            </div>
-            <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="flex-1 min-w-0">ImagineArt 1.5, Nano Banana PRO, Flux.2</span>
-              <span className="px-1.5 sm:px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full whitespace-nowrap">Unlimited</span>
-              <button className="w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 text-xs flex-shrink-0">
-                i
-              </button>
-            </div>
-          </div>
+          )}
 
           {/* CTA Button */}
           <button
             onClick={handleCTAClick}
             className={`w-full bg-gradient-to-r from-red-600 to-red-700 text-white ${popup.popupType === 'full_screen' ? 'py-4 sm:py-5 text-lg sm:text-xl' : 'py-3.5 sm:py-4 text-base sm:text-lg'} rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] relative overflow-hidden`}
           >
-            <span className="relative z-10">{popup.ctaText}</span>
+            <span className="relative z-10">{popup.textContent?.ctaText || popup.ctaText}</span>
             <div className="absolute top-0 left-0 right-0 h-1 bg-white/30"></div>
           </button>
+
+          {/* CTA Subtext */}
+          {popup.textContent?.ctaSubText && (
+            <p className="text-xs text-gray-500 text-center mt-2">{popup.textContent.ctaSubText}</p>
+          )}
+
+          {/* Coupon Text */}
+          {popup.textContent?.showCoupon && popup.textContent.couponText && (
+            <p className="text-sm text-gray-600 text-center mt-3">{popup.textContent.couponText}</p>
+          )}
         </div>
       </div>
     </div>

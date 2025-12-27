@@ -168,14 +168,125 @@ export function PopupManager() {
           )}
           
           <div className="pr-12">
-            <h2 className="text-2xl font-bold mb-3 text-gray-900">{popup.title}</h2>
-            <p className="text-gray-600 mb-5 leading-relaxed">{popup.description}</p>
+            {/* Brand Text */}
+            {popup.textContent?.showBrandText && popup.textContent.brandText && (
+              <div className="text-xs font-semibold text-gray-500 mb-1">{popup.textContent.brandText}</div>
+            )}
+
+            {/* Tags */}
+            {popup.textContent?.tags && popup.textContent.tags.filter((t: any) => t.isEnabled && t.text).length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {popup.textContent.tags
+                  .filter((t: any) => t.isEnabled && t.text)
+                  .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                  .map((tag: any, idx: number) => {
+                    const colorClasses: Record<string, string> = {
+                      red: 'bg-red-100 text-red-700',
+                      orange: 'bg-orange-100 text-orange-700',
+                      green: 'bg-green-100 text-green-700',
+                      blue: 'bg-blue-100 text-blue-700',
+                      yellow: 'bg-yellow-100 text-yellow-700',
+                      purple: 'bg-purple-100 text-purple-700'
+                    };
+                    const bgClass = tag.color === 'custom' && tag.customColor
+                      ? ''
+                      : colorClasses[tag.color] || colorClasses.red;
+                    return (
+                      <span
+                        key={idx}
+                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-semibold rounded-full ${bgClass}`}
+                        style={tag.color === 'custom' && tag.customColor ? { backgroundColor: tag.customColor + '20', color: tag.customColor } : {}}
+                      >
+                        <span className="w-1 h-1 rounded-full bg-current opacity-60"></span>
+                        {tag.text}
+                      </span>
+                    );
+                  })}
+              </div>
+            )}
+
+            {/* Main Title */}
+            {popup.textContent?.mainTitle ? (
+              <h2 className="text-2xl font-bold mb-3 text-gray-900">{popup.textContent.mainTitle}</h2>
+            ) : popup.title && (
+              <h2 className="text-2xl font-bold mb-3 text-gray-900">{popup.title}</h2>
+            )}
+
+            {/* Sub Title */}
+            {popup.textContent?.subTitle && (
+              <p className="text-lg font-semibold text-gray-800 mb-1">{popup.textContent.subTitle}</p>
+            )}
+
+            {/* Description */}
+            {popup.textContent?.description ? (
+              <p className="text-gray-600 mb-5 leading-relaxed">{popup.textContent.description}</p>
+            ) : popup.description && (
+              <p className="text-gray-600 mb-5 leading-relaxed">{popup.description}</p>
+            )}
+
+            {/* Validity Text */}
+            {popup.textContent?.validityText && (
+              <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
+                <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>{popup.textContent.validityText}</span>
+              </div>
+            )}
+
+            {/* Features List */}
+            {popup.textContent?.features && popup.textContent.features.filter((f: any) => f.isEnabled && f.text).length > 0 && (
+              <div className="space-y-2 mb-4">
+                {popup.textContent.features
+                  .filter((f: any) => f.isEnabled && f.text)
+                  .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                  .map((feature: any, idx: number) => {
+                    const badgeClasses: Record<string, string> = {
+                      unlimited: 'bg-green-100 text-green-700',
+                      pro: 'bg-blue-100 text-blue-700',
+                      premium: 'bg-purple-100 text-purple-700'
+                    };
+                    const badgeClass = badgeClasses[feature.badge] || 'bg-gray-100 text-gray-700';
+                    const badgeText = feature.badge === 'custom' ? feature.badgeText : feature.badge;
+                    return (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
+                        <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="flex-1">{feature.text}</span>
+                        {feature.badge && badgeText && (
+                          <span className={`px-1.5 py-0.5 text-xs font-semibold rounded-full ${badgeClass}`}>
+                            {badgeText}
+                          </span>
+                        )}
+                        {feature.tooltip && (
+                          <button className="w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600 text-xs" title={feature.tooltip}>
+                            i
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+
+            {/* CTA Button */}
             <button
               onClick={handleCTAClick}
               className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 rounded-xl font-medium hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
             >
-              {popup.ctaText}
+              {popup.textContent?.ctaText || popup.ctaText}
             </button>
+
+            {/* CTA Subtext */}
+            {popup.textContent?.ctaSubText && (
+              <p className="text-xs text-gray-500 text-center mt-2">{popup.textContent.ctaSubText}</p>
+            )}
+
+            {/* Coupon Text */}
+            {popup.textContent?.showCoupon && popup.textContent.couponText && (
+              <p className="text-sm text-gray-600 text-center mt-3">{popup.textContent.couponText}</p>
+            )}
           </div>
         </div>
       </div>

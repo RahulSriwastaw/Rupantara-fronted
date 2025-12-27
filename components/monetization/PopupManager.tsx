@@ -13,6 +13,30 @@ interface Popup {
   ctaAction: string;
   ctaUrl?: string;
   popupType: string;
+  templateId?: string;
+  templateData?: {
+    leftImageUrl?: string;
+    leftOverlayText?: string;
+    tags?: Array<{
+      text: string;
+      color: string;
+      customColor?: string;
+      isEnabled: boolean;
+      order: number;
+    }>;
+    mainHeading?: string;
+    subHeading?: string;
+    description?: string;
+    features?: Array<{
+      text: string;
+      badgeType?: string;
+      isEnabled: boolean;
+      order: number;
+    }>;
+    ctaText?: string;
+    ctaAction?: string;
+    ctaUrl?: string;
+  };
   textContent?: {
     brandText?: string;
     showBrandText?: boolean;

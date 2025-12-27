@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { monetizationApi } from '@/services/monetizationApi';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 interface Popup {
   _id: string;
@@ -71,14 +70,12 @@ export function PopupManager() {
           <X className="h-4 w-4" />
         </button>
         {popup.image && (
-          <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-3">
-            <Image
+          <div className="relative w-full rounded-lg overflow-hidden mb-3" style={{ maxHeight: '300px' }}>
+            <img
               src={popup.image}
               alt={popup.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 384px) 100vw, 384px"
-              unoptimized
+              className="w-full h-auto object-contain"
+              style={{ maxHeight: '300px' }}
             />
           </div>
         )}
@@ -102,14 +99,12 @@ export function PopupManager() {
             <X className="h-5 w-5" />
           </button>
           {popup.image && (
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-4">
-              <Image
+            <div className="relative w-full rounded-lg overflow-hidden mb-4 flex items-center justify-center bg-gray-50" style={{ maxHeight: '400px', minHeight: '200px' }}>
+              <img
                 src={popup.image}
                 alt={popup.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 448px) 100vw, 448px"
-                unoptimized
+                className="w-full h-auto object-contain"
+                style={{ maxHeight: '400px' }}
               />
             </div>
           )}
@@ -138,15 +133,12 @@ export function PopupManager() {
         </button>
         
         {popup.image && (
-          <div className={`relative w-full ${popup.popupType === 'full_screen' ? 'h-1/2' : 'aspect-video'} overflow-hidden`}>
-            <Image
+          <div className={`relative w-full overflow-hidden flex items-center justify-center bg-gray-50 ${popup.popupType === 'full_screen' ? 'h-1/2' : ''}`} style={popup.popupType !== 'full_screen' ? { maxHeight: '500px', minHeight: '250px' } : {}}>
+            <img
               src={popup.image}
               alt={popup.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 512px) 100vw, 512px"
-              priority
-              unoptimized
+              className={`w-full h-auto object-contain ${popup.popupType === 'full_screen' ? 'h-full' : ''}`}
+              style={popup.popupType === 'full_screen' ? { height: '100%', objectFit: 'contain' } : { maxHeight: '500px' }}
             />
           </div>
         )}

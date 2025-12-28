@@ -51,13 +51,15 @@ function ToolsPageContent() {
   const { toast } = useToast()
   const { balance } = useWalletStore()
   const [selectedTool, setSelectedTool] = useState<string | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
 
-  // Get tool from URL params
+  // Get tool from URL params on mount
   useEffect(() => {
     const toolParam = searchParams?.get('tool')
     if (toolParam && tools.find(t => t.id === toolParam)) {
       setSelectedTool(toolParam)
     }
+    setIsInitialized(true)
   }, [searchParams])
   
   const [image, setImage] = useState<string>('')
@@ -357,21 +359,40 @@ function ToolsPageContent() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.back()}
+            onClick={() => {
+              if (selectedTool) {
+                setSelectedTool(null)
+                router.push('/tools')
+              } else {
+                router.back()
+              }
+            }}
             className="text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">Back</span>
           </Button>
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Quick AI Tools</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Process your images instantly with AI-powered tools</p>
+            {selectedTool ? (
+              <>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
+                  {selectedToolData && <selectedToolData.icon className="w-6 h-6 sm:w-8 sm:h-8" />}
+                  {selectedToolData?.name}
+                </h1>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{selectedToolData?.description}</p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Quick AI Tools</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Process your images instantly with AI-powered tools</p>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Tool Selection */}
-      {!selectedTool && (
+      {/* Tool Selection - Only show when no tool is selected and initialized */}
+      {!selectedTool && isInitialized && (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {tools.map((tool) => {
             const Icon = tool.icon

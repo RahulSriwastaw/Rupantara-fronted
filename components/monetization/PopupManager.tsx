@@ -608,18 +608,19 @@ export function PopupManager() {
             </div>
           </div>
         ) : ((popup.image) && (
-          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-64 sm:h-auto min-h-[250px] sm:min-h-0'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
+          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[300px] sm:h-auto sm:min-h-[400px] md:min-h-0'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
             {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center z-10">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
             )}
             <img
               src={popup.image}
               alt={popup.title}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full min-h-[300px] sm:min-h-[400px] object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
+              loading="eager"
             />
           </div>
         ))}

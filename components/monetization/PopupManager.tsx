@@ -176,16 +176,24 @@ export function PopupManager() {
         {popup.image && (
           <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
             {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                 <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
             )}
             <img
               src={popup.image}
               alt={popup.title}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{ 
+                objectFit: 'cover',
+                objectPosition: 'center',
+                width: '100%',
+                height: '100%'
+              }}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
+              loading="eager"
+              decoding="async"
             />
           </div>
         )}
@@ -231,16 +239,24 @@ export function PopupManager() {
           {popup.image && (
             <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-5 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
               {!imageLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                   <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
                 </div>
               )}
               <img
                 src={popup.image}
                 alt={popup.title}
-                className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`w-full h-full object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                style={{ 
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  width: '100%',
+                  height: '100%'
+                }}
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(true)}
+                loading="eager"
+                decoding="async"
               />
             </div>
           )}
@@ -393,18 +409,26 @@ export function PopupManager() {
           </button>
           
           {popup.image && (
-            <div className="relative w-full aspect-square flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="relative w-full aspect-square flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
               {!imageLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                   <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
                 </div>
               )}
               <img
                 src={popup.image}
                 alt={popup.title}
-                className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`w-full h-full object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                style={{ 
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  width: '100%',
+                  height: '100%'
+                }}
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(true)}
+                loading="eager"
+                decoding="async"
               />
             </div>
           )}
@@ -558,14 +582,16 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[200px] sm:h-[250px] md:h-auto sm:min-h-[300px] md:min-h-[400px] lg:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 lg:p-6`}
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[250px] sm:h-[300px] md:h-[350px] lg:h-auto sm:min-h-[300px] md:min-h-[400px] lg:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 lg:p-6`}
               style={{ 
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundSize: popup.templateData.leftImageUrl ? 'cover' : 'auto',
+              backgroundPosition: 'center center',
               backgroundRepeat: 'no-repeat',
-              minHeight: '200px'
+              backgroundAttachment: 'scroll',
+              minHeight: '250px',
+              position: 'relative'
             }}
           >
             {/* Background Pattern Overlay */}
@@ -637,19 +663,26 @@ export function PopupManager() {
             </div>
           </div>
         ) : ((popup.image) && (
-          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[200px] sm:h-[250px] md:h-auto sm:min-h-[300px] md:min-h-[400px] lg:min-h-0'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
+          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[250px] sm:h-[300px] md:h-[350px] lg:h-auto sm:min-h-[300px] md:min-h-[400px] lg:min-h-0'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
             {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="absolute inset-0 flex items-center justify-center z-10 bg-gray-100">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
             )}
             <img
               src={popup.image}
               alt={popup.title}
-              className={`w-full h-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] lg:min-h-[400px] object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full min-h-[250px] sm:min-h-[300px] md:min-h-[350px] lg:min-h-[400px] object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{ 
+                objectFit: 'cover',
+                objectPosition: 'center',
+                width: '100%',
+                height: '100%'
+              }}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
               loading="eager"
+              decoding="async"
             />
           </div>
         ))}

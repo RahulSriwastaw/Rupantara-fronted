@@ -493,7 +493,8 @@ export function PopupManager() {
         </button>
         
         {/* Image Section - Top on Mobile, Left on Desktop */}
-        {popup.image && (
+        {/* For template-based popups, use templateData.leftImageUrl, otherwise use popup.image */}
+        {((popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.leftImageUrl) || popup.image) && (
           <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-64 sm:h-auto min-h-[250px] sm:min-h-0'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -501,8 +502,10 @@ export function PopupManager() {
               </div>
             )}
             <img
-              src={popup.image}
-              alt={popup.title}
+              src={popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.leftImageUrl 
+                ? popup.templateData.leftImageUrl 
+                : popup.image}
+              alt={popup.templateData?.mainHeading || popup.title}
               className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
@@ -640,7 +643,11 @@ export function PopupManager() {
             onClick={handleCTAClick}
             className={`w-full bg-gradient-to-r from-red-600 to-red-700 text-white ${popup.popupType === 'full_screen' ? 'py-4 sm:py-5 text-lg sm:text-xl' : 'py-3.5 sm:py-4 text-base sm:text-lg'} rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] relative overflow-hidden`}
           >
-            <span className="relative z-10">{popup.textContent?.ctaText || popup.ctaText}</span>
+            <span className="relative z-10">
+              {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.ctaText
+                ? popup.templateData.ctaText
+                : (popup.textContent?.ctaText || popup.ctaText)}
+            </span>
             <div className="absolute top-0 left-0 right-0 h-1 bg-white/30"></div>
           </button>
 

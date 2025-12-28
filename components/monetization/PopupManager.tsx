@@ -721,14 +721,16 @@ export function PopupManager() {
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <span className="flex-1 min-w-0">{feature.text}</span>
-                          {/* Always show badge - rectangular button style similar to image */}
+                          {/* Always show badge - rectangular button style similar to image - FORCE VISIBLE */}
                           <span 
                             className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-md whitespace-nowrap flex-shrink-0 shadow-sm ${getBadgeClass(badgeTypeToShow)}`}
                             style={{ 
                               minWidth: '90px', 
                               textAlign: 'center',
-                              display: 'inline-block',
-                              lineHeight: '1.2'
+                              display: 'inline-block !important',
+                              lineHeight: '1.2',
+                              visibility: 'visible !important',
+                              opacity: '1 !important'
                             }}
                           >
                             {badgeText}

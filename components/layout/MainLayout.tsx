@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { BottomNav } from "./BottomNav";
+import { SidebarNav } from "./SidebarNav";
 import { TopHeader } from "./TopHeader";
 import { useWalletStore } from "@/store/walletStore";
 import { useGenerationStore } from "@/store/generationStore";
@@ -54,14 +55,20 @@ export function MainLayout({
   }, [user, fetchWalletData, fetchGenerations, hasHydrated]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      {showTopHeader && <TopHeader />}
+    <div className="flex min-h-screen bg-background">
+      {/* Sidebar Navigation - Desktop Only */}
+      {showBottomNav && <SidebarNav />}
 
-      <main id="main-content" className="flex-1 pb-16 sm:pb-20 md:pb-20 px-2 sm:px-3 md:px-4 lg:px-6">
-        {children}
-      </main>
+      <div className="flex flex-col flex-1 min-h-screen md:ml-24">
+        {showTopHeader && <TopHeader />}
 
-      {showBottomNav && <BottomNav />}
+        <main id="main-content" className="flex-1 pb-16 sm:pb-20 md:pb-0 px-2 sm:px-3 md:px-4 lg:px-6">
+          {children}
+        </main>
+
+        {/* Bottom Navigation - Mobile Only */}
+        {showBottomNav && <BottomNav />}
+      </div>
     </div>
   );
 }

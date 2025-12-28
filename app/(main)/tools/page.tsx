@@ -24,14 +24,24 @@ export default function ToolsPage() {
     setLoading(true)
     setResultUrl('')
     try {
+      const token = localStorage.getItem('token')
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (token) headers['Authorization'] = `Bearer ${token}`
+      
       const res = await fetch(`${API_URL}/tools/${tool}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ imageUrl: image })
       })
-      if (!res.ok) throw new Error(await res.text())
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: await res.text() }))
+        throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`)
+      }
+      
       const data = await res.json()
-      setResultUrl(data.imageUrl)
+      // Backend returns { result: imageUrl, points: number }
+      setResultUrl(data.result || data.imageUrl)
     } catch (err: any) {
       setError(err?.message || 'Failed to process')
     } finally {

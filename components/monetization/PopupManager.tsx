@@ -679,27 +679,33 @@ export function PopupManager() {
                     .filter((f: any) => f.isEnabled && f.text)
                     .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                     .map((feature: any, idx: number) => {
+                      // Debug log
+                      console.log('🔍 Feature:', feature, 'badgeType:', feature.badgeType);
+                      
                       const getBadgeClass = (badgeType: string) => {
                         const badges: Record<string, string> = {
                           unlimited: 'bg-green-500 text-white', // Medium green
                           pro: 'bg-green-700 text-white', // Dark green  
                           included: 'bg-yellow-500 text-white' // Golden yellow
                         };
-                        return badges[badgeType] || 'bg-green-500 text-white'; // Default to green if badgeType is empty but badge should show
+                        return badges[badgeType] || 'bg-green-500 text-white'; // Default to green
                       };
                       
-                      // Determine badge display - always show badge for template features, default to "Unlimited" if not set
-                      const badgeTypeToShow = feature.badgeType && feature.badgeType.trim() !== '' ? feature.badgeType : 'unlimited';
-                      const badgeText = badgeTypeToShow === 'unlimited' ? 'Unlimited' : badgeTypeToShow === 'pro' ? 'Pro' : badgeTypeToShow === 'included' ? 'Included' : badgeTypeToShow;
+                      // Always show badge - default to "Unlimited" if not set
+                      const badgeTypeToShow = (feature.badgeType && feature.badgeType.trim() !== '') ? feature.badgeType : 'unlimited';
+                      const badgeText = badgeTypeToShow === 'unlimited' ? 'Unlimited' : 
+                                       badgeTypeToShow === 'pro' ? 'Pro' : 
+                                       badgeTypeToShow === 'included' ? 'Included' : 
+                                       badgeTypeToShow;
                       
                       return (
-                        <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm text-gray-700">
+                        <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm text-gray-700 mb-2">
                           <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <span className="flex-1 min-w-0">{feature.text}</span>
-                          {/* Always show badge for template features - default to "Unlimited" */}
-                          <span className={`px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-md whitespace-nowrap ${getBadgeClass(badgeTypeToShow)}`}>
+                          {/* Always show badge - make it more prominent */}
+                          <span className={`px-3 py-1.5 text-xs sm:text-sm font-bold rounded-md whitespace-nowrap flex-shrink-0 ${getBadgeClass(badgeTypeToShow)}`} style={{ minWidth: '80px', textAlign: 'center' }}>
                             {badgeText}
                           </span>
                         </div>

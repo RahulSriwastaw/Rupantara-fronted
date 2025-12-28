@@ -221,10 +221,10 @@ export function PopupManager() {
         style={{ touchAction: 'none' }}
       >
         <div 
-          className="bg-white rounded-t-2xl p-4 sm:p-5 md:p-6 w-[95%] sm:w-[85%] md:w-[75%] lg:w-[65%] max-w-[95vw] sm:max-w-md md:max-w-lg mx-auto animate-in slide-in-from-bottom duration-300 max-h-[70vh] sm:max-h-[65vh] md:max-h-[60vh] overflow-y-auto shadow-2xl relative"
+          className="bg-white rounded-t-2xl p-4 sm:p-5 md:p-6 w-[92%] sm:w-[85%] md:w-[75%] lg:w-[65%] max-w-[92vw] sm:max-w-lg md:max-w-xl mx-auto animate-in slide-in-from-bottom duration-300 max-h-[75vh] sm:max-h-[70vh] md:max-h-[65vh] overflow-y-auto shadow-2xl relative"
           onClick={(e) => e.stopPropagation()}
           style={{ 
-            maxWidth: '95vw',
+            maxWidth: '92vw',
             touchAction: 'pan-y'
           }}
         >
@@ -401,16 +401,14 @@ export function PopupManager() {
       <div 
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300 p-3 sm:p-4"
         onClick={handleClose}
-        style={{ touchAction: 'none', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+        style={{ touchAction: 'none' }}
       >
         <div 
-          className="bg-white rounded-xl sm:rounded-2xl w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] max-w-[90vw] sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-2 sm:mx-4 max-h-[75vh] sm:max-h-[70vh] md:max-h-[65vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
+          className="bg-white rounded-2xl w-[92%] sm:w-[85%] md:w-[75%] lg:w-[65%] xl:w-[55%] max-w-[92vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-2 sm:mx-4 max-h-[82vh] sm:max-h-[78vh] md:max-h-[75vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
           onClick={(e) => e.stopPropagation()}
           style={{ 
-            maxWidth: '90vw',
-            touchAction: 'pan-y',
-            position: 'relative',
-            margin: 'auto'
+            maxWidth: '92vw',
+            touchAction: 'pan-y'
           }}
         >
           <button 
@@ -578,18 +576,16 @@ export function PopupManager() {
   // Default: center_modal or full_screen - Split Layout Design
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-3 md:p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-3 sm:p-4"
       onClick={handleClose}
-      style={{ touchAction: 'none', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+      style={{ touchAction: 'none' }}
     >
       <div 
-        className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] max-w-[90vw] sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl max-h-[75vh] sm:max-h-[70vh] md:max-h-[65vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
+        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl w-[92%] sm:w-[85%] md:w-[75%] lg:w-[65%] xl:w-[55%] max-w-[92vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl max-h-[82vh] sm:max-h-[78vh] md:max-h-[75vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          maxWidth: '90vw',
-          touchAction: 'pan-y',
-          position: 'relative',
-          margin: 'auto'
+          maxWidth: '92vw',
+          touchAction: 'pan-y'
         }}
       >
         <button 
@@ -605,7 +601,7 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[180px] sm:h-[220px] md:h-[280px] lg:h-[400px] xl:h-[450px] sm:min-h-[220px] md:min-h-[280px] lg:min-h-[400px]'} overflow-hidden flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 lg:p-6`}
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[200px] sm:h-[240px] md:h-[300px] lg:h-auto sm:min-h-[240px] md:min-h-[300px] lg:min-h-[400px]'} overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-5 lg:p-6`}
               style={{ 
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
@@ -613,10 +609,8 @@ export function PopupManager() {
               backgroundPosition: 'center center',
               backgroundRepeat: 'no-repeat',
               backgroundAttachment: 'scroll',
-              minHeight: '180px',
-              position: 'relative',
-              width: '100%',
-              height: '100%'
+              minHeight: '200px',
+              position: 'relative'
             }}
           >
             {/* Background Pattern Overlay */}
@@ -688,7 +682,7 @@ export function PopupManager() {
             </div>
           </div>
         ) : ((popup.image) && (
-          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[180px] sm:h-[220px] md:h-[280px] lg:h-[400px] xl:h-[450px] sm:min-h-[220px] md:min-h-[280px] lg:min-h-[400px]'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
+          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[200px] sm:h-[240px] md:h-[300px] lg:h-auto sm:min-h-[240px] md:min-h-[300px] lg:min-h-[400px]'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center z-10 bg-gray-100">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -714,7 +708,7 @@ export function PopupManager() {
         ))}
         
         {/* Content Section - Bottom on Mobile, Right on Desktop */}
-        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-3 sm:p-4 md:p-6 justify-center' : 'p-3 sm:p-4 md:p-5 lg:p-6'} overflow-y-auto`}>
+        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-4 sm:p-5 md:p-6 lg:p-7'} overflow-y-auto bg-white`}>
           {/* Brand Text */}
           {popup.textContent?.showBrandText && popup.textContent.brandText && (
             <div className="text-xs sm:text-sm font-semibold text-gray-500 mb-2">

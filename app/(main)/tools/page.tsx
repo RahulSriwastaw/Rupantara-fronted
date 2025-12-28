@@ -122,8 +122,10 @@ function ToolsPageContent() {
         const headers: Record<string, string> = { 'Content-Type': 'application/json' }
         if (token) headers['Authorization'] = `Bearer ${token}`
         
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://new-backend-g2gw.onrender.com'
-        const res = await fetch(`${API_URL}/api/tools/${selectedTool}`, {
+        // Use getApiUrl from config to get correct API URL (already includes /api)
+        const { getApiUrl } = await import('@/lib/config')
+        const API_URL = getApiUrl()
+        const res = await fetch(`${API_URL}/tools/${selectedTool}`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ imageUrl: image })

@@ -529,7 +529,7 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-64 sm:h-auto min-h-[250px] sm:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6`}
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-56 sm:h-auto min-h-[220px] sm:min-h-[300px] md:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-6`}
             style={{ 
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
@@ -545,24 +545,24 @@ export function PopupManager() {
             }}></div>
             
             {/* Content Overlay */}
-            <div className="relative z-10 w-full flex flex-col items-center justify-center text-center space-y-3 sm:space-y-4">
+            <div className="relative z-10 w-full flex flex-col items-center justify-center text-center space-y-2 sm:space-y-3 md:space-y-4 px-2 sm:px-4">
               {/* Brand Text */}
               {popup.templateData.leftBrandText && (
-                <p className="text-xs sm:text-sm font-semibold text-gray-800 uppercase">
+                <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-gray-800 uppercase">
                   {popup.templateData.leftBrandText}
                 </p>
               )}
 
               {/* Main Text (SPECIAL OFFER) - White Ticket Style */}
               {popup.templateData.leftMainText && (
-                <div className="relative w-full max-w-xs">
+                <div className="relative w-full max-w-[280px] sm:max-w-xs">
                   {/* Blue Banner Background */}
-                  <div className="absolute top-0 left-0 right-0 h-3 bg-blue-600 rounded-t-lg z-10"></div>
+                  <div className="absolute top-0 left-0 right-0 h-2 sm:h-3 bg-blue-600 rounded-t-lg z-10"></div>
                   {/* White Ticket Shape with Serrated Bottom */}
-                  <div className="bg-white rounded-lg p-4 sm:p-6 mt-3 shadow-xl relative" style={{
-                    clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, calc(100% - 30px) calc(100% - 10px), calc(100% - 45px) 100%, calc(100% - 60px) calc(100% - 10px), calc(100% - 75px) 100%, calc(100% - 90px) calc(100% - 10px), calc(100% - 105px) 100%, calc(100% - 120px) calc(100% - 10px), calc(100% - 135px) 100%, calc(100% - 150px) calc(100% - 10px), calc(100% - 165px) 100%, calc(100% - 180px) calc(100% - 10px), calc(100% - 195px) 100%, calc(100% - 210px) calc(100% - 10px), calc(100% - 225px) 100%, calc(100% - 240px) calc(100% - 10px), calc(100% - 255px) 100%, calc(100% - 270px) calc(100% - 10px), calc(100% - 285px) 100%, calc(100% - 300px) calc(100% - 10px), 15px 100%, 0 calc(100% - 15px))'
+                  <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 mt-2 sm:mt-3 shadow-xl relative" style={{
+                    clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, calc(100% - 24px) calc(100% - 8px), calc(100% - 36px) 100%, calc(100% - 48px) calc(100% - 8px), calc(100% - 60px) 100%, calc(100% - 72px) calc(100% - 8px), calc(100% - 84px) 100%, calc(100% - 96px) calc(100% - 8px), calc(100% - 108px) 100%, calc(100% - 120px) calc(100% - 8px), calc(100% - 132px) 100%, calc(100% - 144px) calc(100% - 8px), calc(100% - 156px) 100%, calc(100% - 168px) calc(100% - 8px), calc(100% - 180px) 100%, calc(100% - 192px) calc(100% - 8px), calc(100% - 204px) 100%, calc(100% - 216px) calc(100% - 8px), calc(100% - 228px) 100%, calc(100% - 240px) calc(100% - 8px), calc(100% - 252px) 100%, calc(100% - 264px) calc(100% - 8px), 12px 100%, 0 calc(100% - 12px))'
                   }}>
-                    <h3 className="text-2xl sm:text-3xl font-bold text-black uppercase leading-tight">
+                    <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-black uppercase leading-tight">
                       {popup.templateData.leftMainText.split(' ').map((word: string, i: number) => (
                         <span key={i} className="block">{word}</span>
                       ))}
@@ -573,15 +573,15 @@ export function PopupManager() {
 
               {/* Description */}
               {popup.templateData.leftDescription && (
-                <p className="text-xs sm:text-sm text-gray-800 max-w-xs">
+                <p className="text-[10px] sm:text-xs md:text-sm text-gray-800 max-w-[280px] sm:max-w-xs px-2">
                   {popup.templateData.leftDescription}
                 </p>
               )}
 
               {/* Promo Code */}
               {popup.templateData.leftPromoCode && (
-                <div className="border-t-2 border-dashed border-gray-400 pt-2 w-full max-w-xs">
-                  <p className="text-xs sm:text-sm font-semibold text-gray-800">
+                <div className="border-t-2 border-dashed border-gray-400 pt-2 w-full max-w-[280px] sm:max-w-xs px-2">
+                  <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-gray-800">
                     {popup.templateData.leftPromoCode}
                   </p>
                 </div>
@@ -589,7 +589,7 @@ export function PopupManager() {
 
               {/* Urgency Text */}
               {popup.templateData.leftUrgencyText && (
-                <p className="text-xs italic text-gray-700 max-w-xs">
+                <p className="text-[10px] sm:text-xs italic text-gray-700 max-w-[280px] sm:max-w-xs px-2">
                   {popup.templateData.leftUrgencyText}
                 </p>
               )}
@@ -598,7 +598,7 @@ export function PopupManager() {
               {popup.templateData.leftCtaText && (
                 <button
                   onClick={handleCTAClick}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-colors shadow-lg mt-2"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base transition-colors shadow-lg mt-1 sm:mt-2 w-full max-w-[200px] sm:max-w-none"
                 >
                   {popup.templateData.leftCtaText}
                 </button>
@@ -623,7 +623,7 @@ export function PopupManager() {
         ))}
         
         {/* Content Section - Bottom on Mobile, Right on Desktop */}
-        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-6 sm:p-12 justify-center' : 'p-4 sm:p-8'} overflow-y-auto`}>
+        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-6 md:p-12 justify-center' : 'p-3 sm:p-4 md:p-6 lg:p-8'} overflow-y-auto`}>
           {/* Brand Text */}
           {popup.textContent?.showBrandText && popup.textContent.brandText && (
             <div className="text-xs sm:text-sm font-semibold text-gray-500 mb-2">
@@ -636,7 +636,7 @@ export function PopupManager() {
             <>
               {/* Tags from templateData */}
               {popup.templateData.tags && popup.templateData.tags.filter((t: any) => t.isEnabled && t.text).length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
                   {popup.templateData.tags
                     .filter((t: any) => t.isEnabled && t.text)
                     .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
@@ -655,10 +655,10 @@ export function PopupManager() {
                       return (
                         <span
                           key={idx}
-                          className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-full ${bgClass}`}
+                          className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 md:px-3 py-0.5 sm:py-1 md:py-1.5 text-[10px] sm:text-xs font-semibold rounded-full ${bgClass}`}
                           style={tag.color === 'custom' && tag.customColor ? { backgroundColor: tag.customColor + '20', color: tag.customColor } : {}}
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                          <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-current opacity-60"></span>
                           {tag.text}
                         </span>
                       );
@@ -668,21 +668,21 @@ export function PopupManager() {
 
               {/* Main Heading */}
               {popup.templateData.mainHeading && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
                   {popup.templateData.mainHeading}
                 </h2>
               )}
 
               {/* Sub Heading */}
               {popup.templateData.subHeading && (
-                <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} font-bold mb-2 text-gray-800`}>
+                <p className={`${popup.popupType === 'full_screen' ? 'text-lg sm:text-xl md:text-2xl' : 'text-base sm:text-lg md:text-xl'} font-bold mb-2 text-gray-800`}>
                   {popup.templateData.subHeading}
                 </p>
               )}
 
               {/* Description */}
               {popup.templateData.description && (
-                <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
+                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'}`}>
                   {popup.templateData.description}
                 </p>
               )}
@@ -871,7 +871,7 @@ export function PopupManager() {
           {/* CTA Button */}
           <button
             onClick={handleCTAClick}
-            className={`w-full bg-gradient-to-r from-red-600 to-red-700 text-white ${popup.popupType === 'full_screen' ? 'py-4 sm:py-5 text-lg sm:text-xl' : 'py-3.5 sm:py-4 text-base sm:text-lg'} rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] relative overflow-hidden`}
+            className={`w-full bg-gradient-to-r from-red-600 to-red-700 text-white ${popup.popupType === 'full_screen' ? 'py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl' : 'py-3 sm:py-3.5 md:py-4 text-sm sm:text-base md:text-lg'} rounded-lg sm:rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] relative overflow-hidden`}
           >
             <span className="relative z-10">
               {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.ctaText

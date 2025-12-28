@@ -123,8 +123,8 @@ export function PopupManager() {
     if (popup) {
       await monetizationApi.trackPopupClick(popup._id);
       
-      // Get promo code from popup (prioritize templateData promo code if exists)
-      const promoCode = popup.promoCode || popup.templateData?.promoCode;
+      // Get promo code from popup
+      const promoCode = popup.promoCode;
       
       // Build URL with promo code if available and action is apply_offer
       const buildProUrl = (action: string) => {

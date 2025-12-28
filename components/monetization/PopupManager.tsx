@@ -210,7 +210,7 @@ export function PopupManager() {
         onClick={handleClose}
       >
         <div 
-          className="bg-white rounded-t-2xl p-6 w-full max-w-lg mx-auto animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto shadow-2xl relative"
+          className="bg-white rounded-t-2xl p-4 sm:p-5 md:p-6 w-[90%] sm:w-[60%] max-w-lg mx-auto animate-in slide-in-from-bottom duration-300 max-h-[60vh] sm:max-h-[60vh] overflow-y-auto shadow-2xl relative"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Drag Handle */}
@@ -245,10 +245,10 @@ export function PopupManager() {
             </div>
           )}
           
-          <div className="pr-12">
+          <div className="pr-10 sm:pr-12">
             {/* Brand Text */}
             {popup.textContent?.showBrandText && popup.textContent.brandText && (
-              <div className="text-xs font-semibold text-gray-500 mb-1">{popup.textContent.brandText}</div>
+              <div className="text-[10px] sm:text-xs font-semibold text-gray-500 mb-1">{popup.textContent.brandText}</div>
             )}
 
             {/* Tags */}
@@ -285,21 +285,21 @@ export function PopupManager() {
 
             {/* Main Title */}
             {popup.textContent?.mainTitle ? (
-              <h2 className="text-2xl font-bold mb-3 text-gray-900">{popup.textContent.mainTitle}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-900 leading-tight">{popup.textContent.mainTitle}</h2>
             ) : popup.title && (
-              <h2 className="text-2xl font-bold mb-3 text-gray-900">{popup.title}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-900 leading-tight">{popup.title}</h2>
             )}
 
             {/* Sub Title */}
             {popup.textContent?.subTitle && (
-              <p className="text-lg font-semibold text-gray-800 mb-1">{popup.textContent.subTitle}</p>
+              <p className="text-base sm:text-lg font-semibold text-gray-800 mb-1 leading-tight">{popup.textContent.subTitle}</p>
             )}
 
             {/* Description */}
             {popup.textContent?.description ? (
-              <p className="text-gray-600 mb-5 leading-relaxed">{popup.textContent.description}</p>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-5 leading-relaxed">{popup.textContent.description}</p>
             ) : popup.description && (
-              <p className="text-gray-600 mb-5 leading-relaxed">{popup.description}</p>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-5 leading-relaxed">{popup.description}</p>
             )}
 
             {/* Validity Text */}
@@ -351,7 +351,7 @@ export function PopupManager() {
             {/* CTA Button */}
             <button
               onClick={handleCTAClick}
-              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 rounded-xl font-medium hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base hover:from-indigo-700 hover:to-indigo-800 active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
             >
               {popup.textContent?.ctaText || popup.ctaText}
             </button>
@@ -375,11 +375,11 @@ export function PopupManager() {
   if (popup.popupType === 'exit_intent') {
     return (
       <div 
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300 p-3 sm:p-4"
         onClick={handleClose}
       >
         <div 
-          className="bg-white rounded-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
+          className="bg-white rounded-xl sm:rounded-2xl w-[90%] sm:w-[60%] max-w-sm sm:max-w-2xl mx-2 sm:mx-4 max-h-[60vh] sm:max-h-[60vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
           onClick={(e) => e.stopPropagation()}
         >
           <button 
@@ -409,10 +409,10 @@ export function PopupManager() {
             </div>
           )}
           
-          <div className="p-8 flex-1 flex flex-col">
+          <div className="p-4 sm:p-6 md:p-8 flex-1 flex flex-col overflow-y-auto">
             {/* Brand Text */}
             {popup.textContent?.showBrandText && popup.textContent.brandText && (
-              <div className="text-xs font-semibold text-gray-500 mb-2">{popup.textContent.brandText}</div>
+              <div className="text-[10px] sm:text-xs font-semibold text-gray-500 mb-1.5 sm:mb-2">{popup.textContent.brandText}</div>
             )}
 
             {/* Tags */}
@@ -461,9 +461,9 @@ export function PopupManager() {
 
             {/* Description */}
             {popup.textContent?.description ? (
-              <p className="text-gray-600 mb-6 flex-1 leading-relaxed text-lg">{popup.textContent.description}</p>
+              <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4 sm:mb-6 flex-1 leading-relaxed">{popup.textContent.description}</p>
             ) : popup.description && (
-              <p className="text-gray-600 mb-6 flex-1 leading-relaxed text-lg">{popup.description}</p>
+              <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4 sm:mb-6 flex-1 leading-relaxed">{popup.description}</p>
             )}
 
             {/* Validity Text */}
@@ -515,7 +515,7 @@ export function PopupManager() {
             {/* CTA Button */}
             <button
               onClick={handleCTAClick}
-              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-4 rounded-xl font-semibold text-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base md:text-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {popup.textContent?.ctaText || popup.ctaText}
             </button>
@@ -538,11 +538,11 @@ export function PopupManager() {
   // Default: center_modal or full_screen - Split Layout Design
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-3 md:p-4"
       onClick={handleClose}
     >
       <div 
-        className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-lg sm:rounded-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
+        className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl w-[90%] sm:w-[60%] md:w-[60%] lg:w-[60%] max-w-lg md:max-w-2xl lg:max-w-4xl max-h-[60vh] sm:max-h-[60vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
       >
         <button 
@@ -558,14 +558,14 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[300px] sm:h-auto sm:min-h-[400px] md:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-6`}
-            style={{ 
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[200px] sm:h-[250px] md:h-auto sm:min-h-[300px] md:min-h-[400px] lg:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 lg:p-6`}
+              style={{ 
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
-              minHeight: '300px'
+              minHeight: '200px'
             }}
           >
             {/* Background Pattern Overlay */}
@@ -637,7 +637,7 @@ export function PopupManager() {
             </div>
           </div>
         ) : ((popup.image) && (
-          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[300px] sm:h-auto sm:min-h-[400px] md:min-h-0'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
+          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[200px] sm:h-[250px] md:h-auto sm:min-h-[300px] md:min-h-[400px] lg:min-h-0'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center z-10">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -646,7 +646,7 @@ export function PopupManager() {
             <img
               src={popup.image}
               alt={popup.title}
-              className={`w-full h-full min-h-[300px] sm:min-h-[400px] object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] lg:min-h-[400px] object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
               loading="eager"
@@ -655,7 +655,7 @@ export function PopupManager() {
         ))}
         
         {/* Content Section - Bottom on Mobile, Right on Desktop */}
-        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-6 justify-center' : 'p-4 sm:p-5 md:p-6'} overflow-y-auto`}>
+        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-3 sm:p-4 md:p-6 justify-center' : 'p-3 sm:p-4 md:p-5 lg:p-6'} overflow-y-auto`}>
           {/* Brand Text */}
           {popup.textContent?.showBrandText && popup.textContent.brandText && (
             <div className="text-xs sm:text-sm font-semibold text-gray-500 mb-2">
@@ -700,21 +700,21 @@ export function PopupManager() {
 
               {/* Main Heading */}
               {popup.templateData.mainHeading && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-4xl md:text-5xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold mb-1 text-red-600 leading-tight uppercase`}>
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1 text-red-600 leading-tight uppercase`}>
                   {popup.templateData.mainHeading}
                 </h2>
               )}
 
               {/* Sub Heading */}
               {popup.templateData.subHeading && (
-                <p className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl md:text-3xl'} font-bold mb-2 text-gray-900 uppercase`}>
+                <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg sm:text-xl md:text-2xl lg:text-3xl'} font-bold mb-1.5 sm:mb-2 text-gray-900 uppercase leading-tight`}>
                   {popup.templateData.subHeading}
                 </p>
               )}
 
               {/* Description */}
               {popup.templateData.description && (
-                <p className={`text-gray-600 mb-4 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
+                <p className={`text-gray-600 mb-3 sm:mb-4 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'}`}>
                   {popup.templateData.description}
                 </p>
               )}
@@ -796,35 +796,35 @@ export function PopupManager() {
 
               {/* Main Title */}
               {popup.textContent?.mainTitle && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1.5 sm:mb-2 md:mb-3 text-gray-900 leading-tight`}>
                   {popup.textContent.mainTitle}
                 </h2>
               )}
 
               {/* Fallback to legacy title if textContent.mainTitle not available */}
               {!popup.textContent?.mainTitle && popup.title && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1.5 sm:mb-2 md:mb-3 text-gray-900 leading-tight`}>
                   {popup.title}
                 </h2>
               )}
 
               {/* Sub Title */}
               {popup.textContent?.subTitle && (
-                <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} font-bold mb-2 text-gray-800`}>
+                <p className={`${popup.popupType === 'full_screen' ? 'text-lg sm:text-xl md:text-2xl' : 'text-base sm:text-lg md:text-xl'} font-bold mb-1.5 sm:mb-2 text-gray-800 leading-tight`}>
                   {popup.textContent.subTitle}
                 </p>
               )}
 
               {/* Description */}
               {popup.textContent?.description && (
-                <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
+                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'}`}>
                   {popup.textContent.description}
                 </p>
               )}
 
               {/* Fallback to legacy description */}
               {!popup.textContent?.description && popup.description && (
-                <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
+                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'}`}>
                   {popup.description}
                 </p>
               )}
@@ -890,7 +890,7 @@ export function PopupManager() {
           {/* CTA Button */}
           <button
             onClick={handleCTAClick}
-            className={`w-full bg-red-600 text-white ${popup.popupType === 'full_screen' ? 'py-3 sm:py-4 text-base sm:text-lg' : 'py-3 sm:py-3.5 text-sm sm:text-base'} rounded-lg font-bold hover:bg-red-700 transition-colors duration-200 shadow-md`}
+            className={`w-full bg-red-600 text-white ${popup.popupType === 'full_screen' ? 'py-2.5 sm:py-3 md:py-4 text-sm sm:text-base md:text-lg' : 'py-2.5 sm:py-3 md:py-3.5 text-xs sm:text-sm md:text-base'} rounded-lg font-bold hover:bg-red-700 active:bg-red-800 active:scale-[0.98] transition-all duration-200 shadow-md`}
           >
             {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.ctaText
               ? popup.templateData.ctaText

@@ -576,27 +576,41 @@ function ToolsPageContent() {
 
           {/* Main Interface - BG Remove */}
           {(image || resultUrl) && selectedTool === 'remove-bg' && (
-            <div className="grid lg:grid-cols-[1fr_350px] gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-4 sm:gap-6">
               {/* Left: Image Display */}
-              <Card className="bg-card border-border">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg sm:text-xl font-semibold text-foreground">Preview</h2>
-                    <div className="flex gap-2">
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-xl overflow-hidden">
+                <CardContent className="p-3 sm:p-4 md:p-6">
+                  {/* Header with Actions */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-primary/20">
+                        <Scissors className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Image Preview</h2>
+                        <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Drag to reposition • Pinch to zoom</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 w-full sm:w-auto">
                       {image && !resultUrl && (
                         <Button
                           onClick={runTool}
                           disabled={loading}
                           size="sm"
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                          className="flex-1 sm:flex-none bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 hover:from-blue-600 hover:via-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300"
                         >
                           {loading ? (
                             <>
                               <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                              Processing...
+                              <span className="hidden sm:inline">Processing...</span>
+                              <span className="sm:hidden">Processing</span>
                             </>
                           ) : (
-                            'Remove Background'
+                            <>
+                              <Scissors className="w-4 h-4 mr-2" />
+                              <span className="hidden sm:inline">Remove Background</span>
+                              <span className="sm:hidden">Remove</span>
+                            </>
                           )}
                         </Button>
                       )}
@@ -604,68 +618,90 @@ function ToolsPageContent() {
                         variant="ghost"
                         size="sm"
                         onClick={handleClear}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="text-muted-foreground hover:text-foreground hover:bg-destructive/10"
                       >
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
 
-                  {/* Image Display with Checkerboard */}
+                  {/* Image Display with Enhanced Checkerboard */}
                   <div 
-                    className="w-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] rounded-lg overflow-hidden relative flex items-center justify-center bg-muted/30"
+                    className="w-full min-h-[250px] sm:min-h-[350px] md:min-h-[450px] lg:min-h-[550px] rounded-xl overflow-hidden relative flex items-center justify-center bg-gradient-to-br from-muted/50 to-muted/30 border-2 border-border/50 shadow-inner"
                     style={{
                       backgroundImage: `
-                        linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
-                        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
-                        linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
-                        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
+                        linear-gradient(45deg, #e5e5e5 25%, transparent 25%),
+                        linear-gradient(-45deg, #e5e5e5 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #e5e5e5 75%),
+                        linear-gradient(-45deg, transparent 75%, #e5e5e5 75%)
                       `,
-                      backgroundSize: '20px 20px',
-                      backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                      backgroundSize: '24px 24px',
+                      backgroundPosition: '0 0, 0 12px, 12px -12px, -12px 0px'
                     }}
                   >
                     {loading ? (
-                      <div className="flex flex-col items-center gap-4">
-                        <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 animate-spin text-primary" />
-                        <p className="text-sm text-muted-foreground">Removing background...</p>
+                      <div className="flex flex-col items-center gap-4 p-8 bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg">
+                        <div className="relative">
+                          <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 animate-spin text-primary" />
+                          <div className="absolute inset-0 w-12 h-12 sm:w-16 sm:h-16 animate-ping opacity-20">
+                            <Loader2 className="w-full h-full text-primary" />
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm sm:text-base font-medium text-foreground mb-1">Removing Background</p>
+                          <p className="text-xs text-muted-foreground">This may take a few seconds...</p>
+                        </div>
                       </div>
                     ) : resultUrl ? (
-                      <img
-                        src={resultUrl}
-                        alt="Processed"
-                        className="max-w-full max-h-[500px] sm:max-h-[600px] object-contain"
-                      />
+                      <div className="relative w-full h-full flex items-center justify-center p-4">
+                        <img
+                          src={resultUrl}
+                          alt="Processed"
+                          className="max-w-full max-h-[450px] sm:max-h-[550px] md:max-h-[650px] object-contain drop-shadow-2xl"
+                        />
+                      </div>
                     ) : image ? (
-                      <img
-                        src={image}
-                        alt="Original"
-                        className="max-w-full max-h-[500px] sm:max-h-[600px] object-contain"
-                      />
+                      <div className="relative w-full h-full flex items-center justify-center p-4">
+                        <img
+                          src={image}
+                          alt="Original"
+                          className="max-w-full max-h-[450px] sm:max-h-[550px] md:max-h-[650px] object-contain drop-shadow-lg"
+                        />
+                      </div>
                     ) : null}
                   </div>
 
+                  {/* Action Buttons */}
                   {resultUrl && (
-                    <div className="mt-4 flex gap-2">
+                    <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button
                         onClick={handleDownload}
-                        className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                        className="flex-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300 font-semibold"
+                        size="lg"
                       >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download
+                        <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        Download Image
                       </Button>
                     </div>
                   )}
 
+                  {/* Status Messages */}
                   {error && (
-                    <div className="mt-4 bg-destructive/10 border border-destructive/50 text-destructive px-4 py-3 rounded-lg text-sm">
-                      {error}
+                    <div className="mt-4 bg-destructive/10 backdrop-blur-sm border border-destructive/50 text-destructive px-4 py-3 rounded-xl text-sm shadow-lg">
+                      <div className="flex items-center gap-2">
+                        <X className="w-4 h-4 flex-shrink-0" />
+                        <p>{error}</p>
+                      </div>
                     </div>
                   )}
 
                   {points !== null && (
-                    <div className="mt-4 bg-green-500/10 border border-green-500/50 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg text-sm">
-                      Remaining Points: {points}
+                    <div className="mt-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm border border-green-500/30 text-green-600 dark:text-green-400 px-4 py-3 rounded-xl text-sm shadow-lg">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4" />
+                        <span className="font-semibold">Remaining Points:</span>
+                        <span className="font-bold text-lg">{points}</span>
+                      </div>
                     </div>
                   )}
                 </CardContent>
@@ -673,43 +709,50 @@ function ToolsPageContent() {
 
               {/* Right: Background Controls */}
               {resultUrl && (
-                <Card className="bg-card border-border">
-                  <CardContent className="p-4">
-                    <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">Change Background</h3>
+                <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-xl sticky top-4 self-start">
+                  <CardContent className="p-3 sm:p-4 md:p-5">
+                    <div className="flex items-center gap-2 mb-4 sm:mb-6">
+                      <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-primary/20">
+                        <PaletteIcon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                      </div>
+                      <h3 className="text-base sm:text-lg font-bold text-foreground">Change Background</h3>
+                    </div>
                     
-                    {/* Tabs */}
-                    <div className="flex gap-2 mb-4 border-b border-border">
+                    {/* Enhanced Tabs */}
+                    <div className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 p-1 bg-muted/50 rounded-xl border border-border/50">
                       <button
                         onClick={() => setActiveTab('magic')}
                         className={cn(
-                          "px-3 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2",
+                          "flex-1 px-2 sm:px-3 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 rounded-lg",
                           activeTab === 'magic'
-                            ? 'text-primary border-primary'
-                            : 'text-muted-foreground border-transparent hover:text-foreground'
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                         )}
                       >
                         <Wand2 className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
-                        Magic
+                        <span className="hidden sm:inline">Magic</span>
+                        <span className="sm:hidden">AI</span>
                       </button>
                       <button
                         onClick={() => setActiveTab('photo')}
                         className={cn(
-                          "px-3 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2",
+                          "flex-1 px-2 sm:px-3 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 rounded-lg",
                           activeTab === 'photo'
-                            ? 'text-primary border-primary'
-                            : 'text-muted-foreground border-transparent hover:text-foreground'
+                            ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                         )}
                       >
                         <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
-                        Photo
+                        <span className="hidden sm:inline">Photo</span>
+                        <span className="sm:hidden">Pic</span>
                       </button>
                       <button
                         onClick={() => setActiveTab('color')}
                         className={cn(
-                          "px-3 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2",
+                          "flex-1 px-2 sm:px-3 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 rounded-lg",
                           activeTab === 'color'
-                            ? 'text-primary border-primary'
-                            : 'text-muted-foreground border-transparent hover:text-foreground'
+                            ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/30'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                         )}
                       >
                         <PaletteIcon className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
@@ -717,20 +760,24 @@ function ToolsPageContent() {
                       </button>
                     </div>
 
-                    {/* Tab Content */}
-                    <div className="max-h-[500px] overflow-y-auto">
+                    {/* Tab Content with Better Scrolling */}
+                    <div className="max-h-[calc(100vh-400px)] sm:max-h-[600px] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent pr-1">
                       {/* Magic Tab */}
                       {activeTab === 'magic' && (
-                        <div className="space-y-4">
-                          <p className="text-xs sm:text-sm text-muted-foreground">AI-powered background suggestions coming soon!</p>
+                        <div className="space-y-4 p-4 sm:p-6 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20">
+                          <div className="text-center">
+                            <Wand2 className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-purple-500 opacity-50" />
+                            <h4 className="text-sm sm:text-base font-semibold text-foreground mb-2">AI Magic Coming Soon!</h4>
+                            <p className="text-xs sm:text-sm text-muted-foreground">AI-powered background suggestions will be available soon. For now, try Photo or Color options!</p>
+                          </div>
                         </div>
                       )}
 
                       {/* Photo Tab */}
                       {activeTab === 'photo' && (
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                           <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground z-10" />
                             <input
                               type="text"
                               value={searchQuery}
@@ -741,15 +788,15 @@ function ToolsPageContent() {
                                 }
                               }}
                               placeholder="Search backgrounds..."
-                              className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                              className="w-full bg-muted/80 backdrop-blur-sm border-2 border-border rounded-xl pl-10 pr-4 py-2.5 sm:py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                             />
                           </div>
-                          <p className="text-xs text-muted-foreground">Search 30+ million backgrounds</p>
+                          <p className="text-xs text-muted-foreground px-1">Search 30+ million free backgrounds</p>
 
-                          <label className="block w-full aspect-square rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 cursor-pointer bg-muted/30 flex items-center justify-center transition-colors">
+                          <label className="block w-full aspect-square rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 cursor-pointer bg-gradient-to-br from-muted/50 to-muted/30 flex items-center justify-center transition-all duration-200 hover:shadow-lg group">
                             <div className="text-center">
-                              <Upload className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-muted-foreground" />
-                              <p className="text-xs text-muted-foreground">Upload</p>
+                              <Upload className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
+                              <p className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Upload Custom</p>
                             </div>
                             <input
                               type="file"
@@ -759,23 +806,30 @@ function ToolsPageContent() {
                             />
                           </label>
 
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3">
                             {backgroundImages.map((bgUrl, idx) => (
                               <button
                                 key={idx}
                                 onClick={() => handleBackgroundImageSelect(bgUrl)}
                                 className={cn(
-                                  "aspect-square rounded-lg overflow-hidden border-2 transition-all",
+                                  "aspect-square rounded-xl overflow-hidden border-2 transition-all duration-200 group relative",
                                   selectedBackgroundImage === bgUrl
-                                    ? 'border-primary ring-2 ring-primary/50'
-                                    : 'border-border hover:border-primary/50'
+                                    ? 'border-primary ring-4 ring-primary/30 shadow-xl shadow-primary/20 scale-105'
+                                    : 'border-border hover:border-primary/50 hover:shadow-lg hover:scale-102'
                                 )}
                               >
                                 <img
                                   src={bgUrl}
                                   alt={`Background ${idx + 1}`}
-                                  className="w-full h-full object-cover"
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 />
+                                {selectedBackgroundImage === bgUrl && (
+                                  <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                                      <X className="w-4 h-4 text-white rotate-45" />
+                                    </div>
+                                  </div>
+                                )}
                               </button>
                             ))}
                           </div>

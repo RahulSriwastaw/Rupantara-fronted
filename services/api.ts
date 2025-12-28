@@ -501,7 +501,13 @@ export const toolsApi = {
     });
     
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({ error: await res.text() }));
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch {
+        const errorText = await res.text();
+        errorData = { error: errorText };
+      }
       throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`);
     }
     

@@ -516,8 +516,8 @@ export function PopupManager() {
 
   // Default: center_modal or full_screen - Split Layout Design
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-1 sm:p-2 md:p-4">
-      <div className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl max-w-5xl w-full max-h-[98vh] sm:max-h-[95vh] md:max-h-[90vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-4">
+      <div className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-lg sm:rounded-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}>
         <button 
           onClick={handleClose} 
           className="absolute top-3 right-3 sm:top-5 sm:right-5 z-10 bg-white/90 hover:bg-white rounded-full p-2 sm:p-2.5 transition-colors shadow-lg border border-gray-200"
@@ -623,7 +623,7 @@ export function PopupManager() {
         ))}
         
         {/* Content Section - Bottom on Mobile, Right on Desktop */}
-        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-6 md:p-12 justify-center' : 'p-3 sm:p-4 md:p-6 lg:p-8'} overflow-y-auto`}>
+        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-6 justify-center' : 'p-4 sm:p-5 md:p-6'} overflow-y-auto`}>
           {/* Brand Text */}
           {popup.textContent?.showBrandText && popup.textContent.brandText && (
             <div className="text-xs sm:text-sm font-semibold text-gray-500 mb-2">
@@ -636,18 +636,19 @@ export function PopupManager() {
             <>
               {/* Tags from templateData */}
               {popup.templateData.tags && popup.templateData.tags.filter((t: any) => t.isEnabled && t.text).length > 0 && (
-                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
+                <div className="flex flex-wrap gap-2 mb-3">
                   {popup.templateData.tags
                     .filter((t: any) => t.isEnabled && t.text)
                     .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                     .map((tag: any, idx: number) => {
                       const colorClasses: Record<string, string> = {
-                        red: 'bg-red-100 text-red-700',
-                        orange: 'bg-orange-100 text-orange-700',
-                        green: 'bg-green-100 text-green-700',
-                        blue: 'bg-blue-100 text-blue-700',
-                        yellow: 'bg-yellow-100 text-yellow-700',
-                        purple: 'bg-purple-100 text-purple-700'
+                        red: 'bg-red-600 text-white',
+                        orange: 'bg-orange-500 text-white',
+                        green: 'bg-green-600 text-white',
+                        blue: 'bg-blue-600 text-white',
+                        yellow: 'bg-yellow-500 text-white',
+                        purple: 'bg-purple-600 text-white',
+                        gray: 'bg-gray-700 text-white'
                       };
                       const bgClass = tag.color === 'custom' && tag.customColor
                         ? ''
@@ -655,10 +656,9 @@ export function PopupManager() {
                       return (
                         <span
                           key={idx}
-                          className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 md:px-3 py-0.5 sm:py-1 md:py-1.5 text-[10px] sm:text-xs font-semibold rounded-full ${bgClass}`}
-                          style={tag.color === 'custom' && tag.customColor ? { backgroundColor: tag.customColor + '20', color: tag.customColor } : {}}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full ${bgClass}`}
+                          style={tag.color === 'custom' && tag.customColor ? { backgroundColor: tag.customColor, color: 'white' } : {}}
                         >
-                          <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-current opacity-60"></span>
                           {tag.text}
                         </span>
                       );
@@ -668,51 +668,41 @@ export function PopupManager() {
 
               {/* Main Heading */}
               {popup.templateData.mainHeading && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-4xl md:text-5xl' : 'text-2xl sm:text-3xl md:text-4xl'} font-bold mb-1 text-red-600 leading-tight uppercase`}>
                   {popup.templateData.mainHeading}
                 </h2>
               )}
 
               {/* Sub Heading */}
               {popup.templateData.subHeading && (
-                <p className={`${popup.popupType === 'full_screen' ? 'text-lg sm:text-xl md:text-2xl' : 'text-base sm:text-lg md:text-xl'} font-bold mb-2 text-gray-800`}>
+                <p className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl md:text-3xl'} font-bold mb-2 text-gray-900 uppercase`}>
                   {popup.templateData.subHeading}
                 </p>
               )}
 
               {/* Description */}
               {popup.templateData.description && (
-                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'}`}>
+                <p className={`text-gray-600 mb-4 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
                   {popup.templateData.description}
                 </p>
               )}
 
               {/* Features from templateData - Show all features with badges */}
               {popup.templateData.features && Array.isArray(popup.templateData.features) && popup.templateData.features.length > 0 && (
-                <div className="space-y-2.5 sm:space-y-3 mb-4 sm:mb-6">
+                <div className="space-y-2 mb-4">
                   {popup.templateData.features
                     .filter((f: any) => f && f.text && f.text.trim() && (f.isEnabled !== false))
                     .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                     .map((feature: any, idx: number) => {
-                      // Debug log
-                      console.log('🔍 Rendering Feature:', { 
-                        text: feature.text, 
-                        badgeType: feature.badgeType, 
-                        hasBadgeType: !!feature.badgeType,
-                        isEnabled: feature.isEnabled,
-                        fullFeature: feature
-                      });
-                      
                       const getBadgeClass = (badgeType: string) => {
                         const badges: Record<string, string> = {
-                          unlimited: 'bg-green-500 text-white', // Medium green (#22c55e)
-                          pro: 'bg-green-700 text-white', // Dark green (#15803d)
-                          included: 'bg-yellow-500 text-white' // Golden yellow (#eab308)
+                          unlimited: 'bg-green-500 text-white', // Medium green
+                          pro: 'bg-green-700 text-white', // Dark green
+                          included: 'bg-yellow-500 text-white' // Golden yellow
                         };
-                        return badges[badgeType] || 'bg-green-500 text-white'; // Default to green
+                        return badges[badgeType] || 'bg-green-500 text-white';
                       };
                       
-                      // Always show badge - default to "Unlimited" if not set or empty
                       const badgeTypeToShow = (feature.badgeType && feature.badgeType.trim() !== '') 
                         ? feature.badgeType.trim().toLowerCase() 
                         : 'unlimited';
@@ -721,24 +711,14 @@ export function PopupManager() {
                                        badgeTypeToShow === 'included' ? 'Included' : 
                                        badgeTypeToShow.charAt(0).toUpperCase() + badgeTypeToShow.slice(1);
                       
-                      console.log('🎨 Badge rendering:', { badgeTypeToShow, badgeText, className: getBadgeClass(badgeTypeToShow) });
-                      
                       return (
-                        <div key={idx} className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm text-gray-700 mb-2 sm:mb-2.5 flex-wrap sm:flex-nowrap">
-                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <div key={idx} className="flex items-center gap-2 text-sm text-gray-900">
+                          <svg className="w-4 h-4 text-black flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
-                          <span className="flex-1 min-w-0 text-xs sm:text-sm">{feature.text}</span>
-                          {/* Always show badge - rectangular button style similar to image */}
+                          <span className="flex-1 text-sm">{feature.text}</span>
                           <span 
-                            className={`px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold rounded-md whitespace-nowrap flex-shrink-0 shadow-sm ${getBadgeClass(badgeTypeToShow)}`}
-                            style={{ 
-                              minWidth: '70px',
-                              maxWidth: '120px',
-                              textAlign: 'center',
-                              display: 'inline-block',
-                              lineHeight: '1.2'
-                            }}
+                            className={`px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap flex-shrink-0 ${getBadgeClass(badgeTypeToShow)}`}
                           >
                             {badgeText}
                           </span>
@@ -868,17 +848,21 @@ export function PopupManager() {
             </div>
           )}
 
+          {/* Decorative Wavy Element (Snowdrift) */}
+          <div className="mb-3 relative">
+            <svg className="w-full h-6 text-white" viewBox="0 0 1200 60" preserveAspectRatio="none">
+              <path d="M0,60 Q150,40 300,50 T600,45 T900,55 T1200,50 L1200,60 L0,60 Z" fill="currentColor"/>
+            </svg>
+          </div>
+
           {/* CTA Button */}
           <button
             onClick={handleCTAClick}
-            className={`w-full bg-gradient-to-r from-red-600 to-red-700 text-white ${popup.popupType === 'full_screen' ? 'py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl' : 'py-3 sm:py-3.5 md:py-4 text-sm sm:text-base md:text-lg'} rounded-lg sm:rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] relative overflow-hidden`}
+            className={`w-full bg-red-600 text-white ${popup.popupType === 'full_screen' ? 'py-3 sm:py-4 text-base sm:text-lg' : 'py-3 sm:py-3.5 text-sm sm:text-base'} rounded-lg font-bold hover:bg-red-700 transition-colors duration-200 shadow-md`}
           >
-            <span className="relative z-10">
-              {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.ctaText
-                ? popup.templateData.ctaText
-                : (popup.textContent?.ctaText || popup.ctaText)}
-            </span>
-            <div className="absolute top-0 left-0 right-0 h-1 bg-white/30"></div>
+            {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.ctaText
+              ? popup.templateData.ctaText
+              : (popup.textContent?.ctaText || popup.ctaText)}
           </button>
 
           {/* CTA Subtext */}

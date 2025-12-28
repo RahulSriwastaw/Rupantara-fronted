@@ -494,24 +494,37 @@ export const toolsApi = {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
     
-    const res = await fetch(`${API_URL}/tools/remove-bg`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ imageUrl })
-    });
+    // Use longer timeout for Replicate API calls (can take 30-60 seconds)
+    const TOOL_TIMEOUT = 120000; // 2 minutes
     
-    if (!res.ok) {
-      let errorData;
-      try {
-        errorData = await res.json();
-      } catch {
-        const errorText = await res.text();
-        errorData = { error: errorText };
+    try {
+      const response = await Promise.race([
+        fetch(`${API_URL}/tools/remove-bg`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ imageUrl })
+        }),
+        timeout(TOOL_TIMEOUT) as Promise<Response>
+      ]);
+      
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          const errorText = await response.text();
+          errorData = { error: errorText };
+        }
+        throw new Error(errorData.error || errorData.message || `Request failed: ${response.status}`);
       }
-      throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`);
+      
+      return response.json();
+    } catch (error: any) {
+      if (error.message === 'Request timeout') {
+        throw new Error('Background removal is taking longer than expected. Please try again or use a smaller image.');
+      }
+      throw error;
     }
-    
-    return res.json();
   },
   upscale: (imageUrl: string) => api.post('/tools/upscale', { imageUrl }),
   faceEnhance: (imageUrl: string) => api.post('/tools/face-enhance', { imageUrl }),

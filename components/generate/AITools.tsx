@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Scissors, Sparkles, Smile, Maximize2, Palette, Paintbrush, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,7 @@ const tools = [
 ];
 
 export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const { balance, deductPoints } = useWalletStore();
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
@@ -57,15 +59,8 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
   const [error, setError] = useState<string | null>(null);
 
   const handleToolClick = (toolId: string) => {
-    if (!hasPhotos) {
-      toast({
-        title: "Upload photos first",
-        description: "Please upload at least one photo to use AI tools",
-        variant: "destructive",
-      });
-      return;
-    }
-    setSelectedTool(toolId);
+    // Redirect to tools page with selected tool
+    router.push(`/tools?tool=${toolId}`);
   };
 
   const handleApply = async () => {
@@ -249,9 +244,25 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
                 <p className="text-xs text-muted-foreground">
                   {processedImage ? "Processed Result" : "Preview will appear here"}
                 </p>
-                <div className="aspect-video rounded-lg bg-muted overflow-hidden flex items-center justify-center">
+                <div className="aspect-video rounded-lg bg-muted overflow-hidden flex items-center justify-center relative">
+                  {/* Checkerboard pattern for transparency */}
+                  {processedImage && (
+                    <div 
+                      className="absolute inset-0 opacity-30"
+                      style={{
+                        backgroundImage: `
+                          linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+                          linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                          linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+                          linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
+                        `,
+                        backgroundSize: '20px 20px',
+                        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                      }}
+                    />
+                  )}
                   {isProcessing ? (
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-2 relative z-10">
                       <Loader2 className="w-8 h-8 animate-spin text-primary" />
                       <p className="text-sm text-muted-foreground">Processing...</p>
                     </div>
@@ -259,10 +270,11 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
                     <img
                       src={processedImage}
                       alt="Processed"
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain relative z-10"
+                      style={{ mixBlendMode: 'normal' }}
                     />
                   ) : (
-                    <p className="text-sm text-muted-foreground">Preview will appear here</p>
+                    <p className="text-sm text-muted-foreground relative z-10">Preview will appear here</p>
                   )}
                 </div>
               </div>

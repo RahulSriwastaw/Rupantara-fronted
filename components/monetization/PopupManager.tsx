@@ -18,6 +18,13 @@ interface Popup {
   templateData?: {
     leftImageUrl?: string;
     leftOverlayText?: string;
+    leftBrandText?: string;
+    leftMainText?: string;
+    leftDescription?: string;
+    leftPromoCode?: string;
+    leftUrgencyText?: string;
+    leftCtaText?: string;
+    leftBackgroundColor?: string;
     tags?: Array<{
       text: string;
       color: string;
@@ -504,9 +511,86 @@ export function PopupManager() {
           <X className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700" />
         </button>
         
-        {/* Image Section - Top on Mobile, Left on Desktop */}
-        {/* For template-based popups, use templateData.leftImageUrl, otherwise use popup.image */}
-        {((popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.leftImageUrl) || popup.image) && (
+        {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
+        {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
+          <div 
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-64 sm:h-auto min-h-[250px] sm:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6`}
+            style={{ 
+              backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
+              backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            {/* Background Pattern Overlay */}
+            <div className="absolute inset-0 opacity-10" style={{
+              backgroundImage: 'linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.1) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.1) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.1) 75%)',
+              backgroundSize: '20px 20px',
+              backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+            }}></div>
+            
+            {/* Content Overlay */}
+            <div className="relative z-10 w-full flex flex-col items-center justify-center text-center space-y-3 sm:space-y-4">
+              {/* Brand Text */}
+              {popup.templateData.leftBrandText && (
+                <p className="text-xs sm:text-sm font-semibold text-gray-800 uppercase">
+                  {popup.templateData.leftBrandText}
+                </p>
+              )}
+
+              {/* Main Text (SPECIAL OFFER) - White Ticket Style */}
+              {popup.templateData.leftMainText && (
+                <div className="relative w-full max-w-xs">
+                  {/* Blue Banner Background */}
+                  <div className="absolute top-0 left-0 right-0 h-3 bg-blue-600 rounded-t-lg z-10"></div>
+                  {/* White Ticket Shape with Serrated Bottom */}
+                  <div className="bg-white rounded-lg p-4 sm:p-6 mt-3 shadow-xl relative" style={{
+                    clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, calc(100% - 30px) calc(100% - 10px), calc(100% - 45px) 100%, calc(100% - 60px) calc(100% - 10px), calc(100% - 75px) 100%, calc(100% - 90px) calc(100% - 10px), calc(100% - 105px) 100%, calc(100% - 120px) calc(100% - 10px), calc(100% - 135px) 100%, calc(100% - 150px) calc(100% - 10px), calc(100% - 165px) 100%, calc(100% - 180px) calc(100% - 10px), calc(100% - 195px) 100%, calc(100% - 210px) calc(100% - 10px), calc(100% - 225px) 100%, calc(100% - 240px) calc(100% - 10px), calc(100% - 255px) 100%, calc(100% - 270px) calc(100% - 10px), calc(100% - 285px) 100%, calc(100% - 300px) calc(100% - 10px), 15px 100%, 0 calc(100% - 15px))'
+                  }}>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-black uppercase leading-tight">
+                      {popup.templateData.leftMainText.split(' ').map((word: string, i: number) => (
+                        <span key={i} className="block">{word}</span>
+                      ))}
+                    </h3>
+                  </div>
+                </div>
+              )}
+
+              {/* Description */}
+              {popup.templateData.leftDescription && (
+                <p className="text-xs sm:text-sm text-gray-800 max-w-xs">
+                  {popup.templateData.leftDescription}
+                </p>
+              )}
+
+              {/* Promo Code */}
+              {popup.templateData.leftPromoCode && (
+                <div className="border-t-2 border-dashed border-gray-400 pt-2 w-full max-w-xs">
+                  <p className="text-xs sm:text-sm font-semibold text-gray-800">
+                    {popup.templateData.leftPromoCode}
+                  </p>
+                </div>
+              )}
+
+              {/* Urgency Text */}
+              {popup.templateData.leftUrgencyText && (
+                <p className="text-xs italic text-gray-700 max-w-xs">
+                  {popup.templateData.leftUrgencyText}
+                </p>
+              )}
+
+              {/* Left CTA Button */}
+              {popup.templateData.leftCtaText && (
+                <button
+                  onClick={handleCTAClick}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-colors shadow-lg mt-2"
+                >
+                  {popup.templateData.leftCtaText}
+                </button>
+              )}
+            </div>
+          </div>
+        ) : ((popup.image) && (
           <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-64 sm:h-auto min-h-[250px] sm:min-h-0'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -514,16 +598,14 @@ export function PopupManager() {
               </div>
             )}
             <img
-              src={popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.leftImageUrl 
-                ? popup.templateData.leftImageUrl 
-                : popup.image}
-              alt={popup.templateData?.mainHeading || popup.title}
+              src={popup.image}
+              alt={popup.title}
               className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
             />
           </div>
-        )}
+        ))}
         
         {/* Content Section - Bottom on Mobile, Right on Desktop */}
         <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-6 sm:p-12 justify-center' : 'p-4 sm:p-8'} overflow-y-auto`}>

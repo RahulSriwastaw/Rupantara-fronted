@@ -115,44 +115,71 @@ function ToolsPageContent() {
     setError(null)
     setLoading(true)
     setResultUrl('')
-    setPoints(null)
     
     try {
       // Use toolsApi service for consistent API calls
-      let response;
-      if (selectedTool === 'remove-bg') {
-        response = await toolsApi.removeBg(image);
-      } else {
-        // For other tools, use generic API call
-        const token = localStorage.getItem('token')
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-        if (token) headers['Authorization'] = `Bearer ${token}`
-        
-        // Use getApiUrl from config to get correct API URL (already includes /api)
-        const API_URL = getApiUrl()
-        const res = await fetch(`${API_URL}/tools/${selectedTool}`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ imageUrl: image })
-        })
-        
-        if (!res.ok) {
-          let errorData;
-          try {
-            errorData = await res.json();
-          } catch {
-            const errorText = await res.text();
-            errorData = { error: errorText };
+      let response: any = null;
+      try {
+        if (selectedTool === 'remove-bg') {
+          response = await toolsApi.removeBg(image);
+        } else {
+          // For other tools, use generic API call
+          const token = localStorage.getItem('token')
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+          if (token) headers['Authorization'] = `Bearer ${token}`
+          
+          // Use getApiUrl from config to get correct API URL (already includes /api)
+          const API_URL = getApiUrl()
+          const res = await fetch(`${API_URL}/tools/${selectedTool}`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ imageUrl: image })
+          })
+          
+          if (!res.ok) {
+            let errorData;
+            try {
+              errorData = await res.json();
+            } catch {
+              const errorText = await res.text();
+              errorData = { error: errorText };
+            }
+            throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`)
           }
-          throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`)
+          response = await res.json()
         }
-        response = await res.json()
+      } catch (apiError: any) {
+        console.error('API Error:', apiError);
+        throw apiError;
       }
       
-      const processedUrl = response.result || response.imageUrl || response
+      // Safely handle response - check if response exists
+      if (!response) {
+        throw new Error('No response received from server');
+      }
+      
+      // Safely extract processed URL
+      const processedUrl = response?.result || response?.imageUrl || (typeof response === 'string' ? response : null);
+      if (!processedUrl) {
+        throw new Error('No image URL in response');
+      }
+      
       setResultUrl(processedUrl)
       setOriginalResultUrl(processedUrl)
-      setPoints(response.points)
+      
+      // Safely get points from response, fallback to balance from wallet store
+      if (response && typeof response === 'object' && typeof response.points === 'number') {
+        setPoints(response.points)
+      } else if (response && typeof response === 'object' && typeof response.balance === 'number') {
+        setPoints(response.balance)
+      } else {
+        // Use balance from wallet store if response.points is not available
+        // Refresh wallet data first to get latest balance
+        const { fetchWalletData } = useWalletStore.getState();
+        await fetchWalletData();
+        const updatedBalance = useWalletStore.getState().balance;
+        setPoints(updatedBalance !== null && updatedBalance !== undefined ? updatedBalance : 0)
+      }
       
       toast({
         title: "Success!",
@@ -695,12 +722,12 @@ function ToolsPageContent() {
                     </div>
                   )}
 
-                  {points !== null && (
+                  {(points !== null || balance !== null) && (
                     <div className="mt-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm border border-green-500/30 text-green-600 dark:text-green-400 px-4 py-3 rounded-xl text-sm shadow-lg">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4" />
+                        <Sparkles className="w-4 h-4 flex-shrink-0" />
                         <span className="font-semibold">Remaining Points:</span>
-                        <span className="font-bold text-lg">{points}</span>
+                        <span className="font-bold text-lg">{points !== null ? points : (balance !== null ? balance : 0)}</span>
                       </div>
                     </div>
                   )}

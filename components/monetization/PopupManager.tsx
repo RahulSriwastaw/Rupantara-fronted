@@ -688,7 +688,12 @@ export function PopupManager() {
                     .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                     .map((feature: any, idx: number) => {
                       // Debug log
-                      console.log('🔍 Feature:', feature, 'badgeType:', feature.badgeType);
+                      console.log('🔍 Rendering Feature:', { 
+                        text: feature.text, 
+                        badgeType: feature.badgeType, 
+                        hasBadgeType: !!feature.badgeType,
+                        isEnabled: feature.isEnabled 
+                      });
                       
                       const getBadgeClass = (badgeType: string) => {
                         const badges: Record<string, string> = {
@@ -699,12 +704,16 @@ export function PopupManager() {
                         return badges[badgeType] || 'bg-green-500 text-white'; // Default to green
                       };
                       
-                      // Always show badge - default to "Unlimited" if not set
-                      const badgeTypeToShow = (feature.badgeType && feature.badgeType.trim() !== '') ? feature.badgeType : 'unlimited';
+                      // Always show badge - default to "Unlimited" if not set or empty
+                      const badgeTypeToShow = (feature.badgeType && feature.badgeType.trim() !== '') 
+                        ? feature.badgeType.trim() 
+                        : 'unlimited';
                       const badgeText = badgeTypeToShow === 'unlimited' ? 'Unlimited' : 
                                        badgeTypeToShow === 'pro' ? 'Pro' : 
                                        badgeTypeToShow === 'included' ? 'Included' : 
                                        badgeTypeToShow;
+                      
+                      console.log('🎨 Badge rendering:', { badgeTypeToShow, badgeText, className: getBadgeClass(badgeTypeToShow) });
                       
                       return (
                         <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm text-gray-700 mb-2.5">
@@ -712,13 +721,14 @@ export function PopupManager() {
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <span className="flex-1 min-w-0">{feature.text}</span>
-                          {/* Always show badge - rectangular button style */}
+                          {/* Always show badge - rectangular button style similar to image */}
                           <span 
                             className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-md whitespace-nowrap flex-shrink-0 shadow-sm ${getBadgeClass(badgeTypeToShow)}`}
                             style={{ 
                               minWidth: '90px', 
                               textAlign: 'center',
-                              display: 'inline-block'
+                              display: 'inline-block',
+                              lineHeight: '1.2'
                             }}
                           >
                             {badgeText}

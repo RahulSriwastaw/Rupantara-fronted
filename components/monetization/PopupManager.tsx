@@ -682,11 +682,15 @@ export function PopupManager() {
                       const getBadgeClass = (badgeType: string) => {
                         const badges: Record<string, string> = {
                           unlimited: 'bg-green-500 text-white', // Medium green
-                          pro: 'bg-green-700 text-white', // Dark green
+                          pro: 'bg-green-700 text-white', // Dark green  
                           included: 'bg-yellow-500 text-white' // Golden yellow
                         };
-                        return badges[badgeType] || '';
+                        return badges[badgeType] || 'bg-green-500 text-white'; // Default to green if badgeType is empty but badge should show
                       };
+                      
+                      // Determine badge display - always show badge for template features, default to "Unlimited" if not set
+                      const badgeTypeToShow = feature.badgeType && feature.badgeType.trim() !== '' ? feature.badgeType : 'unlimited';
+                      const badgeText = badgeTypeToShow === 'unlimited' ? 'Unlimited' : badgeTypeToShow === 'pro' ? 'Pro' : badgeTypeToShow === 'included' ? 'Included' : badgeTypeToShow;
                       
                       return (
                         <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm text-gray-700">
@@ -694,11 +698,10 @@ export function PopupManager() {
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <span className="flex-1 min-w-0">{feature.text}</span>
-                          {feature.badgeType && (
-                            <span className={`px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-md whitespace-nowrap ${getBadgeClass(feature.badgeType)}`}>
-                              {feature.badgeType === 'unlimited' ? 'Unlimited' : feature.badgeType === 'pro' ? 'Pro' : feature.badgeType === 'included' ? 'Included' : feature.badgeType}
-                            </span>
-                          )}
+                          {/* Always show badge for template features - default to "Unlimited" */}
+                          <span className={`px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-md whitespace-nowrap ${getBadgeClass(badgeTypeToShow)}`}>
+                            {badgeText}
+                          </span>
                         </div>
                       );
                     })}

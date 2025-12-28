@@ -51,21 +51,26 @@ function ToolsPageContent() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const { balance, fetchWalletData } = useWalletStore()
-  const [selectedTool, setSelectedTool] = useState<string | null>(null)
-  const [isInitialized, setIsInitialized] = useState(false)
+  
+  // Initialize from URL params immediately
+  const toolParam = searchParams?.get('tool')
+  const initialTool = toolParam && tools.find(t => t.id === toolParam) ? toolParam : null
+  const [selectedTool, setSelectedTool] = useState<string | null>(initialTool)
+  const [isInitialized, setIsInitialized] = useState(true)
 
   // Fetch wallet data on mount to ensure balance is available
   useEffect(() => {
     fetchWalletData()
   }, [fetchWalletData])
 
-  // Get tool from URL params on mount
+  // Update tool when URL params change
   useEffect(() => {
     const toolParam = searchParams?.get('tool')
     if (toolParam && tools.find(t => t.id === toolParam)) {
       setSelectedTool(toolParam)
+    } else if (!toolParam) {
+      setSelectedTool(null)
     }
-    setIsInitialized(true)
   }, [searchParams])
   
   const [image, setImage] = useState<string>('')
@@ -472,76 +477,110 @@ function ToolsPageContent() {
   const selectedToolData = tools.find(t => t.id === selectedTool)
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6 pb-6">
+      {/* Header with Gradient Background */}
+      {!selectedTool && (
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-6 sm:p-8">
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.back()}
+                className="text-muted-foreground hover:text-foreground hover:bg-background/50"
+              >
+                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Back</span>
+              </Button>
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                AI Image Tools
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Transform your images with powerful AI-powered tools. Professional results in seconds.
+              </p>
+            </div>
+          </div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        </div>
+      )}
+
+      {/* Selected Tool Header */}
+      {selectedTool && (
         <div className="flex items-center gap-3 sm:gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
-              if (selectedTool) {
-                setSelectedTool(null)
-                router.push('/tools')
-              } else {
-                router.back()
-              }
+              setSelectedTool(null)
+              router.push('/tools')
             }}
             className="text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">Back</span>
           </Button>
-          <div>
-            {selectedTool ? (
-              <>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
-                  {selectedToolData && <selectedToolData.icon className="w-6 h-6 sm:w-8 sm:h-8" />}
-                  {selectedToolData?.name}
-                </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{selectedToolData?.description}</p>
-              </>
-            ) : (
-              <>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Quick AI Tools</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Process your images instantly with AI-powered tools</p>
-              </>
+          <div className="flex items-center gap-3">
+            {selectedToolData && (
+              <div className={cn(
+                "w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg",
+                selectedToolData.color
+              )}>
+                <selectedToolData.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
             )}
+            <div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+                {selectedToolData?.name}
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{selectedToolData?.description}</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Tool Selection - Only show when no tool is selected and initialized */}
+      {/* Tool Selection - Professional Cards */}
       {!selectedTool && isInitialized && (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {tools.map((tool) => {
             const Icon = tool.icon
             return (
               <Card
                 key={tool.id}
-                className="cursor-pointer hover:border-primary/50 transition-all bg-card border-border"
-                onClick={() => setSelectedTool(tool.id)}
+                className="group cursor-pointer hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 bg-card border-border hover:border-primary/30 overflow-hidden relative"
+                onClick={() => {
+                  setSelectedTool(tool.id)
+                  router.push(`/tools?tool=${tool.id}`)
+                }}
               >
-                <CardContent className="p-4 sm:p-6 flex flex-col items-center gap-3 sm:gap-4">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-primary/3 group-hover:to-primary/0 transition-all duration-300" />
+                <CardContent className="p-5 sm:p-6 flex flex-col items-center gap-4 relative z-10">
                   <div className={cn(
-                    "w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br flex items-center justify-center shadow-lg",
+                    "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300",
                     tool.color
                   )}>
-                    <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                    <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
-                  <div className="text-center w-full">
-                    <h3 className="text-sm sm:text-base font-semibold text-foreground mb-1">{tool.name}</h3>
-                    <p className="text-xs text-muted-foreground mb-2">{tool.description}</p>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                  <div className="text-center w-full space-y-2">
+                    <h3 className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                      {tool.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      {tool.description}
+                    </p>
+                    <div className="pt-2">
                       {tool.cost === 0 ? (
-                        <>
-                          <Sparkles className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-semibold">
+                          <Sparkles className="h-3.5 w-3.5" />
                           FREE
-                        </>
+                        </span>
                       ) : (
-                        `${tool.cost} pts`
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                          💎 {tool.cost} pts
+                        </span>
                       )}
-                    </span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

@@ -210,7 +210,7 @@ export function PopupManager() {
         onClick={handleClose}
       >
         <div 
-          className="bg-white rounded-t-2xl p-4 sm:p-5 md:p-6 w-[90%] sm:w-[60%] max-w-lg mx-auto animate-in slide-in-from-bottom duration-300 max-h-[60vh] sm:max-h-[60vh] overflow-y-auto shadow-2xl relative"
+          className="bg-white rounded-t-2xl p-4 sm:p-5 md:p-6 w-[95%] sm:w-[85%] md:w-[75%] lg:w-[65%] max-w-lg mx-auto animate-in slide-in-from-bottom duration-300 max-h-[75vh] sm:max-h-[70vh] md:max-h-[65vh] overflow-y-auto shadow-2xl relative"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Drag Handle */}
@@ -379,7 +379,7 @@ export function PopupManager() {
         onClick={handleClose}
       >
         <div 
-          className="bg-white rounded-xl sm:rounded-2xl w-[90%] sm:w-[60%] max-w-sm sm:max-w-2xl mx-2 sm:mx-4 max-h-[60vh] sm:max-h-[60vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
+          className="bg-white rounded-xl sm:rounded-2xl w-[90%] sm:w-[85%] md:w-[70%] lg:w-[60%] max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl mx-2 sm:mx-4 max-h-[75vh] sm:max-h-[70vh] md:max-h-[65vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
           onClick={(e) => e.stopPropagation()}
         >
           <button 
@@ -542,7 +542,7 @@ export function PopupManager() {
       onClick={handleClose}
     >
       <div 
-        className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl w-[90%] sm:w-[60%] md:w-[60%] lg:w-[60%] max-w-lg md:max-w-2xl lg:max-w-4xl max-h-[60vh] sm:max-h-[60vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
+        className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl w-[90%] sm:w-[85%] md:w-[75%] lg:w-[65%] max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl max-h-[75vh] sm:max-h-[70vh] md:max-h-[65vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
       >
         <button 

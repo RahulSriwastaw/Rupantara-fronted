@@ -66,6 +66,7 @@ export default function ToolsPage() {
   const [error, setError] = useState<string | null>(null)
   const [points, setPoints] = useState<number | null>(null)
   const [backgroundColor, setBackgroundColor] = useState<string>('#FFFFFF') // For BG Remove background color change
+  const [originalResultUrl, setOriginalResultUrl] = useState<string>('') // Store original processed image
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -167,9 +168,6 @@ export default function ToolsPage() {
     setBackgroundColor('#FFFFFF')
     setSelectedTool(null)
   }
-
-  // Store original processed image URL (before background color change)
-  const [originalResultUrl, setOriginalResultUrl] = useState<string>('')
 
   // Apply background color to transparent PNG (for BG Remove)
   const applyBackgroundColor = async (imageUrl: string, color: string): Promise<string> => {

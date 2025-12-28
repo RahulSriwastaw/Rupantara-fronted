@@ -516,8 +516,8 @@ export function PopupManager() {
 
   // Default: center_modal or full_screen - Split Layout Design
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-4">
-      <div className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl max-w-5xl w-full max-h-[95vh] sm:max-h-[90vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-1 sm:p-2 md:p-4">
+      <div className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl max-w-5xl w-full max-h-[98vh] sm:max-h-[95vh] md:max-h-[90vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}>
         <button 
           onClick={handleClose} 
           className="absolute top-3 right-3 sm:top-5 sm:right-5 z-10 bg-white/90 hover:bg-white rounded-full p-2 sm:p-2.5 transition-colors shadow-lg border border-gray-200"

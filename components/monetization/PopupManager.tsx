@@ -83,6 +83,7 @@ export function PopupManager() {
   const router = useRouter();
 
   // Prevent body scroll when popup is open
+  // Prevent body scroll when popup is open
   useEffect(() => {
     if (show) {
       document.body.style.overflow = 'hidden';
@@ -99,6 +100,24 @@ export function PopupManager() {
       document.body.style.width = '';
     };
   }, [show]);
+
+  // ESC key to close modal
+  useEffect(() => {
+    const handleEsc = async (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && show && popup) {
+        if (popup) {
+          await monetizationApi.trackPopupClose(popup._id);
+        }
+        setShow(false);
+      }
+    };
+    if (show) {
+      document.addEventListener('keydown', handleEsc);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [show, popup]);
 
   useEffect(() => {
     const fetchPopup = async () => {
@@ -193,7 +212,7 @@ export function PopupManager() {
           <X className="h-5 w-5 sm:h-4 sm:w-4 text-gray-600" />
         </button>
         {popup.image && (
-          <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                 <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -201,17 +220,18 @@ export function PopupManager() {
             )}
             <img
               src={popup.image}
-              alt={popup.title}
-              className={`w-full h-full object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              alt={popup.title || 'Promotional image'}
+              className={`max-w-full max-h-full transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               style={{ 
-                objectFit: 'cover',
+                objectFit: 'contain',
                 objectPosition: 'center',
                 width: '100%',
-                height: '100%'
+                height: '100%',
+                display: 'block'
               }}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
-              loading="eager"
+              loading="lazy"
               decoding="async"
             />
           </div>
@@ -263,7 +283,7 @@ export function PopupManager() {
           </button>
           
           {popup.image && (
-            <div className="relative w-full h-[180px] sm:h-[220px] md:h-[280px] lg:h-[320px] rounded-xl overflow-hidden mb-5 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-5 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
               {!imageLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                   <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -271,10 +291,10 @@ export function PopupManager() {
               )}
               <img
                 src={popup.image}
-                alt={popup.title}
-                className={`w-full h-full object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                alt={popup.title || 'Promotional image'}
+                className={`max-w-full max-h-full transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 style={{ 
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   objectPosition: 'center',
                   width: '100%',
                   height: '100%',
@@ -282,7 +302,7 @@ export function PopupManager() {
                 }}
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(true)}
-                loading="eager"
+                loading="lazy"
                 decoding="async"
               />
             </div>
@@ -442,7 +462,7 @@ export function PopupManager() {
           </button>
           
           {popup.image && (
-            <div className="relative w-full h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+            <div className="relative w-full aspect-square flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden p-4 sm:p-6">
               {!imageLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                   <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -450,10 +470,10 @@ export function PopupManager() {
               )}
               <img
                 src={popup.image}
-                alt={popup.title}
-                className={`w-full h-full object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                alt={popup.title || 'Promotional image'}
+                className={`max-w-full max-h-full transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 style={{ 
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   objectPosition: 'center',
                   width: '100%',
                   height: '100%',
@@ -461,7 +481,7 @@ export function PopupManager() {
                 }}
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(true)}
-                loading="eager"
+                loading="lazy"
                 decoding="async"
               />
             </div>
@@ -593,18 +613,22 @@ export function PopupManager() {
     );
   }
 
-  // Default: center_modal or full_screen - Split Layout Design
+  // Default: center_modal or full_screen - Premium Responsive Design
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-3 md:p-4"
       onClick={handleClose}
-      style={{ touchAction: 'none', WebkitOverflowScrolling: 'touch' }}
+      style={{ touchAction: 'none' }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="popup-title"
     >
       <div 
-        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl w-[95%] sm:w-[88%] md:w-[78%] lg:w-[68%] xl:w-[58%] max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl max-h-[85vh] sm:max-h-[80vh] md:max-h-[75vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
+        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl max-h-[90vh]'} relative overflow-hidden flex flex-col lg:flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          maxWidth: '95vw',
+          width: popup.popupType === 'full_screen' ? '100%' : 'clamp(95vw, 80vw, 900px)',
+          maxWidth: popup.popupType === 'full_screen' ? '100%' : '900px',
           touchAction: 'pan-y',
           WebkitOverflowScrolling: 'touch'
         }}
@@ -622,15 +646,14 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[200px] sm:h-[240px] md:h-[300px] lg:h-auto sm:min-h-[240px] md:min-h-[300px] lg:min-h-[400px]'} overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-5 lg:p-6`}
-              style={{ 
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[45%] h-[40vh] lg:h-full' : 'w-full lg:w-[45%] h-[40vh] lg:h-auto lg:min-h-[500px]'} overflow-hidden flex flex-col items-center justify-center p-4 sm:p-5 md:p-6 lg:p-8 flex-shrink-0`}
+            style={{ 
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
               backgroundSize: popup.templateData.leftImageUrl ? 'cover' : 'auto',
               backgroundPosition: 'center center',
               backgroundRepeat: 'no-repeat',
               backgroundAttachment: 'scroll',
-              minHeight: '200px',
               position: 'relative'
             }}
           >
@@ -703,33 +726,40 @@ export function PopupManager() {
             </div>
           </div>
         ) : ((popup.image) && (
-          <div className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[200px] sm:h-[240px] md:h-[300px] lg:h-auto sm:min-h-[240px] md:min-h-[300px] lg:min-h-[400px]'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center`}>
+          <div 
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[45%] h-[40vh] lg:h-full' : 'w-full lg:w-[45%] h-[40vh] lg:h-auto lg:min-h-[500px]'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center flex-shrink-0`}
+            style={{
+              aspectRatio: '1 / 1'
+            }}
+          >
             {!imageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center z-10 bg-gray-100">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
             )}
-            <img
-              src={popup.image}
-              alt={popup.title}
-              className={`w-full h-full object-cover object-center transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              style={{ 
-                objectFit: 'cover',
-                objectPosition: 'center',
-                width: '100%',
-                height: '100%',
-                display: 'block'
-              }}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageLoaded(true)}
-              loading="eager"
-              decoding="async"
-            />
+            <div className="w-full h-full flex items-center justify-center p-4">
+              <img
+                src={popup.image}
+                alt={popup.title || 'Promotional image'}
+                className={`max-w-full max-h-full transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                style={{ 
+                  objectFit: 'contain',
+                  objectPosition: 'center',
+                  width: '100%',
+                  height: '100%',
+                  display: 'block'
+                }}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(true)}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
           </div>
         ))}
         
         {/* Content Section - Bottom on Mobile, Right on Desktop */}
-        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-4 sm:p-5 md:p-6 lg:p-7'} overflow-y-auto bg-white`}>
+        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-4 sm:p-5 md:p-6 lg:p-8'} overflow-y-auto bg-white relative min-h-0`}>
           {/* Brand Text */}
           {popup.textContent?.showBrandText && popup.textContent.brandText && (
             <div className="text-xs sm:text-sm font-semibold text-gray-500 mb-2">
@@ -774,21 +804,40 @@ export function PopupManager() {
 
               {/* Main Heading */}
               {popup.templateData.mainHeading && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1 text-red-600 leading-tight uppercase break-words`}>
+                <h2 
+                  id="popup-title"
+                  className="font-bold mb-2 text-red-600 leading-tight uppercase break-words"
+                  style={{
+                    fontSize: 'clamp(18px, 4vw, 32px)',
+                    lineHeight: '1.4'
+                  }}
+                >
                   {popup.templateData.mainHeading}
                 </h2>
               )}
 
               {/* Sub Heading */}
               {popup.templateData.subHeading && (
-                <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg sm:text-xl md:text-2xl lg:text-3xl'} font-bold mb-1.5 sm:mb-2 text-gray-900 uppercase leading-tight break-words`}>
+                <p 
+                  className="font-bold mb-2 sm:mb-3 text-gray-900 uppercase leading-tight break-words"
+                  style={{
+                    fontSize: 'clamp(16px, 3.5vw, 28px)',
+                    lineHeight: '1.4'
+                  }}
+                >
                   {popup.templateData.subHeading}
                 </p>
               )}
 
               {/* Description */}
               {popup.templateData.description && (
-                <p className={`text-gray-600 mb-3 sm:mb-4 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'} break-words`}>
+                <p 
+                  className="text-gray-600 mb-3 sm:mb-4 break-words"
+                  style={{
+                    fontSize: 'clamp(14px, 2vw, 18px)',
+                    lineHeight: '1.5'
+                  }}
+                >
                   {popup.templateData.description}
                 </p>
               )}
@@ -870,35 +919,67 @@ export function PopupManager() {
 
               {/* Main Title */}
               {popup.textContent?.mainTitle && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1.5 sm:mb-2 md:mb-3 text-gray-900 leading-tight break-words`}>
+                <h2 
+                  id="popup-title"
+                  className="font-bold mb-2 sm:mb-3 text-gray-900 break-words"
+                  style={{
+                    fontSize: 'clamp(20px, 4vw, 36px)',
+                    lineHeight: '1.4'
+                  }}
+                >
                   {popup.textContent.mainTitle}
                 </h2>
               )}
 
               {/* Fallback to legacy title if textContent.mainTitle not available */}
               {!popup.textContent?.mainTitle && popup.title && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1.5 sm:mb-2 md:mb-3 text-gray-900 leading-tight break-words`}>
+                <h2 
+                  id="popup-title"
+                  className="font-bold mb-2 sm:mb-3 text-gray-900 break-words"
+                  style={{
+                    fontSize: 'clamp(20px, 4vw, 36px)',
+                    lineHeight: '1.4'
+                  }}
+                >
                   {popup.title}
                 </h2>
               )}
 
               {/* Sub Title */}
               {popup.textContent?.subTitle && (
-                <p className={`${popup.popupType === 'full_screen' ? 'text-lg sm:text-xl md:text-2xl' : 'text-base sm:text-lg md:text-xl'} font-bold mb-1.5 sm:mb-2 text-gray-800 leading-tight break-words`}>
+                <p 
+                  className="font-bold mb-2 sm:mb-3 text-gray-800 break-words"
+                  style={{
+                    fontSize: 'clamp(16px, 3vw, 24px)',
+                    lineHeight: '1.4'
+                  }}
+                >
                   {popup.textContent.subTitle}
                 </p>
               )}
 
               {/* Description */}
               {popup.textContent?.description && (
-                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'} break-words`}>
+                <p 
+                  className="text-gray-600 mb-3 sm:mb-4 md:mb-6 break-words"
+                  style={{
+                    fontSize: 'clamp(14px, 2vw, 18px)',
+                    lineHeight: '1.5'
+                  }}
+                >
                   {popup.textContent.description}
                 </p>
               )}
 
               {/* Fallback to legacy description */}
               {!popup.textContent?.description && popup.description && (
-                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'} break-words`}>
+                <p 
+                  className="text-gray-600 mb-3 sm:mb-4 md:mb-6 break-words"
+                  style={{
+                    fontSize: 'clamp(14px, 2vw, 18px)',
+                    lineHeight: '1.5'
+                  }}
+                >
                   {popup.description}
                 </p>
               )}
@@ -961,15 +1042,22 @@ export function PopupManager() {
             </svg>
           </div>
 
-          {/* CTA Button */}
-          <button
-            onClick={handleCTAClick}
-            className={`w-full bg-red-600 text-white ${popup.popupType === 'full_screen' ? 'py-2.5 sm:py-3 md:py-4 text-sm sm:text-base md:text-lg' : 'py-2.5 sm:py-3 md:py-3.5 text-xs sm:text-sm md:text-base'} rounded-lg font-bold hover:bg-red-700 active:bg-red-800 active:scale-[0.98] transition-all duration-200 shadow-md`}
-          >
-            {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.ctaText
-              ? popup.templateData.ctaText
-              : (popup.textContent?.ctaText || popup.ctaText)}
-          </button>
+          {/* CTA Button - Sticky on Mobile */}
+          <div className="sticky bottom-0 left-0 right-0 bg-white pt-4 pb-2 lg:pb-0 lg:pt-0 lg:static mt-auto">
+            <button
+              onClick={handleCTAClick}
+              className="w-full bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 active:bg-red-800 active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl"
+              style={{
+                minHeight: '48px',
+                fontSize: 'clamp(16px, 2.5vw, 18px)',
+                padding: '12px 24px'
+              }}
+            >
+              {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.ctaText
+                ? popup.templateData.ctaText
+                : (popup.textContent?.ctaText || popup.ctaText)}
+            </button>
+          </div>
 
           {/* CTA Subtext */}
           {popup.textContent?.ctaSubText && (

@@ -89,7 +89,7 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
           
           // Deduct points if cost > 0
           if (selectedToolData && selectedToolData.cost > 0) {
-            deductPoints(selectedToolData.cost, 'generation', `Tool used: ${selectedToolData.name}`);
+            deductPoints(selectedToolData.cost, 'tool_use', `Tool used: ${selectedToolData.name}`);
           }
           
           toast({

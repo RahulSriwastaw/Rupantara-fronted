@@ -59,7 +59,7 @@ export function MainLayout({
       {/* Sidebar Navigation - Desktop Only */}
       {showBottomNav && <SidebarNav />}
 
-      <div className="flex flex-col flex-1 min-h-screen md:ml-24">
+      <div className="flex flex-col flex-1 min-h-screen md:ml-28">
         {showTopHeader && <TopHeader />}
 
         <main id="main-content" className="flex-1 pb-16 sm:pb-20 md:pb-0 px-2 sm:px-3 md:px-4 lg:px-6">

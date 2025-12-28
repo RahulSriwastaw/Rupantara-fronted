@@ -14,6 +14,7 @@ interface Popup {
   ctaUrl?: string;
   popupType: string;
   templateId?: string;
+  promoCode?: string; // Promo code to auto-apply when user clicks CTA
   templateData?: {
     leftImageUrl?: string;
     leftOverlayText?: string;
@@ -100,20 +101,31 @@ export function PopupManager() {
     if (popup) {
       await monetizationApi.trackPopupClick(popup._id);
       
+      // Get promo code from popup (prioritize templateData promo code if exists)
+      const promoCode = popup.promoCode || popup.templateData?.promoCode;
+      
+      // Build URL with promo code if available and action is apply_offer
+      const buildProUrl = (action: string) => {
+        if (action === 'apply_offer' && promoCode) {
+          return `/pro?promoCode=${encodeURIComponent(promoCode)}`;
+        }
+        return '/pro';
+      };
+      
       if (popup.ctaAction === 'buy_plan' || popup.ctaAction === 'buy_pack') {
-        router.push('/pro');
+        router.push(buildProUrl(popup.ctaAction));
       } else if (popup.ctaAction === 'open_payment') {
-        router.push('/pro');
+        router.push(buildProUrl(popup.ctaAction));
       } else if (popup.ctaAction === 'apply_offer') {
-        router.push('/pro');
+        router.push(buildProUrl('apply_offer'));
       } else if (popup.ctaAction === 'redirect' && popup.ctaUrl) {
         window.location.href = popup.ctaUrl;
       } else if (popup.templateData?.ctaAction === 'buy_plan') {
-        router.push('/pro');
+        router.push(buildProUrl(popup.templateData.ctaAction));
       } else if (popup.templateData?.ctaAction === 'open_payment') {
-        router.push('/pro');
+        router.push(buildProUrl(popup.templateData.ctaAction));
       } else if (popup.templateData?.ctaAction === 'apply_offer') {
-        router.push('/pro');
+        router.push(buildProUrl('apply_offer'));
       } else if (popup.templateData?.ctaAction === 'redirect' && popup.templateData?.ctaUrl) {
         window.location.href = popup.templateData.ctaUrl;
       }
@@ -584,14 +596,30 @@ export function PopupManager() {
                   {popup.templateData.features
                     .filter((f: any) => f.isEnabled && f.text)
                     .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-                    .map((feature: any, idx: number) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="flex-1 min-w-0">{feature.text}</span>
-                      </div>
-                    ))}
+                    .map((feature: any, idx: number) => {
+                      const getBadgeClass = (badgeType: string) => {
+                        const badges: Record<string, string> = {
+                          unlimited: 'bg-green-500 text-white',
+                          pro: 'bg-blue-500 text-white',
+                          included: 'bg-purple-500 text-white'
+                        };
+                        return badges[badgeType] || '';
+                      };
+                      
+                      return (
+                        <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="flex-1 min-w-0">{feature.text}</span>
+                          {feature.badgeType && (
+                            <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getBadgeClass(feature.badgeType)}`}>
+                              {feature.badgeType === 'unlimited' ? 'Unlimited' : feature.badgeType === 'pro' ? 'Pro' : feature.badgeType === 'included' ? 'Included' : feature.badgeType}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </>

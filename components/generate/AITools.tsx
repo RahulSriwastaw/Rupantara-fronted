@@ -17,6 +17,12 @@ import { useToast } from "@/hooks/use-toast";
 import { toolsApi } from "@/services/api";
 import { useWalletStore } from "@/store/walletStore";
 
+interface AIToolsProps {
+  hasPhotos: boolean;
+  photos: string[]; // Current uploaded photos
+  onToolApply: (tool: string, resultUrl?: string) => void;
+}
+
 const tools = [
   {
     id: "bg-remove",

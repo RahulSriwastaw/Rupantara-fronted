@@ -164,9 +164,8 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
               <button
                 key={tool.id}
                 onClick={() => handleToolClick(tool.id)}
-                disabled={!hasPhotos}
                 className={cn(
-                  "flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3.5 rounded-xl border-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden",
+                  "flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3.5 rounded-xl border-2 transition-all duration-200 group relative overflow-hidden cursor-pointer",
                   isBgRemove
                     ? "bg-gradient-to-br from-blue-500/20 via-blue-400/15 to-blue-600/20 border-blue-400/50 hover:border-blue-400 hover:bg-blue-500/30 hover:shadow-lg hover:shadow-blue-500/20 active:scale-95"
                     : "border-border/60 bg-card/80 hover:bg-accent hover:border-primary/50 hover:shadow-md active:scale-95"
@@ -181,8 +180,7 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
                   "rounded-full p-2 sm:p-2.5 transition-all duration-200 relative z-10",
                   isBgRemove
                     ? "bg-blue-500/20 group-hover:bg-blue-500/30 group-hover:scale-110"
-                    : "bg-primary/10 group-hover:bg-primary/20",
-                  !hasPhotos && "opacity-50"
+                    : "bg-primary/10 group-hover:bg-primary/20"
                 )}>
                   <Icon className={cn(
                     isBgRemove ? "text-blue-400 group-hover:text-blue-300" : "text-primary",

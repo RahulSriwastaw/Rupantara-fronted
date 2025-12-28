@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { toolsApi } from "@/services/api"
 import { useWalletStore } from "@/store/walletStore"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
@@ -18,7 +19,7 @@ const tools = [
     icon: Scissors,
     cost: 0,
     description: "Remove background instantly",
-    color: "bg-red-500"
+    color: "from-red-500 to-red-600"
   },
   {
     id: "upscale",
@@ -26,7 +27,7 @@ const tools = [
     icon: Maximize2,
     cost: 10,
     description: "Increase resolution",
-    color: "bg-blue-500"
+    color: "from-blue-500 to-blue-600"
   },
   {
     id: "face-enhance",
@@ -34,7 +35,7 @@ const tools = [
     icon: Smile,
     cost: 10,
     description: "Enhance facial features",
-    color: "bg-purple-500"
+    color: "from-purple-500 to-purple-600"
   },
   {
     id: "colorize",
@@ -42,7 +43,7 @@ const tools = [
     icon: Palette,
     cost: 10,
     description: "B&W to color",
-    color: "bg-yellow-500"
+    color: "from-yellow-500 to-yellow-600"
   }
 ]
 
@@ -60,18 +61,19 @@ function ToolsPageContent() {
       setSelectedTool(toolParam)
     }
   }, [searchParams])
+  
   const [image, setImage] = useState<string>('')
   const [resultUrl, setResultUrl] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [points, setPoints] = useState<number | null>(null)
-  const [backgroundColor, setBackgroundColor] = useState<string>('#FFFFFF') // For BG Remove background color change
-  const [originalResultUrl, setOriginalResultUrl] = useState<string>('') // Store original processed image
-  const [activeTab, setActiveTab] = useState<'magic' | 'photo' | 'color'>('color') // Background selection tabs
-  const [backgroundImages, setBackgroundImages] = useState<string[]>([]) // For Photo tab backgrounds
-  const [selectedBackgroundImage, setSelectedBackgroundImage] = useState<string | null>(null) // Selected background image
-  const [searchQuery, setSearchQuery] = useState<string>('') // For background search
-  const [customBackground, setCustomBackground] = useState<string>('') // Custom uploaded background
+  const [backgroundColor, setBackgroundColor] = useState<string>('#FFFFFF')
+  const [originalResultUrl, setOriginalResultUrl] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<'magic' | 'photo' | 'color'>('color')
+  const [backgroundImages, setBackgroundImages] = useState<string[]>([])
+  const [selectedBackgroundImage, setSelectedBackgroundImage] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [customBackground, setCustomBackground] = useState<string>('')
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -134,7 +136,7 @@ function ToolsPageContent() {
       const data = await res.json()
       const processedUrl = data.result || data.imageUrl
       setResultUrl(processedUrl)
-      setOriginalResultUrl(processedUrl) // Store original for background color changes
+      setOriginalResultUrl(processedUrl)
       setPoints(data.points)
       
       toast({
@@ -174,7 +176,6 @@ function ToolsPageContent() {
     setSelectedTool(null)
   }
 
-  // Apply background color to transparent PNG (for BG Remove)
   const applyBackgroundColor = async (imageUrl: string, color: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image()
@@ -185,10 +186,8 @@ function ToolsPageContent() {
         canvas.height = img.height
         const ctx = canvas.getContext('2d')
         if (ctx) {
-          // Fill with background color
           ctx.fillStyle = color
           ctx.fillRect(0, 0, canvas.width, canvas.height)
-          // Draw image on top (transparent PNG will show background color)
           ctx.drawImage(img, 0, 0)
           resolve(canvas.toDataURL('image/png'))
         } else {
@@ -209,7 +208,6 @@ function ToolsPageContent() {
     setResultUrl(newImageUrl)
   }
 
-  // Apply background image to transparent PNG
   const applyBackgroundImage = async (foregroundUrl: string, backgroundUrl: string): Promise<string> => {
     return new Promise((resolve) => {
       const foregroundImg = new Image()
@@ -229,7 +227,6 @@ function ToolsPageContent() {
         const ctx = canvas.getContext('2d')
         
         if (ctx) {
-          // Draw background image (scaled to cover)
           const bgAspect = backgroundImg.width / backgroundImg.height
           const canvasAspect = canvas.width / canvas.height
           
@@ -243,7 +240,6 @@ function ToolsPageContent() {
             ctx.drawImage(backgroundImg, 0, (canvas.height - bgHeight) / 2, bgWidth, bgHeight)
           }
           
-          // Draw foreground (transparent PNG) centered
           const fgX = (canvas.width - foregroundImg.width) / 2
           const fgY = (canvas.height - foregroundImg.height) / 2
           ctx.drawImage(foregroundImg, fgX, fgY)
@@ -305,7 +301,6 @@ function ToolsPageContent() {
     reader.readAsDataURL(file)
   }
 
-  // Fetch background images from Unsplash
   const fetchBackgroundImages = async (query: string = 'background') => {
     try {
       const UNSPLASH_ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || ''
@@ -348,90 +343,440 @@ function ToolsPageContent() {
   const selectedToolData = tools.find(t => t.id === selectedTool)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex items-center gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Button
             variant="ghost"
+            size="sm"
             onClick={() => router.back()}
-            className="text-white hover:bg-gray-800"
+            className="text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Back</span>
           </Button>
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Quick AI Tools</h1>
-            <p className="text-gray-400">Process your images instantly with AI-powered tools</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Quick AI Tools</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Process your images instantly with AI-powered tools</p>
           </div>
         </div>
+      </div>
 
-        {/* Tool Selection */}
-        {!selectedTool && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {tools.map((tool) => {
-              const Icon = tool.icon
-              return (
-                <Card
-                  key={tool.id}
-                  className="cursor-pointer hover:border-indigo-500 transition-all bg-gray-800/50 border-gray-700"
-                  onClick={() => setSelectedTool(tool.id)}
+      {/* Tool Selection */}
+      {!selectedTool && (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          {tools.map((tool) => {
+            const Icon = tool.icon
+            return (
+              <Card
+                key={tool.id}
+                className="cursor-pointer hover:border-primary/50 transition-all bg-card border-border"
+                onClick={() => setSelectedTool(tool.id)}
+              >
+                <CardContent className="p-4 sm:p-6 flex flex-col items-center gap-3 sm:gap-4">
+                  <div className={cn(
+                    "w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br flex items-center justify-center shadow-lg",
+                    tool.color
+                  )}>
+                    <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <div className="text-center w-full">
+                    <h3 className="text-sm sm:text-base font-semibold text-foreground mb-1">{tool.name}</h3>
+                    <p className="text-xs text-muted-foreground mb-2">{tool.description}</p>
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                      {tool.cost === 0 ? (
+                        <>
+                          <Sparkles className="h-3 w-3" />
+                          FREE
+                        </>
+                      ) : (
+                        `${tool.cost} pts`
+                      )}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Tool Interface */}
+      {selectedTool && (
+        <div className="space-y-4 sm:space-y-6">
+          {/* Upload Section */}
+          {!image && (
+            <Card className="bg-card border-border">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg sm:text-xl font-semibold text-foreground flex items-center gap-2">
+                    {selectedToolData && <selectedToolData.icon className="w-5 h-5" />}
+                    {selectedToolData?.name}
+                  </h2>
+                </div>
+                
+                <label className="flex flex-col items-center justify-center w-full h-48 sm:h-64 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary/50 transition-colors bg-muted/30">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="w-10 h-10 sm:w-12 sm:h-12 mb-4 text-muted-foreground" />
+                    <p className="mb-2 text-sm font-medium text-foreground">
+                      <span className="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG, WEBP (MAX. 10MB)</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={onFile}
+                    className="hidden"
+                  />
+                </label>
+
+                <Button
+                  onClick={runTool}
+                  disabled={!image || loading}
+                  className="w-full mt-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <CardContent className="p-6 flex flex-col items-center gap-4">
-                    <div className={`w-16 h-16 rounded-full ${tool.color} flex items-center justify-center`}>
-                      <Icon className="w-8 h-8 text-white" />
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Process Image {selectedToolData && selectedToolData.cost > 0 && `(${selectedToolData.cost} pts)`}
+                    </>
+                  )}
+                </Button>
+
+                {error && (
+                  <div className="mt-4 bg-destructive/10 border border-destructive/50 text-destructive px-4 py-3 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Main Interface - BG Remove */}
+          {(image || resultUrl) && selectedTool === 'remove-bg' && (
+            <div className="grid lg:grid-cols-[1fr_350px] gap-4 sm:gap-6">
+              {/* Left: Image Display */}
+              <Card className="bg-card border-border">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg sm:text-xl font-semibold text-foreground">Preview</h2>
+                    <div className="flex gap-2">
+                      {image && !resultUrl && (
+                        <Button
+                          onClick={runTool}
+                          disabled={loading}
+                          size="sm"
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                        >
+                          {loading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                              Processing...
+                            </>
+                          ) : (
+                            'Remove Background'
+                          )}
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleClear}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
-                    <div className="text-center">
-                      <h3 className="text-lg font-semibold text-white mb-1">{tool.name}</h3>
-                      <p className="text-sm text-gray-400 mb-2">{tool.description}</p>
-                      <span className="text-xs text-indigo-400">
-                        {tool.cost === 0 ? "FREE" : `${tool.cost} pts`}
-                      </span>
+                  </div>
+
+                  {/* Image Display with Checkerboard */}
+                  <div 
+                    className="w-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] rounded-lg overflow-hidden relative flex items-center justify-center bg-muted/30"
+                    style={{
+                      backgroundImage: `
+                        linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+                        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+                        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
+                      `,
+                      backgroundSize: '20px 20px',
+                      backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                    }}
+                  >
+                    {loading ? (
+                      <div className="flex flex-col items-center gap-4">
+                        <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 animate-spin text-primary" />
+                        <p className="text-sm text-muted-foreground">Removing background...</p>
+                      </div>
+                    ) : resultUrl ? (
+                      <img
+                        src={resultUrl}
+                        alt="Processed"
+                        className="max-w-full max-h-[500px] sm:max-h-[600px] object-contain"
+                      />
+                    ) : image ? (
+                      <img
+                        src={image}
+                        alt="Original"
+                        className="max-w-full max-h-[500px] sm:max-h-[600px] object-contain"
+                      />
+                    ) : null}
+                  </div>
+
+                  {resultUrl && (
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        onClick={handleDownload}
+                        className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download
+                      </Button>
+                    </div>
+                  )}
+
+                  {error && (
+                    <div className="mt-4 bg-destructive/10 border border-destructive/50 text-destructive px-4 py-3 rounded-lg text-sm">
+                      {error}
+                    </div>
+                  )}
+
+                  {points !== null && (
+                    <div className="mt-4 bg-green-500/10 border border-green-500/50 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg text-sm">
+                      Remaining Points: {points}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Right: Background Controls */}
+              {resultUrl && (
+                <Card className="bg-card border-border">
+                  <CardContent className="p-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">Change Background</h3>
+                    
+                    {/* Tabs */}
+                    <div className="flex gap-2 mb-4 border-b border-border">
+                      <button
+                        onClick={() => setActiveTab('magic')}
+                        className={cn(
+                          "px-3 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2",
+                          activeTab === 'magic'
+                            ? 'text-primary border-primary'
+                            : 'text-muted-foreground border-transparent hover:text-foreground'
+                        )}
+                      >
+                        <Wand2 className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
+                        Magic
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('photo')}
+                        className={cn(
+                          "px-3 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2",
+                          activeTab === 'photo'
+                            ? 'text-primary border-primary'
+                            : 'text-muted-foreground border-transparent hover:text-foreground'
+                        )}
+                      >
+                        <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
+                        Photo
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('color')}
+                        className={cn(
+                          "px-3 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2",
+                          activeTab === 'color'
+                            ? 'text-primary border-primary'
+                            : 'text-muted-foreground border-transparent hover:text-foreground'
+                        )}
+                      >
+                        <PaletteIcon className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
+                        Color
+                      </button>
+                    </div>
+
+                    {/* Tab Content */}
+                    <div className="max-h-[500px] overflow-y-auto">
+                      {/* Magic Tab */}
+                      {activeTab === 'magic' && (
+                        <div className="space-y-4">
+                          <p className="text-xs sm:text-sm text-muted-foreground">AI-powered background suggestions coming soon!</p>
+                        </div>
+                      )}
+
+                      {/* Photo Tab */}
+                      {activeTab === 'photo' && (
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <input
+                              type="text"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  fetchBackgroundImages(searchQuery)
+                                }
+                              }}
+                              placeholder="Search backgrounds..."
+                              className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground">Search 30+ million backgrounds</p>
+
+                          <label className="block w-full aspect-square rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 cursor-pointer bg-muted/30 flex items-center justify-center transition-colors">
+                            <div className="text-center">
+                              <Upload className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-muted-foreground" />
+                              <p className="text-xs text-muted-foreground">Upload</p>
+                            </div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleCustomBackgroundUpload}
+                              className="hidden"
+                            />
+                          </label>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            {backgroundImages.map((bgUrl, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => handleBackgroundImageSelect(bgUrl)}
+                                className={cn(
+                                  "aspect-square rounded-lg overflow-hidden border-2 transition-all",
+                                  selectedBackgroundImage === bgUrl
+                                    ? 'border-primary ring-2 ring-primary/50'
+                                    : 'border-border hover:border-primary/50'
+                                )}
+                              >
+                                <img
+                                  src={bgUrl}
+                                  alt={`Background ${idx + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Color Tab */}
+                      {activeTab === 'color' && (
+                        <div className="space-y-4">
+                          <button
+                            onClick={() => {
+                              setResultUrl(originalResultUrl)
+                              setBackgroundColor('#FFFFFF')
+                              setSelectedBackgroundImage(null)
+                              setCustomBackground('')
+                            }}
+                            className="w-full aspect-square rounded-lg border-2 border-border hover:border-primary bg-muted flex items-center justify-center transition-colors"
+                            style={{
+                              backgroundImage: `
+                                linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+                                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                                linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+                                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
+                              `,
+                              backgroundSize: '20px 20px',
+                              backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                            }}
+                          >
+                            <X className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground" />
+                          </button>
+
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              value={backgroundColor}
+                              onChange={(e) => handleBackgroundColorChange(e.target.value)}
+                              className="w-12 h-10 sm:w-16 sm:h-10 rounded border border-border cursor-pointer"
+                            />
+                            <input
+                              type="text"
+                              value={backgroundColor}
+                              onChange={(e) => handleBackgroundColorChange(e.target.value)}
+                              className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                              placeholder="#FFFFFF"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-8 gap-2">
+                            {[
+                              '#FFFFFF', '#000000', '#F0F0F0', '#808080',
+                              '#FF0000', '#00FF00', '#0000FF', '#FFFF00',
+                              '#FF00FF', '#00FFFF', '#FFA500', '#800080',
+                              '#FFC0CB', '#A52A2A', '#008000', '#000080',
+                              '#FFD700', '#C0C0C0', '#808000', '#800000',
+                              '#008080', '#0000FF', '#FF1493', '#00CED1',
+                              '#FF4500', '#32CD32', '#1E90FF', '#FF69B4',
+                              '#8B4513', '#2E8B57', '#4682B4', '#DDA0DD'
+                            ].map((color) => (
+                              <button
+                                key={color}
+                                onClick={() => handleBackgroundColorChange(color)}
+                                className={cn(
+                                  "aspect-square rounded border-2 transition-all",
+                                  backgroundColor === color
+                                    ? 'border-primary ring-2 ring-primary/50 scale-110'
+                                    : 'border-border hover:border-primary/50'
+                                )}
+                                style={{ backgroundColor: color }}
+                                title={color}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-              )
-            })}
-          </div>
-        )}
+              )}
+            </div>
+          )}
 
-        {/* Tool Interface */}
-        {selectedTool && (
-          <div className="space-y-6">
-            {/* Upload Section - Only show when no image uploaded */}
-            {!image && (
-              <Card className="bg-gray-800/50 border-gray-700">
-                <CardContent className="p-6">
+          {/* Other Tools Interface */}
+          {selectedTool !== 'remove-bg' && image && (
+            <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+              <Card className="bg-card border-border">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-semibold text-foreground flex items-center gap-2">
                       {selectedToolData && <selectedToolData.icon className="w-5 h-5" />}
                       {selectedToolData?.name}
                     </h2>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleClear}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
                   
-                  <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors bg-gray-900/50">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-12 h-12 mb-4 text-gray-400" />
-                      <p className="mb-2 text-sm text-gray-400">
-                        <span className="font-semibold">Click to upload</span> or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500">PNG, JPG, WEBP (MAX. 10MB)</p>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={onFile}
-                      className="hidden"
+                  <div className="relative">
+                    <img
+                      src={image}
+                      alt="Uploaded"
+                      className="w-full h-48 sm:h-64 object-contain rounded-lg bg-muted/30"
                     />
-                  </label>
+                  </div>
 
                   <Button
                     onClick={runTool}
                     disabled={!image || loading}
-                    className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-700 disabled:cursor-not-allowed"
+                    className="w-full mt-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
                         Processing...
                       </>
                     ) : (
@@ -442,403 +787,63 @@ function ToolsPageContent() {
                   </Button>
 
                   {error && (
-                    <div className="mt-4 bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
+                    <div className="mt-4 bg-destructive/10 border border-destructive/50 text-destructive px-4 py-3 rounded-lg text-sm">
                       {error}
                     </div>
                   )}
                 </CardContent>
               </Card>
-            )}
 
-            {/* Main Interface - Show when image is uploaded or processed */}
-            {(image || resultUrl) && selectedTool === 'remove-bg' && (
-              <div className="grid lg:grid-cols-[1fr_400px] gap-6">
-                {/* Left: Image Display */}
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-semibold text-white">Preview</h2>
-                      <div className="flex gap-2">
-                        {image && !resultUrl && (
-                          <Button
-                            onClick={runTool}
-                            disabled={loading}
-                            size="sm"
-                            className="bg-indigo-600 hover:bg-indigo-700"
-                          >
-                            {loading ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                Processing...
-                              </>
-                            ) : (
-                              'Remove Background'
-                            )}
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleClear}
-                          className="text-gray-400 hover:text-white"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
+              <Card className="bg-card border-border">
+                <CardContent className="p-4 sm:p-6">
+                  <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Download className="w-5 h-5" />
+                    Result
+                  </h2>
+
+                  {!resultUrl ? (
+                    <div className="flex flex-col items-center justify-center w-full h-48 sm:h-64 border-2 border-dashed border-muted-foreground/25 rounded-lg bg-muted/30">
+                      <ImageIcon className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mb-4" />
+                      <p className="text-sm text-muted-foreground">Processed image will appear here</p>
                     </div>
-
-                    {/* Image Display with Checkerboard Background */}
-                    <div 
-                      className="w-full min-h-[500px] rounded-xl overflow-hidden relative flex items-center justify-center"
-                      style={{
-                        backgroundImage: `
-                          linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
-                          linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
-                          linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
-                          linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
-                        `,
-                        backgroundSize: '20px 20px',
-                        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-                        backgroundColor: '#ffffff'
-                      }}
-                    >
-                      {loading ? (
-                        <div className="flex flex-col items-center gap-4">
-                          <Loader2 className="w-12 h-12 animate-spin text-indigo-500" />
-                          <p className="text-gray-400">Removing background...</p>
-                        </div>
-                      ) : resultUrl ? (
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="relative">
                         <img
                           src={resultUrl}
-                          alt="Processed"
-                          className="max-w-full max-h-[600px] object-contain"
+                          alt="Result"
+                          className="w-full h-48 sm:h-64 object-contain rounded-lg bg-muted/30"
                         />
-                      ) : image ? (
-                        <img
-                          src={image}
-                          alt="Original"
-                          className="max-w-full max-h-[600px] object-contain"
-                        />
-                      ) : null}
-                    </div>
-
-                    {resultUrl && (
-                      <div className="mt-4 flex gap-2">
-                        <Button
-                          onClick={handleDownload}
-                          className="flex-1 bg-green-600 hover:bg-green-700"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download
-                        </Button>
                       </div>
-                    )}
-
-                    {error && (
-                      <div className="mt-4 bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
-                        {error}
-                      </div>
-                    )}
-
-                    {points !== null && (
-                      <div className="mt-4 bg-green-500/10 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg text-sm">
-                        Remaining Points: {points}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Right: Background Controls */}
-                {resultUrl && (
-                  <Card className="bg-gray-800/50 border-gray-700">
-                    <CardContent className="p-4">
-                      <h3 className="text-lg font-semibold text-white mb-4">Change Background</h3>
-                      
-                      {/* Tabs */}
-                      <div className="flex gap-2 mb-4 border-b border-gray-700">
-                        <button
-                          onClick={() => setActiveTab('magic')}
-                          className={`px-4 py-2 text-sm font-medium transition-colors ${
-                            activeTab === 'magic'
-                              ? 'text-indigo-400 border-b-2 border-indigo-400'
-                              : 'text-gray-400 hover:text-gray-300'
-                          }`}
-                        >
-                          <Wand2 className="w-4 h-4 inline mr-1" />
-                          Magic
-                        </button>
-                        <button
-                          onClick={() => setActiveTab('photo')}
-                          className={`px-4 py-2 text-sm font-medium transition-colors ${
-                            activeTab === 'photo'
-                              ? 'text-indigo-400 border-b-2 border-indigo-400'
-                              : 'text-gray-400 hover:text-gray-300'
-                          }`}
-                        >
-                          <ImageIcon className="w-4 h-4 inline mr-1" />
-                          Photo
-                        </button>
-                        <button
-                          onClick={() => setActiveTab('color')}
-                          className={`px-4 py-2 text-sm font-medium transition-colors ${
-                            activeTab === 'color'
-                              ? 'text-indigo-400 border-b-2 border-indigo-400'
-                              : 'text-gray-400 hover:text-gray-300'
-                          }`}
-                        >
-                          <PaletteIcon className="w-4 h-4 inline mr-1" />
-                          Color
-                        </button>
-                      </div>
-
-                      {/* Tab Content */}
-                      <div className="max-h-[600px] overflow-y-auto">
-                        {/* Magic Tab */}
-                        {activeTab === 'magic' && (
-                          <div className="space-y-4">
-                            <p className="text-sm text-gray-400">AI-powered background suggestions coming soon!</p>
-                          </div>
-                        )}
-
-                        {/* Photo Tab */}
-                        {activeTab === 'photo' && (
-                          <div className="space-y-4">
-                            {/* Search Bar */}
-                            <div className="relative">
-                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyPress={(e) => {
-                                  if (e.key === 'Enter') {
-                                    fetchBackgroundImages(searchQuery)
-                                  }
-                                }}
-                                placeholder="Search backgrounds..."
-                                className="w-full bg-gray-900 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
-                              />
-                            </div>
-                            <p className="text-xs text-gray-500">Search 30+ million backgrounds</p>
-
-                            {/* Upload Custom Background */}
-                            <label className="block w-full aspect-square rounded-lg border-2 border-dashed border-gray-600 hover:border-indigo-500 cursor-pointer bg-gray-900/50 flex items-center justify-center transition-colors">
-                              <div className="text-center">
-                                <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                                <p className="text-xs text-gray-400">Upload</p>
-                              </div>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleCustomBackgroundUpload}
-                                className="hidden"
-                              />
-                            </label>
-
-                            {/* Background Images Grid */}
-                            <div className="grid grid-cols-2 gap-2">
-                              {backgroundImages.map((bgUrl, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => handleBackgroundImageSelect(bgUrl)}
-                                  className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                                    selectedBackgroundImage === bgUrl
-                                      ? 'border-indigo-500 ring-2 ring-indigo-500/50'
-                                      : 'border-gray-700 hover:border-gray-600'
-                                  }`}
-                                >
-                                  <img
-                                    src={bgUrl}
-                                    alt={`Background ${idx + 1}`}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Color Tab */}
-                        {activeTab === 'color' && (
-                          <div className="space-y-4">
-                            {/* Transparent Option */}
-                            <button
-                              onClick={() => {
-                                setResultUrl(originalResultUrl)
-                                setBackgroundColor('#FFFFFF')
-                                setSelectedBackgroundImage(null)
-                                setCustomBackground('')
-                              }}
-                              className="w-full aspect-square rounded-lg border-2 border-gray-700 hover:border-indigo-500 bg-gray-900 flex items-center justify-center transition-colors"
-                              style={{
-                                backgroundImage: `
-                                  linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
-                                  linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
-                                  linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
-                                  linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
-                                `,
-                                backgroundSize: '20px 20px',
-                                backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-                              }}
-                            >
-                              <X className="w-6 h-6 text-gray-400" />
-                            </button>
-
-                            {/* Color Picker */}
-                            <div className="flex gap-2">
-                              <input
-                                type="color"
-                                value={backgroundColor}
-                                onChange={(e) => handleBackgroundColorChange(e.target.value)}
-                                className="w-16 h-10 rounded border border-gray-600 cursor-pointer"
-                              />
-                              <input
-                                type="text"
-                                value={backgroundColor}
-                                onChange={(e) => handleBackgroundColorChange(e.target.value)}
-                                className="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
-                                placeholder="#FFFFFF"
-                              />
-                            </div>
-
-                            {/* Preset Colors */}
-                            <div className="grid grid-cols-8 gap-2">
-                              {[
-                                '#FFFFFF', '#000000', '#F0F0F0', '#808080',
-                                '#FF0000', '#00FF00', '#0000FF', '#FFFF00',
-                                '#FF00FF', '#00FFFF', '#FFA500', '#800080',
-                                '#FFC0CB', '#A52A2A', '#008000', '#000080',
-                                '#FFD700', '#C0C0C0', '#808000', '#800000',
-                                '#008080', '#0000FF', '#FF1493', '#00CED1',
-                                '#FF4500', '#32CD32', '#1E90FF', '#FF69B4',
-                                '#8B4513', '#2E8B57', '#4682B4', '#DDA0DD'
-                              ].map((color) => (
-                                <button
-                                  key={color}
-                                  onClick={() => handleBackgroundColorChange(color)}
-                                  className={`aspect-square rounded border-2 transition-all ${
-                                    backgroundColor === color
-                                      ? 'border-indigo-500 ring-2 ring-indigo-500/50 scale-110'
-                                      : 'border-gray-700 hover:border-gray-600'
-                                  }`}
-                                  style={{ backgroundColor: color }}
-                                  title={color}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-
-            {/* Other Tools Interface (Non-BG Remove) */}
-            {selectedTool !== 'remove-bg' && image && (
-              <div className="grid lg:grid-cols-2 gap-6">
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                        {selectedToolData && <selectedToolData.icon className="w-5 h-5" />}
-                        {selectedToolData?.name}
-                      </h2>
                       <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleClear}
-                        className="text-gray-400 hover:text-white"
+                        onClick={handleDownload}
+                        className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
                       >
-                        <X className="w-4 h-4" />
+                        <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        Download Image
                       </Button>
                     </div>
-                    
-                    <div className="relative">
-                      <img
-                        src={image}
-                        alt="Uploaded"
-                        className="w-full h-64 object-contain rounded-xl bg-gray-900"
-                      />
-                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      )}
 
-                    <Button
-                      onClick={runTool}
-                      disabled={!image || loading}
-                      className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-700 disabled:cursor-not-allowed"
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          Process Image {selectedToolData && selectedToolData.cost > 0 && `(${selectedToolData.cost} pts)`}
-                        </>
-                      )}
-                    </Button>
-
-                    {error && (
-                      <div className="mt-4 bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
-                        {error}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardContent className="p-6">
-                    <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                      <Download className="w-5 h-5" />
-                      Result
-                    </h2>
-
-                    {!resultUrl ? (
-                      <div className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-600 rounded-xl bg-gray-900/50">
-                        <ImageIcon className="w-16 h-16 text-gray-600 mb-4" />
-                        <p className="text-gray-500">Processed image will appear here</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="relative">
-                          <img
-                            src={resultUrl}
-                            alt="Result"
-                            className="w-full h-64 object-contain rounded-xl bg-gray-900"
-                          />
-                        </div>
-                        <Button
-                          onClick={handleDownload}
-                          className="w-full bg-green-600 hover:bg-green-700"
-                        >
-                          <Download className="w-5 h-5 mr-2" />
-                          Download Image
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Tool Info */}
-        {selectedToolData && (
-          <Card className="mt-6 bg-indigo-500/10 border-indigo-500/30">
-            <CardContent className="p-4">
-              <h3 className="text-sm font-semibold text-indigo-400 mb-2">
-                {selectedToolData.name}
-              </h3>
-              <p className="text-xs text-gray-400">
-                {selectedToolData.description}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {/* Tool Info */}
+      {selectedToolData && (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold text-primary mb-2">
+              {selectedToolData.name}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {selectedToolData.description}
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
@@ -846,8 +851,8 @@ function ToolsPageContent() {
 export default function ToolsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Loading...</div>
       </div>
     }>
       <ToolsPageContent />

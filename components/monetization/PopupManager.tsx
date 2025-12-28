@@ -687,11 +687,11 @@ export function PopupManager() {
                 </p>
               )}
 
-              {/* Features from templateData */}
-              {popup.templateData.features && popup.templateData.features.filter((f: any) => f.isEnabled && f.text).length > 0 && (
+              {/* Features from templateData - Show all features with badges */}
+              {popup.templateData.features && Array.isArray(popup.templateData.features) && popup.templateData.features.length > 0 && (
                 <div className="space-y-2.5 sm:space-y-3 mb-4 sm:mb-6">
                   {popup.templateData.features
-                    .filter((f: any) => f.isEnabled && f.text)
+                    .filter((f: any) => f && f.text && f.text.trim() && (f.isEnabled !== false))
                     .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                     .map((feature: any, idx: number) => {
                       // Debug log
@@ -699,7 +699,8 @@ export function PopupManager() {
                         text: feature.text, 
                         badgeType: feature.badgeType, 
                         hasBadgeType: !!feature.badgeType,
-                        isEnabled: feature.isEnabled 
+                        isEnabled: feature.isEnabled,
+                        fullFeature: feature
                       });
                       
                       const getBadgeClass = (badgeType: string) => {
@@ -713,31 +714,30 @@ export function PopupManager() {
                       
                       // Always show badge - default to "Unlimited" if not set or empty
                       const badgeTypeToShow = (feature.badgeType && feature.badgeType.trim() !== '') 
-                        ? feature.badgeType.trim() 
+                        ? feature.badgeType.trim().toLowerCase() 
                         : 'unlimited';
                       const badgeText = badgeTypeToShow === 'unlimited' ? 'Unlimited' : 
                                        badgeTypeToShow === 'pro' ? 'Pro' : 
                                        badgeTypeToShow === 'included' ? 'Included' : 
-                                       badgeTypeToShow;
+                                       badgeTypeToShow.charAt(0).toUpperCase() + badgeTypeToShow.slice(1);
                       
                       console.log('🎨 Badge rendering:', { badgeTypeToShow, badgeText, className: getBadgeClass(badgeTypeToShow) });
                       
                       return (
-                        <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm text-gray-700 mb-2.5">
+                        <div key={idx} className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm text-gray-700 mb-2 sm:mb-2.5 flex-wrap sm:flex-nowrap">
                           <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
-                          <span className="flex-1 min-w-0">{feature.text}</span>
-                          {/* Always show badge - rectangular button style similar to image - FORCE VISIBLE */}
+                          <span className="flex-1 min-w-0 text-xs sm:text-sm">{feature.text}</span>
+                          {/* Always show badge - rectangular button style similar to image */}
                           <span 
-                            className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-md whitespace-nowrap flex-shrink-0 shadow-sm ${getBadgeClass(badgeTypeToShow)}`}
+                            className={`px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold rounded-md whitespace-nowrap flex-shrink-0 shadow-sm ${getBadgeClass(badgeTypeToShow)}`}
                             style={{ 
-                              minWidth: '90px', 
+                              minWidth: '70px',
+                              maxWidth: '120px',
                               textAlign: 'center',
-                              display: 'inline-block !important',
-                              lineHeight: '1.2',
-                              visibility: 'visible !important',
-                              opacity: '1 !important'
+                              display: 'inline-block',
+                              lineHeight: '1.2'
                             }}
                           >
                             {badgeText}

@@ -109,15 +109,25 @@ export default function ProfilePage() {
   const [demo2Image, setDemo2Image] = useState<string>("");
   const [demo2Prompt, setDemo2Prompt] = useState("");
 
-  // Notify on application status change
+  // Notify on application status change (only once per status change)
   useEffect(() => {
-    if (creatorApplication?.status === 'approved') {
-      toast({ title: "✅ बधाई हो! अब आप Creator बन गए हैं।" });
+    if (!creatorApplication?.status || !user?.id) return;
+
+    const statusKey = `creator_status_${user.id}_${creatorApplication.status}`;
+    const hasShown = localStorage.getItem(statusKey);
+
+    if (creatorApplication.status === 'approved' && !hasShown) {
+      toast({ title: "✅ Congratulations! You are now a Creator." });
+      localStorage.setItem(statusKey, 'true');
     }
-    if (creatorApplication?.status === 'rejected') {
-      toast({ title: "❌ आपकी Application अस्वीकृत की गई है", description: creatorApplication?.rejectionReason });
+    if (creatorApplication.status === 'rejected' && !hasShown) {
+      toast({ 
+        title: "❌ Your application has been rejected", 
+        description: creatorApplication?.rejectionReason || "Please check the reason and try again."
+      });
+      localStorage.setItem(statusKey, 'true');
     }
-  }, [creatorApplication?.status]);
+  }, [creatorApplication?.status, user?.id, toast]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Scissors, Maximize2, Palette, Smile, ArrowLeft, Upload, Download, Loader2, Image as ImageIcon, X, Palette as PaletteIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"

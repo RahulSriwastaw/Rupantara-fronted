@@ -212,83 +212,102 @@ export function TemplateCard({
   };
 
   if (compact) {
-    // Compact version for trending section
+    // Enhanced Compact version for trending section
     return (
-      <Card className="overflow-hidden bg-card border-border hover:shadow-md transition-shadow">
-        <div className="relative aspect-square overflow-hidden cursor-pointer bg-muted" onClick={onClick}>
+      <Card className="overflow-hidden bg-gradient-to-br from-card to-card/95 border border-border/60 rounded-xl hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:border-primary/30 hover:-translate-y-1 group/compact">
+        <div className="relative aspect-square overflow-hidden cursor-pointer bg-gradient-to-br from-muted via-muted/50 to-muted group-hover/compact:brightness-105 transition-all duration-300" onClick={onClick}>
           <Image
             src={imageSrc}
             alt={template.title}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover/compact:scale-110"
             sizes="(max-width: 768px) 50vw, 25vw"
           />
-          <div className="absolute top-2 right-2">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover/compact:opacity-100 transition-opacity duration-300" />
+          <div className="absolute top-2 right-2 z-10">
             {!template.isFree ? (
-              <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 w-5 h-5 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm text-white p-0">
-                <Crown className="h-3 w-3" />
+              <Badge className="bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 border-0 w-6 h-6 rounded-full flex items-center justify-center shadow-xl backdrop-blur-md ring-2 ring-yellow-400/50 text-white p-0 hover:scale-110 transition-transform">
+                <Crown className="h-3.5 w-3.5" />
               </Badge>
             ) : null}
           </div>
         </div>
-        <CardContent className="p-2 space-y-1">
-          <h3 className="text-xs font-semibold line-clamp-1">{template.title}</h3>
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-            <Heart className={cn("h-3 w-3", localIsLiked && "fill-red-500 text-red-500")} />
-            <span>{localLikeCount}</span>
-            <Eye className="h-3 w-3" />
-            <span>{template.usageCount}</span>
+        <CardContent className="p-3 space-y-2 bg-gradient-to-b from-transparent to-background/50">
+          <h3 className="text-xs sm:text-sm font-bold line-clamp-1 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover/compact:from-primary group-hover/compact:to-primary/80 transition-all duration-300">
+            {template.title}
+          </h3>
+          <div className="flex items-center gap-3 text-[10px] sm:text-xs">
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/10">
+              <Heart className={cn("h-3 w-3 transition-all", localIsLiked && "fill-red-500 text-red-500 scale-110")} />
+              <span className="font-semibold">{localLikeCount}</span>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/10">
+              <Eye className="h-3 w-3" />
+              <span className="font-semibold">{template.usageCount}</span>
+            </div>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  // Professional Instagram/Facebook style card
+  // Professional Modern Card with Glassmorphism
   return (
-    <Card className="overflow-hidden bg-card border border-border/50 rounded-xl hover:shadow-xl transition-all duration-300 hover:border-primary/20 mb-3 sm:mb-4 w-full max-w-full">
-      {/* Header - Creator Info */}
-      <CardContent className="p-2.5 sm:p-3 md:p-4 pb-2.5 sm:pb-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-2.5 flex-1 min-w-0">
-            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 border-2 border-border/50 shadow-sm flex-shrink-0">
-              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-semibold text-xs sm:text-sm">
-                {template.creatorName.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+    <Card className="overflow-hidden bg-gradient-to-br from-card via-card to-card/95 border border-border/60 rounded-2xl hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 hover:border-primary/30 hover:-translate-y-1 mb-4 sm:mb-5 w-full max-w-full backdrop-blur-sm group/card">
+      {/* Header - Creator Info with Glassmorphism */}
+      <CardContent className="p-3 sm:p-4 md:p-5 pb-3 sm:pb-4 bg-gradient-to-b from-background/80 to-transparent backdrop-blur-sm border-b border-border/30">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 sm:gap-3.5 flex-1 min-w-0">
+            <div className="relative">
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 md:h-11 md:w-11 border-2 border-primary/20 shadow-lg ring-2 ring-primary/10 flex-shrink-0 transition-all duration-300 group-hover/card:ring-primary/30 group-hover/card:scale-105">
+                <AvatarFallback className="bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground font-bold text-sm sm:text-base shadow-inner">
+                  {template.creatorName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              {template.creatorVerified && (
+                <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg ring-2 ring-background">
+                  <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white stroke-[3]" />
+                </div>
+              )}
+            </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1 sm:gap-1.5">
-                <span className="font-semibold text-xs sm:text-sm md:text-base truncate">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-bold text-sm sm:text-base md:text-lg truncate bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                   {template.creatorName}
                 </span>
-                {template.creatorVerified && (
-                  <div className="flex-shrink-0 h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-blue-500 flex items-center justify-center shadow-sm">
-                    <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-white stroke-[3]" />
-                  </div>
-                )}
               </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground/70 mt-0.5">Creator</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Button
               onClick={handleToggleFollow}
               variant={isFollowing ? "outline" : "default"}
               size="sm"
               className={cn(
-                "h-7 sm:h-8 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm font-medium transition-all",
-                isFollowing && "bg-secondary hover:bg-secondary/80 border-secondary"
+                "h-8 sm:h-9 px-3 sm:px-4 md:px-5 text-xs sm:text-sm font-semibold transition-all duration-300 rounded-full shadow-md hover:shadow-lg",
+                isFollowing 
+                  ? "bg-secondary/50 hover:bg-secondary/70 border-secondary/50 backdrop-blur-sm" 
+                  : "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-primary/20 hover:scale-105 active:scale-95"
               )}
             >
-              {isFollowing ? "Following" : "Follow"}
+              {isFollowing ? (
+                <span className="flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5" />
+                  Following
+                </span>
+              ) : (
+                "Follow"
+              )}
             </Button>
           </div>
         </div>
       </CardContent>
 
-      {/* Image Section */}
+      {/* Image Section with Advanced Effects */}
       <div
-        className="relative w-full aspect-square overflow-hidden bg-muted cursor-pointer group"
+        className="relative w-full aspect-square overflow-hidden bg-gradient-to-br from-muted via-muted/50 to-muted cursor-pointer group/image"
         onClick={onClick}
         onDoubleClick={(e) => {
           e.stopPropagation();
@@ -298,37 +317,52 @@ export function TemplateCard({
           }
         }}
       >
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover/image:opacity-100 transition-opacity duration-500 z-10" />
+        
         <Image
           src={imageSrc}
           alt={template.title}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-cover transition-all duration-700 group-hover/image:scale-110 group-hover/image:brightness-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        {/* Gradient Overlay on Hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
-        {/* Badges on Image - Top Right */}
-        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1.5 sm:gap-2 items-end z-10">
+        {/* Multi-layer Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-500 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-500 z-10" />
+        
+        {/* Shine Effect on Hover */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/image:translate-x-full transition-transform duration-1000 z-10" />
+        
+        {/* Badges on Image - Top Right with Enhanced Design */}
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex flex-col gap-2 sm:gap-2.5 items-end z-20">
           {/* Official Badge - Only show for Official templates */}
           {template.type === 'Official' && (
-            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 border-0 text-[9px] sm:text-[10px] md:text-[11px] font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 shadow-xl backdrop-blur-sm">
+            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-400 to-orange-500 border-0 text-[10px] sm:text-[11px] md:text-xs font-bold px-3 sm:px-3.5 py-1 sm:py-1.5 shadow-2xl backdrop-blur-md ring-2 ring-amber-400/50 hover:scale-110 transition-transform duration-300 animate-pulse">
               ⭐ OFFICIAL
             </Badge>
           )}
-          {/* Premium Badge - Only icon (Crown) */}
+          {/* Premium Badge - Enhanced Crown */}
           {!template.isFree && (
-            <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center shadow-xl backdrop-blur-sm text-white p-0">
-              <Crown className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+            <Badge className="bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 border-0 w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-md ring-2 ring-yellow-400/50 hover:scale-110 hover:rotate-12 transition-all duration-300 text-white p-0">
+              <Crown className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 drop-shadow-lg" />
             </Badge>
           )}
         </div>
+        
+        {/* Quick View Indicator */}
+        <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 opacity-0 group-hover/image:opacity-100 transition-all duration-300 z-20">
+          <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs font-medium flex items-center gap-2">
+            <Eye className="h-3.5 w-3.5" />
+            <span>View Details</span>
+          </div>
+        </div>
       </div>
 
-      {/* Action Buttons Row */}
-      <CardContent className="p-2.5 sm:p-3 md:p-4 pt-2.5 sm:pt-3 space-y-2">
+      {/* Action Buttons Row - Enhanced Design */}
+      <CardContent className="p-3 sm:p-4 md:p-5 pt-3 sm:pt-4 space-y-3 bg-gradient-to-b from-transparent to-background/50">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-3 md:gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 md:gap-5">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -339,7 +373,7 @@ export function TemplateCard({
               }}
               disabled={isLiking}
               className={cn(
-                "transition-all duration-200 hover:scale-110 active:scale-95 touch-manipulation",
+                "relative transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation rounded-full p-2 hover:bg-red-500/10",
                 localIsLiked ? "text-red-500" : "text-foreground/70 hover:text-red-500",
                 isLiking && "opacity-50 cursor-not-allowed"
               )}
@@ -347,20 +381,23 @@ export function TemplateCard({
             >
               <Heart
                 className={cn(
-                  "h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 transition-all",
-                  localIsLiked && "fill-red-500 scale-110"
+                  "h-6 w-6 sm:h-6 sm:w-6 md:h-7 md:w-7 transition-all duration-300",
+                  localIsLiked && "fill-red-500 scale-110 drop-shadow-lg animate-pulse"
                 )}
               />
+              {localIsLiked && (
+                <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" />
+              )}
             </button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
-                  className="text-foreground/70 hover:text-primary transition-all duration-200 hover:scale-110 active:scale-95 touch-manipulation"
+                  className="text-foreground/70 hover:text-primary transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation rounded-full p-2 hover:bg-primary/10"
                   style={{ minWidth: '44px', minHeight: '44px' }}
                 >
-                  <Share2 className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+                  <Share2 className="h-6 w-6 sm:h-6 sm:w-6 md:h-7 md:w-7" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -584,7 +621,7 @@ export function TemplateCard({
             }}
             disabled={isSaving}
             className={cn(
-              "transition-all duration-200 hover:scale-110 active:scale-95 touch-manipulation",
+              "relative transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation rounded-full p-2 hover:bg-primary/10",
               localIsSaved ? "text-primary" : "text-foreground/70 hover:text-primary",
               isSaving && "opacity-50 cursor-not-allowed"
             )}
@@ -592,41 +629,42 @@ export function TemplateCard({
           >
             <Bookmark
               className={cn(
-                "h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 transition-all",
-                localIsSaved && "fill-primary scale-110"
+                "h-6 w-6 sm:h-6 sm:w-6 md:h-7 md:w-7 transition-all duration-300",
+                localIsSaved && "fill-primary scale-110 drop-shadow-lg"
               )}
             />
+            {localIsSaved && (
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
+            )}
           </button>
         </div>
 
-        {/* Engagement Stats - Professional styling */}
-        <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm text-foreground/80">
-          <div className="flex items-center gap-0.5 sm:gap-1">
-            <Heart className={cn("h-3 w-3 sm:h-3.5 sm:w-3.5", localIsLiked && "fill-red-500 text-red-500")} />
-            <span className="font-semibold">{localLikeCount.toLocaleString()}</span>
+        {/* Engagement Stats - Enhanced Professional styling */}
+        <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 rounded-full bg-red-500/10 hover:bg-red-500/20 transition-colors duration-300 group/stat">
+            <Heart className={cn("h-4 w-4 sm:h-4.5 sm:w-4.5 transition-all", localIsLiked && "fill-red-500 text-red-500 scale-110")} />
+            <span className="font-bold text-foreground group-hover/stat:text-red-500 transition-colors">{localLikeCount.toLocaleString()}</span>
           </div>
-          <span className="text-muted-foreground/50">•</span>
-          <div className="flex items-center gap-0.5 sm:gap-1">
-            <Bookmark className={cn("h-3 w-3 sm:h-3.5 sm:w-3.5", isSaved && "fill-primary text-primary")} />
-            <span className="font-semibold">{template.saveCount.toLocaleString()}</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors duration-300 group/stat">
+            <Bookmark className={cn("h-4 w-4 sm:h-4.5 sm:w-4.5 transition-all", localIsSaved && "fill-primary text-primary scale-110")} />
+            <span className="font-bold text-foreground group-hover/stat:text-primary transition-colors">{template.saveCount.toLocaleString()}</span>
           </div>
-          <span className="text-muted-foreground/50">•</span>
-          <div className="flex items-center gap-0.5 sm:gap-1">
-            <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            <span className="font-semibold">{template.usageCount.toLocaleString()}</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 rounded-full bg-blue-500/10 hover:bg-blue-500/20 transition-colors duration-300 group/stat">
+            <Eye className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-all" />
+            <span className="font-bold text-foreground group-hover/stat:text-blue-500 transition-colors">{template.usageCount.toLocaleString()}</span>
           </div>
         </div>
 
-        {/* Title */}
-        <div onClick={onClick} className="cursor-pointer group">
-          <h3 className="font-bold text-sm sm:text-base md:text-lg line-clamp-2 group-hover:text-primary transition-colors break-words">
+        {/* Title - Enhanced Typography */}
+        <div onClick={onClick} className="cursor-pointer group/title">
+          <h3 className="font-extrabold text-base sm:text-lg md:text-xl line-clamp-2 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent group-hover/title:from-primary group-hover/title:via-primary/90 group-hover/title:to-primary transition-all duration-300 break-words leading-tight">
             {template.title}
           </h3>
         </div>
 
-        {/* Description */}
-        <div onClick={onClick} className="cursor-pointer">
-          <p className="text-xs sm:text-sm md:text-base text-muted-foreground line-clamp-2 leading-relaxed break-words">
+        {/* Description - Enhanced Readability */}
+        <div onClick={onClick} className="cursor-pointer group/desc">
+          <p className="text-sm sm:text-base text-muted-foreground/90 line-clamp-2 leading-relaxed break-words group-hover/desc:text-foreground/80 transition-colors duration-300">
             {template.description}
           </p>
         </div>
@@ -654,17 +692,24 @@ export function TemplateCard({
           </div>
         )} */}
 
-        {/* Use Template Button */}
+        {/* Use Template Button - Premium Design */}
         <Button
           onClick={(e) => {
             e.stopPropagation();
             onUse?.();
           }}
-          className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground h-9 sm:h-10 text-xs sm:text-sm md:text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200 touch-manipulation"
+          className="w-full bg-gradient-to-r from-primary via-primary/95 to-primary/90 hover:from-primary/95 hover:via-primary hover:to-primary/95 text-primary-foreground h-11 sm:h-12 text-sm sm:text-base md:text-lg font-bold shadow-lg hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 touch-manipulation rounded-xl hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group/button"
           size="lg"
-          style={{ minHeight: '44px' }}
+          style={{ minHeight: '48px' }}
         >
-          Use Template ({template.pointsCost} pts)
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            <span>Use Template</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-primary-foreground/20 text-primary-foreground font-semibold text-xs sm:text-sm">
+              {template.pointsCost} pts
+            </span>
+          </span>
+          {/* Shine effect on hover */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/button:translate-x-full transition-transform duration-1000" />
         </Button>
       </CardContent>
     </Card>

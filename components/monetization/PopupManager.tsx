@@ -684,9 +684,9 @@ export function PopupManager() {
                       
                       const getBadgeClass = (badgeType: string) => {
                         const badges: Record<string, string> = {
-                          unlimited: 'bg-green-500 text-white', // Medium green
-                          pro: 'bg-green-700 text-white', // Dark green  
-                          included: 'bg-yellow-500 text-white' // Golden yellow
+                          unlimited: 'bg-green-500 text-white', // Medium green (#22c55e)
+                          pro: 'bg-green-700 text-white', // Dark green (#15803d)
+                          included: 'bg-yellow-500 text-white' // Golden yellow (#eab308)
                         };
                         return badges[badgeType] || 'bg-green-500 text-white'; // Default to green
                       };
@@ -699,13 +699,20 @@ export function PopupManager() {
                                        badgeTypeToShow;
                       
                       return (
-                        <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm text-gray-700 mb-2">
+                        <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm text-gray-700 mb-2.5">
                           <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <span className="flex-1 min-w-0">{feature.text}</span>
-                          {/* Always show badge - make it more prominent */}
-                          <span className={`px-3 py-1.5 text-xs sm:text-sm font-bold rounded-md whitespace-nowrap flex-shrink-0 ${getBadgeClass(badgeTypeToShow)}`} style={{ minWidth: '80px', textAlign: 'center' }}>
+                          {/* Always show badge - rectangular button style */}
+                          <span 
+                            className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-md whitespace-nowrap flex-shrink-0 shadow-sm ${getBadgeClass(badgeTypeToShow)}`}
+                            style={{ 
+                              minWidth: '90px', 
+                              textAlign: 'center',
+                              display: 'inline-block'
+                            }}
+                          >
                             {badgeText}
                           </span>
                         </div>

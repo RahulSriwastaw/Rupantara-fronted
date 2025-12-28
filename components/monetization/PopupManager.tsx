@@ -112,7 +112,10 @@ export function PopupManager() {
     fetchPopup();
   }, []);
 
-  const handleClose = async () => {
+  const handleClose = async (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     if (popup) {
       await monetizationApi.trackPopupClose(popup._id);
     }
@@ -163,10 +166,12 @@ export function PopupManager() {
       <div className="fixed bottom-4 right-4 z-50 bg-white rounded-xl shadow-2xl p-4 max-w-sm w-[90vw] sm:w-auto animate-in slide-in-from-bottom duration-300 border border-gray-100">
         <button 
           onClick={handleClose} 
-          className="absolute top-3 right-3 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors"
+          onTouchStart={(e) => e.stopPropagation()}
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 z-50 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full p-2 sm:p-1.5 transition-colors touch-manipulation"
+          style={{ minWidth: '44px', minHeight: '44px' }}
           aria-label="Close"
         >
-          <X className="h-4 w-4 text-gray-600" />
+          <X className="h-5 w-5 sm:h-4 sm:w-4 text-gray-600" />
         </button>
         {popup.image && (
           <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -200,8 +205,14 @@ export function PopupManager() {
 
   if (popup.popupType === 'bottom_sheet') {
     return (
-      <div className="fixed inset-0 z-50 flex items-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-        <div className="bg-white rounded-t-2xl p-6 w-full max-w-lg mx-auto animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div 
+        className="fixed inset-0 z-50 flex items-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={handleClose}
+      >
+        <div 
+          className="bg-white rounded-t-2xl p-6 w-full max-w-lg mx-auto animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto shadow-2xl relative"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Drag Handle */}
           <div className="flex justify-center mb-4">
             <div className="w-12 h-1.5 bg-gray-300 rounded-full"></div>
@@ -209,10 +220,12 @@ export function PopupManager() {
           
           <button 
             onClick={handleClose} 
-            className="absolute top-5 right-5 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+            onTouchStart={(e) => e.stopPropagation()}
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 z-50 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full p-2.5 sm:p-2 transition-colors touch-manipulation"
+            style={{ minWidth: '44px', minHeight: '44px' }}
             aria-label="Close"
           >
-            <X className="h-5 w-5 text-gray-600" />
+            <X className="h-6 w-6 sm:h-5 sm:w-5 text-gray-600" />
           </button>
           
           {popup.image && (
@@ -361,14 +374,22 @@ export function PopupManager() {
   // Exit Intent Popup
   if (popup.popupType === 'exit_intent') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-        <div className="bg-white rounded-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300">
+      <div 
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300"
+        onClick={handleClose}
+      >
+        <div 
+          className="bg-white rounded-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
+          onClick={(e) => e.stopPropagation()}
+        >
           <button 
             onClick={handleClose} 
-            className="absolute top-5 right-5 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+            onTouchStart={(e) => e.stopPropagation()}
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 z-50 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full p-2.5 sm:p-2 transition-colors touch-manipulation"
+            style={{ minWidth: '44px', minHeight: '44px' }}
             aria-label="Close"
           >
-            <X className="h-5 w-5 text-gray-600" />
+            <X className="h-6 w-6 sm:h-5 sm:w-5 text-gray-600" />
           </button>
           
           {popup.image && (
@@ -516,14 +537,22 @@ export function PopupManager() {
 
   // Default: center_modal or full_screen - Split Layout Design
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-4">
-      <div className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-lg sm:rounded-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}>
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-4"
+      onClick={handleClose}
+    >
+      <div 
+        className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-lg sm:rounded-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button 
           onClick={handleClose} 
-          className="absolute top-3 right-3 sm:top-5 sm:right-5 z-10 bg-white/90 hover:bg-white rounded-full p-2 sm:p-2.5 transition-colors shadow-lg border border-gray-200"
+          onTouchStart={(e) => e.stopPropagation()}
+          className="absolute top-2 right-2 sm:top-5 sm:right-5 z-50 bg-white/90 hover:bg-white active:bg-gray-100 rounded-full p-2.5 sm:p-2.5 transition-colors shadow-lg border border-gray-200 touch-manipulation"
+          style={{ minWidth: '44px', minHeight: '44px' }}
           aria-label="Close"
         >
-          <X className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700" />
+          <X className="h-6 w-6 sm:h-5 sm:w-5 text-gray-700" />
         </button>
         
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}

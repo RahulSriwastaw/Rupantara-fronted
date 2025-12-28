@@ -87,6 +87,14 @@ export function PopupManager() {
       try {
         const response = await monetizationApi.getActivePopups();
         if (response.success && response.popup) {
+          console.log('📥 Popup received from API:', response.popup);
+          console.log('📥 TemplateData:', response.popup.templateData);
+          console.log('📥 Features:', response.popup.templateData?.features);
+          if (response.popup.templateData?.features) {
+            response.popup.templateData.features.forEach((f: any, idx: number) => {
+              console.log(`📥 Feature ${idx}:`, { text: f.text, badgeType: f.badgeType, isEnabled: f.isEnabled });
+            });
+          }
           setPopup(response.popup);
           setShow(true);
         }

@@ -864,14 +864,14 @@ function ToolsPageContent() {
                           </button>
 
                           {/* Mode Toggle: Solid vs Gradient */}
-                          <div className="flex gap-2 p-1 bg-muted rounded-lg">
+                          <div className="flex gap-2 p-1 bg-muted/80 backdrop-blur-sm rounded-xl border border-border/50">
                             <button
                               onClick={() => setColorMode('solid')}
                               className={cn(
-                                "flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all",
+                                "flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200",
                                 colorMode === 'solid'
-                                  ? 'bg-primary text-primary-foreground shadow-sm'
-                                  : 'text-muted-foreground hover:text-foreground'
+                                  ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                               )}
                             >
                               Solid
@@ -879,10 +879,10 @@ function ToolsPageContent() {
                             <button
                               onClick={() => setColorMode('gradient')}
                               className={cn(
-                                "flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all",
+                                "flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200",
                                 colorMode === 'gradient'
-                                  ? 'bg-primary text-primary-foreground shadow-sm'
-                                  : 'text-muted-foreground hover:text-foreground'
+                                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                               )}
                             >
                               Gradient
@@ -891,23 +891,23 @@ function ToolsPageContent() {
 
                           {colorMode === 'solid' ? (
                             <>
-                              <div className="flex gap-2">
+                              <div className="flex gap-2 sm:gap-3">
                                 <input
                                   type="color"
                                   value={backgroundColor}
                                   onChange={(e) => handleBackgroundColorChange(e.target.value)}
-                                  className="w-12 h-10 sm:w-16 sm:h-10 rounded border border-border cursor-pointer"
+                                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl border-2 border-border cursor-pointer hover:border-primary transition-all shadow-md hover:shadow-lg"
                                 />
                                 <input
                                   type="text"
                                   value={backgroundColor}
                                   onChange={(e) => handleBackgroundColorChange(e.target.value)}
-                                  className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                                  className="flex-1 bg-muted/80 backdrop-blur-sm border-2 border-border rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                   placeholder="#FFFFFF"
                                 />
                               </div>
 
-                              <div className="grid grid-cols-8 gap-2">
+                              <div className="grid grid-cols-8 gap-1.5 sm:gap-2">
                                 {[
                                   '#FFFFFF', '#000000', '#F0F0F0', '#808080',
                                   '#FF0000', '#00FF00', '#0000FF', '#FFFF00',
@@ -922,10 +922,10 @@ function ToolsPageContent() {
                                     key={color}
                                     onClick={() => handleBackgroundColorChange(color)}
                                     className={cn(
-                                      "aspect-square rounded border-2 transition-all",
+                                      "aspect-square rounded-lg sm:rounded-xl border-2 transition-all duration-200 hover:scale-110 hover:shadow-lg",
                                       backgroundColor === color && colorMode === 'solid'
-                                        ? 'border-primary ring-2 ring-primary/50 scale-110'
-                                        : 'border-border hover:border-primary/50'
+                                        ? 'border-primary ring-4 ring-primary/30 shadow-xl shadow-primary/20 scale-110'
+                                        : 'border-border hover:border-primary/50 hover:shadow-md'
                                     )}
                                     style={{ backgroundColor: color }}
                                     title={color}
@@ -936,14 +936,14 @@ function ToolsPageContent() {
                           ) : (
                             <>
                               {/* Gradient Type Toggle */}
-                              <div className="flex gap-2 p-1 bg-muted rounded-lg">
+                              <div className="flex gap-2 p-1 bg-muted/80 backdrop-blur-sm rounded-xl border border-border/50">
                                 <button
                                   onClick={() => setGradientType('linear')}
                                   className={cn(
-                                    "flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all",
+                                    "flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200",
                                     gradientType === 'linear'
-                                      ? 'bg-primary text-primary-foreground shadow-sm'
-                                      : 'text-muted-foreground hover:text-foreground'
+                                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/30'
+                                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                   )}
                                 >
                                   Linear
@@ -951,10 +951,10 @@ function ToolsPageContent() {
                                 <button
                                   onClick={() => setGradientType('radial')}
                                   className={cn(
-                                    "flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all",
+                                    "flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200",
                                     gradientType === 'radial'
-                                      ? 'bg-primary text-primary-foreground shadow-sm'
-                                      : 'text-muted-foreground hover:text-foreground'
+                                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30'
+                                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                   )}
                                 >
                                   Radial
@@ -963,7 +963,7 @@ function ToolsPageContent() {
 
                               {/* Gradient Preview */}
                               <div
-                                className="w-full aspect-square rounded-lg border-2 border-border"
+                                className="w-full aspect-square rounded-xl border-2 border-border shadow-lg overflow-hidden"
                                 style={{
                                   background: gradientType === 'linear'
                                     ? `linear-gradient(${gradientDirection}deg, ${gradientColor1}, ${gradientColor2})`
@@ -973,34 +973,40 @@ function ToolsPageContent() {
 
                               {/* Gradient Direction (for linear only) */}
                               {gradientType === 'linear' && (
-                                <div className="space-y-2">
-                                  <label className="text-xs text-muted-foreground">Direction: {gradientDirection}°</label>
+                                <div className="space-y-2 sm:space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <label className="text-xs sm:text-sm font-medium text-foreground">Direction</label>
+                                    <span className="text-xs sm:text-sm font-bold text-primary">{gradientDirection}°</span>
+                                  </div>
                                   <input
                                     type="range"
                                     min="0"
                                     max="360"
                                     value={gradientDirection}
                                     onChange={(e) => setGradientDirection(Number(e.target.value))}
-                                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                                    className="w-full h-2 sm:h-2.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                                    style={{
+                                      background: `linear-gradient(to right, #e5e5e5 0%, #e5e5e5 ${(gradientDirection / 360) * 100}%, #d1d5db ${(gradientDirection / 360) * 100}%, #d1d5db 100%)`
+                                    }}
                                   />
                                 </div>
                               )}
 
                               {/* Gradient Color 1 */}
                               <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground">Color 1</label>
-                                <div className="flex gap-2">
+                                <label className="text-xs sm:text-sm font-medium text-foreground">Color 1</label>
+                                <div className="flex gap-2 sm:gap-3">
                                   <input
                                     type="color"
                                     value={gradientColor1}
                                     onChange={(e) => setGradientColor1(e.target.value)}
-                                    className="w-12 h-10 rounded border border-border cursor-pointer"
+                                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl border-2 border-border cursor-pointer hover:border-primary transition-all shadow-md hover:shadow-lg"
                                   />
                                   <input
                                     type="text"
                                     value={gradientColor1}
                                     onChange={(e) => setGradientColor1(e.target.value)}
-                                    className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                                    className="flex-1 bg-muted/80 backdrop-blur-sm border-2 border-border rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                     placeholder="#FF0000"
                                   />
                                 </div>
@@ -1008,28 +1014,28 @@ function ToolsPageContent() {
 
                               {/* Gradient Color 2 */}
                               <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground">Color 2</label>
-                                <div className="flex gap-2">
+                                <label className="text-xs sm:text-sm font-medium text-foreground">Color 2</label>
+                                <div className="flex gap-2 sm:gap-3">
                                   <input
                                     type="color"
                                     value={gradientColor2}
                                     onChange={(e) => setGradientColor2(e.target.value)}
-                                    className="w-12 h-10 rounded border border-border cursor-pointer"
+                                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl border-2 border-border cursor-pointer hover:border-primary transition-all shadow-md hover:shadow-lg"
                                   />
                                   <input
                                     type="text"
                                     value={gradientColor2}
                                     onChange={(e) => setGradientColor2(e.target.value)}
-                                    className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                                    className="flex-1 bg-muted/80 backdrop-blur-sm border-2 border-border rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                     placeholder="#0000FF"
                                   />
                                 </div>
                               </div>
 
                               {/* Preset Gradients */}
-                              <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground">Preset Gradients</label>
-                                <div className="grid grid-cols-4 gap-2">
+                              <div className="space-y-2 sm:space-y-3">
+                                <label className="text-xs sm:text-sm font-medium text-foreground">Preset Gradients</label>
+                                <div className="grid grid-cols-4 gap-2 sm:gap-2.5">
                                   {[
                                     { c1: '#FF0000', c2: '#FF7F00', name: 'Sunset' },
                                     { c1: '#0000FF', c2: '#00FFFF', name: 'Ocean' },
@@ -1046,12 +1052,14 @@ function ToolsPageContent() {
                                         setGradientColor1(preset.c1)
                                         setGradientColor2(preset.c2)
                                       }}
-                                      className="aspect-square rounded border-2 border-border hover:border-primary transition-all"
+                                      className="aspect-square rounded-lg sm:rounded-xl border-2 border-border hover:border-primary transition-all duration-200 hover:scale-110 hover:shadow-lg group"
                                       style={{
                                         background: `linear-gradient(135deg, ${preset.c1}, ${preset.c2})`
                                       }}
                                       title={preset.name}
-                                    />
+                                    >
+                                      <span className="sr-only">{preset.name}</span>
+                                    </button>
                                   ))}
                                 </div>
                               </div>

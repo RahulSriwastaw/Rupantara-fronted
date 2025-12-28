@@ -522,71 +522,148 @@ export function PopupManager() {
             </div>
           )}
 
-          {/* Tags / Badges */}
-          {popup.textContent?.tags && popup.textContent.tags.filter((t: any) => t.isEnabled && t.text).length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
-              {popup.textContent.tags
-                .filter((t: any) => t.isEnabled && t.text)
-                .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-                .map((tag: any, idx: number) => {
-                  const colorClasses: Record<string, string> = {
-                    red: 'bg-red-100 text-red-700',
-                    orange: 'bg-orange-100 text-orange-700',
-                    green: 'bg-green-100 text-green-700',
-                    blue: 'bg-blue-100 text-blue-700',
-                    yellow: 'bg-yellow-100 text-yellow-700',
-                    purple: 'bg-purple-100 text-purple-700'
-                  };
-                  const bgClass = tag.color === 'custom' && tag.customColor
-                    ? ''
-                    : colorClasses[tag.color] || colorClasses.red;
-                  return (
-                    <span
-                      key={idx}
-                      className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-full ${bgClass}`}
-                      style={tag.color === 'custom' && tag.customColor ? { backgroundColor: tag.customColor + '20', color: tag.customColor } : {}}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
-                      {tag.text}
-                    </span>
-                  );
-                })}
-            </div>
-          )}
+          {/* For template-based popups, use templateData fields */}
+          {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
+            <>
+              {/* Tags from templateData */}
+              {popup.templateData.tags && popup.templateData.tags.filter((t: any) => t.isEnabled && t.text).length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
+                  {popup.templateData.tags
+                    .filter((t: any) => t.isEnabled && t.text)
+                    .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                    .map((tag: any, idx: number) => {
+                      const colorClasses: Record<string, string> = {
+                        red: 'bg-red-100 text-red-700',
+                        orange: 'bg-orange-100 text-orange-700',
+                        green: 'bg-green-100 text-green-700',
+                        blue: 'bg-blue-100 text-blue-700',
+                        yellow: 'bg-yellow-100 text-yellow-700',
+                        purple: 'bg-purple-100 text-purple-700'
+                      };
+                      const bgClass = tag.color === 'custom' && tag.customColor
+                        ? ''
+                        : colorClasses[tag.color] || colorClasses.red;
+                      return (
+                        <span
+                          key={idx}
+                          className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-full ${bgClass}`}
+                          style={tag.color === 'custom' && tag.customColor ? { backgroundColor: tag.customColor + '20', color: tag.customColor } : {}}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                          {tag.text}
+                        </span>
+                      );
+                    })}
+                </div>
+              )}
 
-          {/* Main Title */}
-          {popup.textContent?.mainTitle && (
-            <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
-              {popup.textContent.mainTitle}
-            </h2>
-          )}
+              {/* Main Heading */}
+              {popup.templateData.mainHeading && (
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
+                  {popup.templateData.mainHeading}
+                </h2>
+              )}
 
-          {/* Fallback to legacy title if textContent.mainTitle not available */}
-          {!popup.textContent?.mainTitle && popup.title && (
-            <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
-              {popup.title}
-            </h2>
-          )}
+              {/* Sub Heading */}
+              {popup.templateData.subHeading && (
+                <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} font-bold mb-2 text-gray-800`}>
+                  {popup.templateData.subHeading}
+                </p>
+              )}
 
-          {/* Sub Title */}
-          {popup.textContent?.subTitle && (
-            <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} font-bold mb-2 text-gray-800`}>
-              {popup.textContent.subTitle}
-            </p>
-          )}
+              {/* Description */}
+              {popup.templateData.description && (
+                <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
+                  {popup.templateData.description}
+                </p>
+              )}
 
-          {/* Description */}
-          {popup.textContent?.description && (
-            <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
-              {popup.textContent.description}
-            </p>
-          )}
+              {/* Features from templateData */}
+              {popup.templateData.features && popup.templateData.features.filter((f: any) => f.isEnabled && f.text).length > 0 && (
+                <div className="space-y-2.5 sm:space-y-3 mb-4 sm:mb-6">
+                  {popup.templateData.features
+                    .filter((f: any) => f.isEnabled && f.text)
+                    .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                    .map((feature: any, idx: number) => (
+                      <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="flex-1 min-w-0">{feature.text}</span>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* Tags / Badges */}
+              {popup.textContent?.tags && popup.textContent.tags.filter((t: any) => t.isEnabled && t.text).length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
+                  {popup.textContent.tags
+                    .filter((t: any) => t.isEnabled && t.text)
+                    .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                    .map((tag: any, idx: number) => {
+                      const colorClasses: Record<string, string> = {
+                        red: 'bg-red-100 text-red-700',
+                        orange: 'bg-orange-100 text-orange-700',
+                        green: 'bg-green-100 text-green-700',
+                        blue: 'bg-blue-100 text-blue-700',
+                        yellow: 'bg-yellow-100 text-yellow-700',
+                        purple: 'bg-purple-100 text-purple-700'
+                      };
+                      const bgClass = tag.color === 'custom' && tag.customColor
+                        ? ''
+                        : colorClasses[tag.color] || colorClasses.red;
+                      return (
+                        <span
+                          key={idx}
+                          className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-full ${bgClass}`}
+                          style={tag.color === 'custom' && tag.customColor ? { backgroundColor: tag.customColor + '20', color: tag.customColor } : {}}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                          {tag.text}
+                        </span>
+                      );
+                    })}
+                </div>
+              )}
 
-          {/* Fallback to legacy description */}
-          {!popup.textContent?.description && popup.description && (
-            <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
-              {popup.description}
-            </p>
+              {/* Main Title */}
+              {popup.textContent?.mainTitle && (
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
+                  {popup.textContent.mainTitle}
+                </h2>
+              )}
+
+              {/* Fallback to legacy title if textContent.mainTitle not available */}
+              {!popup.textContent?.mainTitle && popup.title && (
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'} font-bold mb-2 sm:mb-3 text-gray-900 leading-tight`}>
+                  {popup.title}
+                </h2>
+              )}
+
+              {/* Sub Title */}
+              {popup.textContent?.subTitle && (
+                <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} font-bold mb-2 text-gray-800`}>
+                  {popup.textContent.subTitle}
+                </p>
+              )}
+
+              {/* Description */}
+              {popup.textContent?.description && (
+                <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
+                  {popup.textContent.description}
+                </p>
+              )}
+
+              {/* Fallback to legacy description */}
+              {!popup.textContent?.description && popup.description && (
+                <p className={`text-gray-600 mb-4 sm:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
+                  {popup.description}
+                </p>
+              )}
+            </>
           )}
 
           {/* Validity Text */}

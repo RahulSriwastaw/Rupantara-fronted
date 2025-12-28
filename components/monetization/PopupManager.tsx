@@ -613,12 +613,12 @@ export function PopupManager() {
     );
   }
 
-  // Default: center_modal or full_screen - Premium Responsive Design
+  // Default: center_modal or full_screen - Premium Responsive Design (Mobile-First)
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-3 md:p-4"
       onClick={handleClose}
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: 'none', overflowX: 'hidden' }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="popup-title"
@@ -627,10 +627,13 @@ export function PopupManager() {
         className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl max-h-[90vh]'} relative overflow-hidden flex flex-col lg:flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: popup.popupType === 'full_screen' ? '100%' : 'clamp(95vw, 80vw, 900px)',
-          maxWidth: popup.popupType === 'full_screen' ? '100%' : '900px',
+          width: popup.popupType === 'full_screen' ? '100%' : '100%',
+          maxWidth: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 900px)',
+          boxSizing: 'border-box',
+          margin: 'auto',
           touchAction: 'pan-y',
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
+          overflowX: 'hidden'
         }}
       >
         <button 
@@ -646,8 +649,11 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[45%] h-[40vh] lg:h-full' : 'w-full lg:w-[45%] h-[40vh] lg:h-auto lg:min-h-[500px]'} overflow-hidden flex flex-col items-center justify-center p-4 sm:p-5 md:p-6 lg:p-8 flex-shrink-0`}
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[40%] h-[40vh] lg:h-full' : 'w-full lg:w-[40%] h-[40vh] lg:h-auto lg:min-h-[500px]'} overflow-hidden flex flex-col items-center justify-center p-4 sm:p-5 md:p-6 lg:p-8 flex-shrink-0`}
             style={{ 
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box',
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
               backgroundSize: popup.templateData.leftImageUrl ? 'cover' : 'auto',
@@ -727,9 +733,15 @@ export function PopupManager() {
           </div>
         ) : ((popup.image) && (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[45%] h-[40vh] lg:h-full' : 'w-full lg:w-[45%] h-[40vh] lg:h-auto lg:min-h-[500px]'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center flex-shrink-0`}
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[40%] h-[40vh] lg:h-full' : 'w-full lg:w-[40%] h-[40vh] lg:h-auto lg:min-h-[500px]'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center flex-shrink-0`}
             style={{
-              aspectRatio: '1 / 1'
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box',
+              aspectRatio: '1 / 1',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
             }}
           >
             {!imageLoaded && (
@@ -737,16 +749,25 @@ export function PopupManager() {
                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
             )}
-            <div className="w-full h-full flex items-center justify-center p-4">
+            <div 
+              className="w-full h-full flex items-center justify-center p-4"
+              style={{
+                width: '100%',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                boxSizing: 'border-box'
+              }}
+            >
               <img
                 src={popup.image}
                 alt={popup.title || 'Promotional image'}
-                className={`max-w-full max-h-full transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 style={{ 
                   objectFit: 'contain',
                   objectPosition: 'center',
-                  width: '100%',
-                  height: '100%',
+                  maxWidth: '100%',
+                  height: 'auto',
+                  width: 'auto',
                   display: 'block'
                 }}
                 onLoad={() => setImageLoaded(true)}
@@ -759,7 +780,14 @@ export function PopupManager() {
         ))}
         
         {/* Content Section - Bottom on Mobile, Right on Desktop */}
-        <div className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-4 sm:p-5 md:p-6 lg:p-8'} overflow-y-auto bg-white relative min-h-0`}>
+        <div 
+          className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-4 sm:p-5 md:p-6 lg:p-8'} overflow-y-auto bg-white relative min-h-0 lg:w-[60%]`}
+          style={{
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box'
+          }}
+        >
           {/* Brand Text */}
           {popup.textContent?.showBrandText && popup.textContent.brandText && (
             <div className="text-xs sm:text-sm font-semibold text-gray-500 mb-2">
@@ -1042,15 +1070,28 @@ export function PopupManager() {
             </svg>
           </div>
 
-          {/* CTA Button - Sticky on Mobile */}
-          <div className="sticky bottom-0 left-0 right-0 bg-white pt-4 pb-2 lg:pb-0 lg:pt-0 lg:static mt-auto">
+          {/* CTA Button - Sticky on Mobile, Normal on Desktop */}
+          <div 
+            className="bg-white pt-4 pb-2 lg:pb-0 lg:pt-0 mt-auto"
+            style={{
+              position: 'sticky',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
             <button
               onClick={handleCTAClick}
               className="w-full bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 active:bg-red-800 active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl"
               style={{
                 minHeight: '48px',
                 fontSize: 'clamp(16px, 2.5vw, 18px)',
-                padding: '12px 24px'
+                padding: '12px 24px',
+                width: '100%',
+                boxSizing: 'border-box'
               }}
             >
               {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData?.ctaText

@@ -75,6 +75,11 @@ function ToolsPageContent() {
   const [selectedBackgroundImage, setSelectedBackgroundImage] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [customBackground, setCustomBackground] = useState<string>('')
+  const [colorMode, setColorMode] = useState<'solid' | 'gradient'>('solid')
+  const [gradientType, setGradientType] = useState<'linear' | 'radial'>('linear')
+  const [gradientDirection, setGradientDirection] = useState<number>(0) // 0-360 degrees for linear
+  const [gradientColor1, setGradientColor1] = useState<string>('#FF0000')
+  const [gradientColor2, setGradientColor2] = useState<string>('#0000FF')
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -210,14 +215,86 @@ function ToolsPageContent() {
     })
   }
 
+  const applyBackgroundGradient = async (
+    imageUrl: string, 
+    type: 'linear' | 'radial',
+    direction: number,
+    color1: string,
+    color2: string
+  ): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = img.width
+        canvas.height = img.height
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          let gradient: CanvasGradient
+          
+          if (type === 'linear') {
+            // Convert degrees to radians and calculate gradient coordinates
+            const angle = (direction * Math.PI) / 180
+            const x1 = canvas.width / 2 - (canvas.width / 2) * Math.cos(angle)
+            const y1 = canvas.height / 2 - (canvas.height / 2) * Math.sin(angle)
+            const x2 = canvas.width / 2 + (canvas.width / 2) * Math.cos(angle)
+            const y2 = canvas.height / 2 + (canvas.height / 2) * Math.sin(angle)
+            gradient = ctx.createLinearGradient(x1, y1, x2, y2)
+          } else {
+            // Radial gradient from center
+            const centerX = canvas.width / 2
+            const centerY = canvas.height / 2
+            const radius = Math.max(canvas.width, canvas.height) / 2
+            gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius)
+          }
+          
+          gradient.addColorStop(0, color1)
+          gradient.addColorStop(1, color2)
+          
+          ctx.fillStyle = gradient
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+          ctx.drawImage(img, 0, 0)
+          resolve(canvas.toDataURL('image/png'))
+        } else {
+          resolve(imageUrl)
+        }
+      }
+      img.onerror = () => resolve(imageUrl)
+      img.src = imageUrl
+    })
+  }
+
   const handleBackgroundColorChange = async (color: string) => {
     if (!originalResultUrl) return
     setBackgroundColor(color)
+    setColorMode('solid')
     setSelectedBackgroundImage(null)
     setCustomBackground('')
     const newImageUrl = await applyBackgroundColor(originalResultUrl, color)
     setResultUrl(newImageUrl)
   }
+
+  const handleGradientChange = async () => {
+    if (!originalResultUrl) return
+    setColorMode('gradient')
+    setSelectedBackgroundImage(null)
+    setCustomBackground('')
+    const newImageUrl = await applyBackgroundGradient(
+      originalResultUrl,
+      gradientType,
+      gradientDirection,
+      gradientColor1,
+      gradientColor2
+    )
+    setResultUrl(newImageUrl)
+  }
+
+  useEffect(() => {
+    if (colorMode === 'gradient' && originalResultUrl) {
+      handleGradientChange()
+    }
+  }, [gradientType, gradientDirection, gradientColor1, gradientColor2, colorMode])
 
   const applyBackgroundImage = async (foregroundUrl: string, backgroundUrl: string): Promise<string> => {
     return new Promise((resolve) => {
@@ -699,10 +776,12 @@ function ToolsPageContent() {
                       {/* Color Tab */}
                       {activeTab === 'color' && (
                         <div className="space-y-4">
+                          {/* Transparent Background Button */}
                           <button
                             onClick={() => {
                               setResultUrl(originalResultUrl)
                               setBackgroundColor('#FFFFFF')
+                              setColorMode('solid')
                               setSelectedBackgroundImage(null)
                               setCustomBackground('')
                             }}
@@ -721,47 +800,200 @@ function ToolsPageContent() {
                             <X className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground" />
                           </button>
 
-                          <div className="flex gap-2">
-                            <input
-                              type="color"
-                              value={backgroundColor}
-                              onChange={(e) => handleBackgroundColorChange(e.target.value)}
-                              className="w-12 h-10 sm:w-16 sm:h-10 rounded border border-border cursor-pointer"
-                            />
-                            <input
-                              type="text"
-                              value={backgroundColor}
-                              onChange={(e) => handleBackgroundColorChange(e.target.value)}
-                              className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
-                              placeholder="#FFFFFF"
-                            />
+                          {/* Mode Toggle: Solid vs Gradient */}
+                          <div className="flex gap-2 p-1 bg-muted rounded-lg">
+                            <button
+                              onClick={() => setColorMode('solid')}
+                              className={cn(
+                                "flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all",
+                                colorMode === 'solid'
+                                  ? 'bg-primary text-primary-foreground shadow-sm'
+                                  : 'text-muted-foreground hover:text-foreground'
+                              )}
+                            >
+                              Solid
+                            </button>
+                            <button
+                              onClick={() => setColorMode('gradient')}
+                              className={cn(
+                                "flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all",
+                                colorMode === 'gradient'
+                                  ? 'bg-primary text-primary-foreground shadow-sm'
+                                  : 'text-muted-foreground hover:text-foreground'
+                              )}
+                            >
+                              Gradient
+                            </button>
                           </div>
 
-                          <div className="grid grid-cols-8 gap-2">
-                            {[
-                              '#FFFFFF', '#000000', '#F0F0F0', '#808080',
-                              '#FF0000', '#00FF00', '#0000FF', '#FFFF00',
-                              '#FF00FF', '#00FFFF', '#FFA500', '#800080',
-                              '#FFC0CB', '#A52A2A', '#008000', '#000080',
-                              '#FFD700', '#C0C0C0', '#808000', '#800000',
-                              '#008080', '#0000FF', '#FF1493', '#00CED1',
-                              '#FF4500', '#32CD32', '#1E90FF', '#FF69B4',
-                              '#8B4513', '#2E8B57', '#4682B4', '#DDA0DD'
-                            ].map((color) => (
-                              <button
-                                key={color}
-                                onClick={() => handleBackgroundColorChange(color)}
-                                className={cn(
-                                  "aspect-square rounded border-2 transition-all",
-                                  backgroundColor === color
-                                    ? 'border-primary ring-2 ring-primary/50 scale-110'
-                                    : 'border-border hover:border-primary/50'
-                                )}
-                                style={{ backgroundColor: color }}
-                                title={color}
+                          {colorMode === 'solid' ? (
+                            <>
+                              <div className="flex gap-2">
+                                <input
+                                  type="color"
+                                  value={backgroundColor}
+                                  onChange={(e) => handleBackgroundColorChange(e.target.value)}
+                                  className="w-12 h-10 sm:w-16 sm:h-10 rounded border border-border cursor-pointer"
+                                />
+                                <input
+                                  type="text"
+                                  value={backgroundColor}
+                                  onChange={(e) => handleBackgroundColorChange(e.target.value)}
+                                  className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                                  placeholder="#FFFFFF"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-8 gap-2">
+                                {[
+                                  '#FFFFFF', '#000000', '#F0F0F0', '#808080',
+                                  '#FF0000', '#00FF00', '#0000FF', '#FFFF00',
+                                  '#FF00FF', '#00FFFF', '#FFA500', '#800080',
+                                  '#FFC0CB', '#A52A2A', '#008000', '#000080',
+                                  '#FFD700', '#C0C0C0', '#808000', '#800000',
+                                  '#008080', '#0000FF', '#FF1493', '#00CED1',
+                                  '#FF4500', '#32CD32', '#1E90FF', '#FF69B4',
+                                  '#8B4513', '#2E8B57', '#4682B4', '#DDA0DD'
+                                ].map((color) => (
+                                  <button
+                                    key={color}
+                                    onClick={() => handleBackgroundColorChange(color)}
+                                    className={cn(
+                                      "aspect-square rounded border-2 transition-all",
+                                      backgroundColor === color && colorMode === 'solid'
+                                        ? 'border-primary ring-2 ring-primary/50 scale-110'
+                                        : 'border-border hover:border-primary/50'
+                                    )}
+                                    style={{ backgroundColor: color }}
+                                    title={color}
+                                  />
+                                ))}
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              {/* Gradient Type Toggle */}
+                              <div className="flex gap-2 p-1 bg-muted rounded-lg">
+                                <button
+                                  onClick={() => setGradientType('linear')}
+                                  className={cn(
+                                    "flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all",
+                                    gradientType === 'linear'
+                                      ? 'bg-primary text-primary-foreground shadow-sm'
+                                      : 'text-muted-foreground hover:text-foreground'
+                                  )}
+                                >
+                                  Linear
+                                </button>
+                                <button
+                                  onClick={() => setGradientType('radial')}
+                                  className={cn(
+                                    "flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all",
+                                    gradientType === 'radial'
+                                      ? 'bg-primary text-primary-foreground shadow-sm'
+                                      : 'text-muted-foreground hover:text-foreground'
+                                  )}
+                                >
+                                  Radial
+                                </button>
+                              </div>
+
+                              {/* Gradient Preview */}
+                              <div
+                                className="w-full aspect-square rounded-lg border-2 border-border"
+                                style={{
+                                  background: gradientType === 'linear'
+                                    ? `linear-gradient(${gradientDirection}deg, ${gradientColor1}, ${gradientColor2})`
+                                    : `radial-gradient(circle, ${gradientColor1}, ${gradientColor2})`
+                                }}
                               />
-                            ))}
-                          </div>
+
+                              {/* Gradient Direction (for linear only) */}
+                              {gradientType === 'linear' && (
+                                <div className="space-y-2">
+                                  <label className="text-xs text-muted-foreground">Direction: {gradientDirection}°</label>
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="360"
+                                    value={gradientDirection}
+                                    onChange={(e) => setGradientDirection(Number(e.target.value))}
+                                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                                  />
+                                </div>
+                              )}
+
+                              {/* Gradient Color 1 */}
+                              <div className="space-y-2">
+                                <label className="text-xs text-muted-foreground">Color 1</label>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="color"
+                                    value={gradientColor1}
+                                    onChange={(e) => setGradientColor1(e.target.value)}
+                                    className="w-12 h-10 rounded border border-border cursor-pointer"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={gradientColor1}
+                                    onChange={(e) => setGradientColor1(e.target.value)}
+                                    className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                                    placeholder="#FF0000"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Gradient Color 2 */}
+                              <div className="space-y-2">
+                                <label className="text-xs text-muted-foreground">Color 2</label>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="color"
+                                    value={gradientColor2}
+                                    onChange={(e) => setGradientColor2(e.target.value)}
+                                    className="w-12 h-10 rounded border border-border cursor-pointer"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={gradientColor2}
+                                    onChange={(e) => setGradientColor2(e.target.value)}
+                                    className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
+                                    placeholder="#0000FF"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Preset Gradients */}
+                              <div className="space-y-2">
+                                <label className="text-xs text-muted-foreground">Preset Gradients</label>
+                                <div className="grid grid-cols-4 gap-2">
+                                  {[
+                                    { c1: '#FF0000', c2: '#FF7F00', name: 'Sunset' },
+                                    { c1: '#0000FF', c2: '#00FFFF', name: 'Ocean' },
+                                    { c1: '#FF00FF', c2: '#00FFFF', name: 'Neon' },
+                                    { c1: '#FFD700', c2: '#FF4500', name: 'Fire' },
+                                    { c1: '#8B00FF', c2: '#FF00FF', name: 'Purple' },
+                                    { c1: '#00FF00', c2: '#00FFFF', name: 'Green' },
+                                    { c1: '#FF1493', c2: '#FF69B4', name: 'Pink' },
+                                    { c1: '#000000', c2: '#808080', name: 'Gray' }
+                                  ].map((preset, idx) => (
+                                    <button
+                                      key={idx}
+                                      onClick={() => {
+                                        setGradientColor1(preset.c1)
+                                        setGradientColor2(preset.c2)
+                                      }}
+                                      className="aspect-square rounded border-2 border-border hover:border-primary transition-all"
+                                      style={{
+                                        background: `linear-gradient(135deg, ${preset.c1}, ${preset.c2})`
+                                      }}
+                                      title={preset.name}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
                     </div>

@@ -9,6 +9,7 @@ import { toolsApi } from "@/services/api"
 import { useWalletStore } from "@/store/walletStore"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { getApiUrl } from "@/lib/config"
 
 const tools = [
   {
@@ -123,7 +124,6 @@ function ToolsPageContent() {
         if (token) headers['Authorization'] = `Bearer ${token}`
         
         // Use getApiUrl from config to get correct API URL (already includes /api)
-        const { getApiUrl } = await import('@/lib/config')
         const API_URL = getApiUrl()
         const res = await fetch(`${API_URL}/tools/${selectedTool}`, {
           method: 'POST',

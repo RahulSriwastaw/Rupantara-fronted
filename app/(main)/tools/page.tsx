@@ -292,9 +292,18 @@ function ToolsPageContent() {
 
   useEffect(() => {
     if (colorMode === 'gradient' && originalResultUrl) {
-      handleGradientChange()
+      applyBackgroundGradient(
+        originalResultUrl,
+        gradientType,
+        gradientDirection,
+        gradientColor1,
+        gradientColor2
+      ).then((newImageUrl) => {
+        setResultUrl(newImageUrl)
+      })
     }
-  }, [gradientType, gradientDirection, gradientColor1, gradientColor2, colorMode])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gradientType, gradientDirection, gradientColor1, gradientColor2, colorMode, originalResultUrl])
 
   const applyBackgroundImage = async (foregroundUrl: string, backgroundUrl: string): Promise<string> => {
     return new Promise((resolve) => {

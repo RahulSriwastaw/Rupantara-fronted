@@ -529,12 +529,13 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-56 sm:h-auto min-h-[220px] sm:min-h-[300px] md:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-6`}
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-auto min-h-[250px] sm:min-h-[400px] md:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-6 bg-cover bg-center`}
             style={{ 
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
               backgroundSize: 'cover',
-              backgroundPosition: 'center'
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
             }}
           >
             {/* Background Pattern Overlay */}

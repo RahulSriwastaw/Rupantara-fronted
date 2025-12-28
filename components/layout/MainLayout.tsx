@@ -55,15 +55,17 @@ export function MainLayout({
   }, [user, fetchWalletData, fetchGenerations, hasHydrated]);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background overflow-x-hidden">
       {/* Sidebar Navigation - Desktop Only */}
       {showBottomNav && <SidebarNav />}
 
-      <div className="flex flex-col flex-1 min-h-screen md:ml-20">
+      <div className="flex flex-col flex-1 min-h-screen w-full md:ml-20 max-w-full">
         {showTopHeader && <TopHeader />}
 
-        <main id="main-content" className="flex-1 pb-16 sm:pb-20 md:pb-0 px-2 sm:px-3 md:px-4 lg:px-6">
-          {children}
+        <main id="main-content" className="flex-1 pb-16 sm:pb-20 md:pb-0 px-2 sm:px-3 md:px-4 lg:px-6 w-full max-w-full overflow-x-hidden">
+          <div className="w-full max-w-full">
+            {children}
+          </div>
         </main>
 
         {/* Bottom Navigation - Mobile Only */}

@@ -93,11 +93,11 @@ export default function WalletPage() {
   });
 
   return (
-    <div className="w-full max-w-6xl py-2 sm:py-3 md:py-4 space-y-3 sm:space-y-4">
+    <div className="w-full max-w-6xl mx-auto py-2 sm:py-3 md:py-4 space-y-3 sm:space-y-4 px-2 sm:px-0">
       {/* Header */}
       <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-bold">Wallet</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">Manage your points and earnings</p>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Wallet</h1>
+        <p className="text-xs sm:text-sm md:text-base text-muted-foreground">Manage your points and earnings</p>
       </div>
 
       {/* Balance Card */}

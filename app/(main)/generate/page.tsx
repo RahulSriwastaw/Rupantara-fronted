@@ -346,10 +346,10 @@ function GenerateContent() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-2 sm:py-3 md:py-4 space-y-3 sm:space-y-4">
+    <div className="w-full max-w-7xl mx-auto py-2 sm:py-3 md:py-4 space-y-3 sm:space-y-4 px-2 sm:px-0">
       {/* Header */}
       <div className="space-y-1">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Generate Image</h1>
+        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">Generate Image</h1>
         <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
           Upload photos and describe what you want to create
         </p>
@@ -395,9 +395,9 @@ function GenerateContent() {
         </CardContent>
       </Card>
 
-      <div className="grid lg:grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-full">
         {/* Main Column */}
-        <div className="lg:col-span-2 space-y-2 sm:space-y-3">
+        <div className="lg:col-span-2 space-y-3 sm:space-y-4 w-full max-w-full">
           {/* Photo Upload */}
           <Card>
             <CardContent className="p-2 sm:p-3">

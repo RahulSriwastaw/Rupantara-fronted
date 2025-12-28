@@ -246,37 +246,37 @@ export function TemplateCard({
 
   // Professional Instagram/Facebook style card
   return (
-    <Card className="overflow-hidden bg-card border border-border/50 rounded-xl hover:shadow-xl transition-all duration-300 hover:border-primary/20 sm:mb-4 mb-4">
+    <Card className="overflow-hidden bg-card border border-border/50 rounded-xl hover:shadow-xl transition-all duration-300 hover:border-primary/20 mb-3 sm:mb-4 w-full max-w-full">
       {/* Header - Creator Info */}
-      <CardContent className="p-3 sm:p-4 pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-border/50 shadow-sm">
-              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-semibold text-sm">
+      <CardContent className="p-2.5 sm:p-3 md:p-4 pb-2.5 sm:pb-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-2.5 flex-1 min-w-0">
+            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 border-2 border-border/50 shadow-sm flex-shrink-0">
+              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-semibold text-xs sm:text-sm">
                 {template.creatorName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-sm sm:text-base truncate">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <span className="font-semibold text-xs sm:text-sm md:text-base truncate">
                   {template.creatorName}
                 </span>
                 {template.creatorVerified && (
-                  <div className="flex-shrink-0 h-4 w-4 rounded-full bg-blue-500 flex items-center justify-center shadow-sm">
-                    <Check className="h-2.5 w-2.5 text-white stroke-[3]" />
+                  <div className="flex-shrink-0 h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-blue-500 flex items-center justify-center shadow-sm">
+                    <Check className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-white stroke-[3]" />
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <Button
               onClick={handleToggleFollow}
               variant={isFollowing ? "outline" : "default"}
               size="sm"
               className={cn(
-                "h-8 px-3 sm:px-4 text-xs sm:text-sm font-medium transition-all",
+                "h-7 sm:h-8 px-2 sm:px-3 md:px-4 text-[10px] sm:text-xs md:text-sm font-medium transition-all",
                 isFollowing && "bg-secondary hover:bg-secondary/80 border-secondary"
               )}
             >
@@ -309,26 +309,26 @@ export function TemplateCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {/* Badges on Image - Top Right */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2 items-end z-10">
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1.5 sm:gap-2 items-end z-10">
           {/* Official Badge - Only show for Official templates */}
           {template.type === 'Official' && (
-            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 border-0 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-xl backdrop-blur-sm">
+            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 border-0 text-[9px] sm:text-[10px] md:text-[11px] font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 shadow-xl backdrop-blur-sm">
               ⭐ OFFICIAL
             </Badge>
           )}
           {/* Premium Badge - Only icon (Crown) */}
           {!template.isFree && (
-            <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shadow-xl backdrop-blur-sm text-white p-0">
-              <Crown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <Badge className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 border-0 w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center shadow-xl backdrop-blur-sm text-white p-0">
+              <Crown className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
             </Badge>
           )}
         </div>
       </div>
 
       {/* Action Buttons Row */}
-      <CardContent className="p-3 sm:p-4 pt-3 space-y-2">
+      <CardContent className="p-2.5 sm:p-3 md:p-4 pt-2.5 sm:pt-3 space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-3 md:gap-4">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -339,14 +339,15 @@ export function TemplateCard({
               }}
               disabled={isLiking}
               className={cn(
-                "transition-all duration-200 hover:scale-110 active:scale-95",
+                "transition-all duration-200 hover:scale-110 active:scale-95 touch-manipulation",
                 localIsLiked ? "text-red-500" : "text-foreground/70 hover:text-red-500",
                 isLiking && "opacity-50 cursor-not-allowed"
               )}
+              style={{ minWidth: '44px', minHeight: '44px' }}
             >
               <Heart
                 className={cn(
-                  "h-5 w-5 sm:h-6 sm:w-6 transition-all",
+                  "h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 transition-all",
                   localIsLiked && "fill-red-500 scale-110"
                 )}
               />
@@ -356,9 +357,10 @@ export function TemplateCard({
               <DropdownMenuTrigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
-                  className="text-foreground/70 hover:text-primary transition-all duration-200 hover:scale-110 active:scale-95"
+                  className="text-foreground/70 hover:text-primary transition-all duration-200 hover:scale-110 active:scale-95 touch-manipulation"
+                  style={{ minWidth: '44px', minHeight: '44px' }}
                 >
-                  <Share2 className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <Share2 className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -582,14 +584,15 @@ export function TemplateCard({
             }}
             disabled={isSaving}
             className={cn(
-              "transition-all duration-200 hover:scale-110 active:scale-95",
+              "transition-all duration-200 hover:scale-110 active:scale-95 touch-manipulation",
               localIsSaved ? "text-primary" : "text-foreground/70 hover:text-primary",
               isSaving && "opacity-50 cursor-not-allowed"
             )}
+            style={{ minWidth: '44px', minHeight: '44px' }}
           >
             <Bookmark
               className={cn(
-                "h-5 w-5 sm:h-6 sm:w-6 transition-all",
+                "h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 transition-all",
                 localIsSaved && "fill-primary scale-110"
               )}
             />
@@ -597,33 +600,33 @@ export function TemplateCard({
         </div>
 
         {/* Engagement Stats - Professional styling */}
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-foreground/80">
-          <div className="flex items-center gap-1">
-            <Heart className={cn("h-3.5 w-3.5", localIsLiked && "fill-red-500 text-red-500")} />
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm text-foreground/80">
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <Heart className={cn("h-3 w-3 sm:h-3.5 sm:w-3.5", localIsLiked && "fill-red-500 text-red-500")} />
             <span className="font-semibold">{localLikeCount.toLocaleString()}</span>
           </div>
           <span className="text-muted-foreground/50">•</span>
-          <div className="flex items-center gap-1">
-            <Bookmark className={cn("h-3.5 w-3.5", isSaved && "fill-primary text-primary")} />
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <Bookmark className={cn("h-3 w-3 sm:h-3.5 sm:w-3.5", isSaved && "fill-primary text-primary")} />
             <span className="font-semibold">{template.saveCount.toLocaleString()}</span>
           </div>
           <span className="text-muted-foreground/50">•</span>
-          <div className="flex items-center gap-1">
-            <Eye className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             <span className="font-semibold">{template.usageCount.toLocaleString()}</span>
           </div>
         </div>
 
         {/* Title */}
         <div onClick={onClick} className="cursor-pointer group">
-          <h3 className="font-bold text-base sm:text-lg line-clamp-2 group-hover:text-primary transition-colors">
+          <h3 className="font-bold text-sm sm:text-base md:text-lg line-clamp-2 group-hover:text-primary transition-colors break-words">
             {template.title}
           </h3>
         </div>
 
         {/* Description */}
         <div onClick={onClick} className="cursor-pointer">
-          <p className="text-sm sm:text-base text-muted-foreground line-clamp-2 leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-muted-foreground line-clamp-2 leading-relaxed break-words">
             {template.description}
           </p>
         </div>
@@ -657,8 +660,9 @@ export function TemplateCard({
             e.stopPropagation();
             onUse?.();
           }}
-          className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground h-10 text-sm sm:text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+          className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground h-9 sm:h-10 text-xs sm:text-sm md:text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200 touch-manipulation"
           size="lg"
+          style={{ minHeight: '44px' }}
         >
           Use Template ({template.pointsCost} pts)
         </Button>

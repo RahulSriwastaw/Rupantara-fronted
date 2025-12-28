@@ -210,32 +210,34 @@ function TemplateContent() {
   };
 
   return (
-    <div className="w-full py-2 sm:py-3 md:py-4 space-y-3 sm:space-y-4">
+    <div className="w-full max-w-full py-2 sm:py-3 md:py-4 space-y-3 sm:space-y-4 overflow-x-hidden">
       {/* Header Section */}
-      <div className="space-y-2 sm:space-y-3">
+      <div className="space-y-2 sm:space-y-3 w-full max-w-full">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" />
 
         {/* Search & Filter */}
-        <div className="flex flex-row items-center gap-2">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex flex-row items-center gap-2 w-full max-w-full">
+          <div className="relative flex-1 min-w-0 max-w-full">
+            <Search className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
             <Input
               placeholder="Search templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 text-sm"
+              className="pl-8 sm:pl-10 text-xs sm:text-sm h-9 sm:h-10"
             />
           </div>
-          <TemplateFilters
-            filters={filters}
-            onFiltersChange={(newFilters) => setFilters(newFilters)}
-            onReset={resetFilters}
-            categories={filterCategories}
-          />
+          <div className="flex-shrink-0">
+            <TemplateFilters
+              filters={filters}
+              onFiltersChange={(newFilters) => setFilters(newFilters)}
+              onReset={resetFilters}
+              categories={filterCategories}
+            />
+          </div>
         </div>
 
         {/* Category Bar */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-2 sm:-mx-0 px-2 sm:px-0">
           {categoryChips.map((category) => {
             const isSelected = selectedCategory === category;
             return (
@@ -243,14 +245,14 @@ function TemplateContent() {
                 key={category}
                 variant={isSelected ? "default" : "outline"}
                 className={cn(
-                  "cursor-pointer whitespace-nowrap flex-shrink-0 text-xs sm:text-sm transition-all",
+                  "cursor-pointer whitespace-nowrap flex-shrink-0 text-[10px] sm:text-xs md:text-sm transition-all px-2 sm:px-3 py-1 sm:py-1.5",
                   isSelected
                     ? "bg-primary text-white border-primary hover:bg-primary/90"
                     : "text-foreground border-border hover:bg-secondary"
                 )}
                 onClick={() => setSelectedCategory(category)}
               >
-                {category === "Trending" && <Flame className="h-3 w-3 mr-1" />}
+                {category === "Trending" && <Flame className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />}
                 {category}
               </Badge>
             );
@@ -259,12 +261,12 @@ function TemplateContent() {
 
         {/* Sub-Category Bar */}
         {currentSubCategories.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-2 sm:-mx-0 px-2 sm:px-0">
             {/* All sub-categories option */}
             <Badge
               variant={selectedSubCategory === null ? "default" : "outline"}
               className={cn(
-                "cursor-pointer whitespace-nowrap flex-shrink-0 text-xs transition-all",
+                "cursor-pointer whitespace-nowrap flex-shrink-0 text-[10px] sm:text-xs transition-all px-2 sm:px-3 py-1",
                 selectedSubCategory === null
                   ? "bg-primary/80 text-white border-primary"
                   : "text-foreground border-border hover:bg-secondary"
@@ -280,7 +282,7 @@ function TemplateContent() {
                 key={subCat}
                 variant={selectedSubCategory === subCat ? "default" : "outline"}
                 className={cn(
-                  "cursor-pointer whitespace-nowrap flex-shrink-0 text-xs transition-all",
+                  "cursor-pointer whitespace-nowrap flex-shrink-0 text-[10px] sm:text-xs transition-all px-2 sm:px-3 py-1",
                   selectedSubCategory === subCat
                     ? "bg-primary/80 text-white border-primary"
                     : "text-foreground border-border hover:bg-secondary"
@@ -302,12 +304,12 @@ function TemplateContent() {
               <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
               <h2 className="text-lg sm:text-xl font-bold">Trending Now</h2>
             </div>
-            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-2 sm:-mx-0 px-2 sm:px-0">
               {templates
                 .sort((a, b) => b.usageCount - a.usageCount)
                 .slice(0, 5)
                 .map((template) => (
-                  <div key={template.id} className="flex-shrink-0 w-40 sm:w-48 md:w-56">
+                  <div key={template.id} className="flex-shrink-0 w-36 sm:w-44 md:w-52 lg:w-56">
                     <TemplateCard
                       template={template}
                       // Use backend isLiked status as primary source, fallback to store
@@ -352,7 +354,7 @@ function TemplateContent() {
             onAction={resetFilters}
           />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 w-full max-w-full">
             {filteredTemplates.map((template) => (
               <TemplateCard
                 key={template.id}

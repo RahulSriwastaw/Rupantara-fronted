@@ -100,15 +100,22 @@ export function PopupManager() {
     if (popup) {
       await monetizationApi.trackPopupClick(popup._id);
       
-      if (popup.ctaAction === 'buy_pack') {
+      if (popup.ctaAction === 'buy_plan' || popup.ctaAction === 'buy_pack') {
         router.push('/pro');
-      } else if (popup.ctaAction === 'watch_ad') {
-        // Trigger ad watch - implement ad watching logic
-        console.log('Watch ad action');
+      } else if (popup.ctaAction === 'open_payment') {
+        router.push('/pro');
       } else if (popup.ctaAction === 'apply_offer') {
         router.push('/pro');
-      } else if (popup.ctaAction === 'custom_url' && popup.ctaUrl) {
+      } else if (popup.ctaAction === 'redirect' && popup.ctaUrl) {
         window.location.href = popup.ctaUrl;
+      } else if (popup.templateData?.ctaAction === 'buy_plan') {
+        router.push('/pro');
+      } else if (popup.templateData?.ctaAction === 'open_payment') {
+        router.push('/pro');
+      } else if (popup.templateData?.ctaAction === 'apply_offer') {
+        router.push('/pro');
+      } else if (popup.templateData?.ctaAction === 'redirect' && popup.templateData?.ctaUrl) {
+        window.location.href = popup.templateData.ctaUrl;
       }
     }
     setShow(false);

@@ -163,7 +163,8 @@ export function PopupManager() {
   // Different popup types rendering
   if (popup.popupType === 'toast') {
     return (
-      <div className="fixed bottom-4 right-4 z-50 bg-white rounded-xl shadow-2xl p-4 max-w-sm w-[90vw] sm:w-auto animate-in slide-in-from-bottom duration-300 border border-gray-100">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 sm:p-6" onClick={handleClose}>
+        <div className="bg-white rounded-xl shadow-2xl p-4 max-w-sm w-full sm:w-auto animate-in slide-in-from-bottom duration-300 border border-gray-100 relative" onClick={(e) => e.stopPropagation()}>
         <button 
           onClick={handleClose} 
           onTouchStart={(e) => e.stopPropagation()}
@@ -198,14 +199,15 @@ export function PopupManager() {
           </div>
         )}
         <div className="pr-8">
-          <h3 className="font-bold text-lg mb-1.5 text-gray-900">{popup.title}</h3>
-          <p className="text-sm text-gray-600 mb-3 leading-relaxed">{popup.description}</p>
+          <h3 className="font-bold text-lg mb-1.5 text-gray-900 break-words">{popup.title}</h3>
+          <p className="text-sm text-gray-600 mb-3 leading-relaxed break-words">{popup.description}</p>
           <button
             onClick={handleCTAClick}
-            className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-2.5 rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+            className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-2.5 rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
           >
             {popup.ctaText}
           </button>
+        </div>
         </div>
       </div>
     );
@@ -399,14 +401,16 @@ export function PopupManager() {
       <div 
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300 p-3 sm:p-4"
         onClick={handleClose}
-        style={{ touchAction: 'none' }}
+        style={{ touchAction: 'none', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
       >
         <div 
-          className="bg-white rounded-xl sm:rounded-2xl w-[85%] sm:w-[75%] md:w-[65%] lg:w-[55%] max-w-[85vw] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl mx-2 sm:mx-4 max-h-[70vh] sm:max-h-[65vh] md:max-h-[60vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
+          className="bg-white rounded-xl sm:rounded-2xl w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] max-w-[90vw] sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-2 sm:mx-4 max-h-[75vh] sm:max-h-[70vh] md:max-h-[65vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
           onClick={(e) => e.stopPropagation()}
           style={{ 
-            maxWidth: '85vw',
-            touchAction: 'pan-y'
+            maxWidth: '90vw',
+            touchAction: 'pan-y',
+            position: 'relative',
+            margin: 'auto'
           }}
         >
           <button 
@@ -576,14 +580,16 @@ export function PopupManager() {
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-3 md:p-4"
       onClick={handleClose}
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: 'none', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
     >
       <div 
-        className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl w-[85%] sm:w-[75%] md:w-[65%] lg:w-[55%] max-w-[85vw] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl max-h-[70vh] sm:max-h-[65vh] md:max-h-[60vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
+        className={`bg-gray-50 ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] max-w-[90vw] sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl max-h-[75vh] sm:max-h-[70vh] md:max-h-[65vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          maxWidth: '85vw',
-          touchAction: 'pan-y'
+          maxWidth: '90vw',
+          touchAction: 'pan-y',
+          position: 'relative',
+          margin: 'auto'
         }}
       >
         <button 
@@ -753,21 +759,21 @@ export function PopupManager() {
 
               {/* Main Heading */}
               {popup.templateData.mainHeading && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1 text-red-600 leading-tight uppercase`}>
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1 text-red-600 leading-tight uppercase break-words`}>
                   {popup.templateData.mainHeading}
                 </h2>
               )}
 
               {/* Sub Heading */}
               {popup.templateData.subHeading && (
-                <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg sm:text-xl md:text-2xl lg:text-3xl'} font-bold mb-1.5 sm:mb-2 text-gray-900 uppercase leading-tight`}>
+                <p className={`${popup.popupType === 'full_screen' ? 'text-xl sm:text-2xl md:text-3xl' : 'text-lg sm:text-xl md:text-2xl lg:text-3xl'} font-bold mb-1.5 sm:mb-2 text-gray-900 uppercase leading-tight break-words`}>
                   {popup.templateData.subHeading}
                 </p>
               )}
 
               {/* Description */}
               {popup.templateData.description && (
-                <p className={`text-gray-600 mb-3 sm:mb-4 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'}`}>
+                <p className={`text-gray-600 mb-3 sm:mb-4 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'} break-words`}>
                   {popup.templateData.description}
                 </p>
               )}
@@ -849,35 +855,35 @@ export function PopupManager() {
 
               {/* Main Title */}
               {popup.textContent?.mainTitle && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1.5 sm:mb-2 md:mb-3 text-gray-900 leading-tight`}>
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1.5 sm:mb-2 md:mb-3 text-gray-900 leading-tight break-words`}>
                   {popup.textContent.mainTitle}
                 </h2>
               )}
 
               {/* Fallback to legacy title if textContent.mainTitle not available */}
               {!popup.textContent?.mainTitle && popup.title && (
-                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1.5 sm:mb-2 md:mb-3 text-gray-900 leading-tight`}>
+                <h2 className={`${popup.popupType === 'full_screen' ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl md:text-3xl lg:text-4xl'} font-bold mb-1.5 sm:mb-2 md:mb-3 text-gray-900 leading-tight break-words`}>
                   {popup.title}
                 </h2>
               )}
 
               {/* Sub Title */}
               {popup.textContent?.subTitle && (
-                <p className={`${popup.popupType === 'full_screen' ? 'text-lg sm:text-xl md:text-2xl' : 'text-base sm:text-lg md:text-xl'} font-bold mb-1.5 sm:mb-2 text-gray-800 leading-tight`}>
+                <p className={`${popup.popupType === 'full_screen' ? 'text-lg sm:text-xl md:text-2xl' : 'text-base sm:text-lg md:text-xl'} font-bold mb-1.5 sm:mb-2 text-gray-800 leading-tight break-words`}>
                   {popup.textContent.subTitle}
                 </p>
               )}
 
               {/* Description */}
               {popup.textContent?.description && (
-                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'}`}>
+                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'} break-words`}>
                   {popup.textContent.description}
                 </p>
               )}
 
               {/* Fallback to legacy description */}
               {!popup.textContent?.description && popup.description && (
-                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'}`}>
+                <p className={`text-gray-600 mb-3 sm:mb-4 md:mb-6 leading-relaxed ${popup.popupType === 'full_screen' ? 'text-sm sm:text-base md:text-lg' : 'text-xs sm:text-sm md:text-base'} break-words`}>
                   {popup.description}
                 </p>
               )}

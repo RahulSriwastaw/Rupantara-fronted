@@ -90,11 +90,18 @@ export function PopupManager() {
           console.log('📥 Popup received from API:', response.popup);
           console.log('📥 TemplateData:', response.popup.templateData);
           console.log('📥 Features:', response.popup.templateData?.features);
+          
+          // Ensure all features have badgeType set
           if (response.popup.templateData?.features) {
+            response.popup.templateData.features = response.popup.templateData.features.map((f: any) => ({
+              ...f,
+              badgeType: f.badgeType || 'unlimited' // Force default if missing
+            }));
             response.popup.templateData.features.forEach((f: any, idx: number) => {
-              console.log(`📥 Feature ${idx}:`, { text: f.text, badgeType: f.badgeType, isEnabled: f.isEnabled });
+              console.log(`📥 Feature ${idx}:`, { text: f.text, badgeType: f.badgeType, isEnabled: f.isEnabled, fullFeature: f });
             });
           }
+          
           setPopup(response.popup);
           setShow(true);
         }

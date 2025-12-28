@@ -126,7 +126,9 @@ export default function ToolsPage() {
       }
       
       const data = await res.json()
-      setResultUrl(data.result || data.imageUrl)
+      const processedUrl = data.result || data.imageUrl
+      setResultUrl(processedUrl)
+      setOriginalResultUrl(processedUrl) // Store original for background color changes
       setPoints(data.points)
       
       toast({
@@ -159,13 +161,18 @@ export default function ToolsPage() {
   const handleClear = () => {
     setImage('')
     setResultUrl('')
+    setOriginalResultUrl('')
     setError(null)
     setPoints(null)
+    setBackgroundColor('#FFFFFF')
     setSelectedTool(null)
   }
 
+  // Store original processed image URL (before background color change)
+  const [originalResultUrl, setOriginalResultUrl] = useState<string>('')
+
   // Apply background color to transparent PNG (for BG Remove)
-  const applyBackgroundColor = (imageUrl: string, color: string): string => {
+  const applyBackgroundColor = async (imageUrl: string, color: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image()
       img.crossOrigin = 'anonymous'
@@ -178,7 +185,7 @@ export default function ToolsPage() {
           // Fill with background color
           ctx.fillStyle = color
           ctx.fillRect(0, 0, canvas.width, canvas.height)
-          // Draw image on top
+          // Draw image on top (transparent PNG will show background color)
           ctx.drawImage(img, 0, 0)
           resolve(canvas.toDataURL('image/png'))
         } else {
@@ -191,10 +198,10 @@ export default function ToolsPage() {
   }
 
   const handleBackgroundColorChange = async (color: string) => {
-    if (!resultUrl) return
+    if (!originalResultUrl) return
     setBackgroundColor(color)
-    const newImageUrl = await applyBackgroundColor(resultUrl, color)
-    setResultUrl(newImageUrl as string)
+    const newImageUrl = await applyBackgroundColor(originalResultUrl, color)
+    setResultUrl(newImageUrl)
   }
 
   const selectedToolData = tools.find(t => t.id === selectedTool)

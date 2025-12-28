@@ -82,6 +82,24 @@ export function PopupManager() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const router = useRouter();
 
+  // Prevent body scroll when popup is open
+  useEffect(() => {
+    if (show) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, [show]);
+
   useEffect(() => {
     const fetchPopup = async () => {
       try {
@@ -221,11 +239,12 @@ export function PopupManager() {
         style={{ touchAction: 'none' }}
       >
         <div 
-          className="bg-white rounded-t-2xl p-4 sm:p-5 md:p-6 w-[92%] sm:w-[85%] md:w-[75%] lg:w-[65%] max-w-[92vw] sm:max-w-lg md:max-w-xl mx-auto animate-in slide-in-from-bottom duration-300 max-h-[75vh] sm:max-h-[70vh] md:max-h-[65vh] overflow-y-auto shadow-2xl relative"
+          className="bg-white rounded-t-2xl p-4 sm:p-5 md:p-6 w-[95%] sm:w-[88%] md:w-[78%] lg:w-[68%] max-w-[95vw] sm:max-w-lg md:max-w-xl mx-auto animate-in slide-in-from-bottom duration-300 max-h-[80vh] sm:max-h-[75vh] md:max-h-[70vh] overflow-y-auto shadow-2xl relative"
           onClick={(e) => e.stopPropagation()}
           style={{ 
-            maxWidth: '92vw',
-            touchAction: 'pan-y'
+            maxWidth: '95vw',
+            touchAction: 'pan-y',
+            WebkitOverflowScrolling: 'touch'
           }}
         >
           {/* Drag Handle */}
@@ -404,11 +423,12 @@ export function PopupManager() {
         style={{ touchAction: 'none' }}
       >
         <div 
-          className="bg-white rounded-2xl w-[92%] sm:w-[85%] md:w-[75%] lg:w-[65%] xl:w-[55%] max-w-[92vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-2 sm:mx-4 max-h-[82vh] sm:max-h-[78vh] md:max-h-[75vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
+          className="bg-white rounded-2xl w-[95%] sm:w-[88%] md:w-[78%] lg:w-[68%] xl:w-[58%] max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-2 sm:mx-4 max-h-[85vh] sm:max-h-[80vh] md:max-h-[75vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300 relative"
           onClick={(e) => e.stopPropagation()}
           style={{ 
-            maxWidth: '92vw',
-            touchAction: 'pan-y'
+            maxWidth: '95vw',
+            touchAction: 'pan-y',
+            WebkitOverflowScrolling: 'touch'
           }}
         >
           <button 
@@ -487,14 +507,14 @@ export function PopupManager() {
 
             {/* Main Title */}
             {popup.textContent?.mainTitle ? (
-              <h2 className="text-3xl font-bold mb-3 text-gray-900">{popup.textContent.mainTitle}</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 text-gray-900 leading-tight break-words">{popup.textContent.mainTitle}</h2>
             ) : popup.title && (
-              <h2 className="text-3xl font-bold mb-3 text-gray-900">{popup.title}</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 text-gray-900 leading-tight break-words">{popup.title}</h2>
             )}
 
             {/* Sub Title */}
             {popup.textContent?.subTitle && (
-              <p className="text-2xl font-bold text-gray-800 mb-2">{popup.textContent.subTitle}</p>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-1.5 sm:mb-2 leading-tight break-words">{popup.textContent.subTitle}</p>
             )}
 
             {/* Description */}
@@ -576,16 +596,17 @@ export function PopupManager() {
   // Default: center_modal or full_screen - Split Layout Design
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-3 sm:p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-2 sm:p-3 md:p-4"
       onClick={handleClose}
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: 'none', WebkitOverflowScrolling: 'touch' }}
     >
       <div 
-        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl w-[92%] sm:w-[85%] md:w-[75%] lg:w-[65%] xl:w-[55%] max-w-[92vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl max-h-[82vh] sm:max-h-[78vh] md:max-h-[75vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
+        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl w-[95%] sm:w-[88%] md:w-[78%] lg:w-[68%] xl:w-[58%] max-w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl max-h-[85vh] sm:max-h-[80vh] md:max-h-[75vh]'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          maxWidth: '92vw',
-          touchAction: 'pan-y'
+          maxWidth: '95vw',
+          touchAction: 'pan-y',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
         <button 

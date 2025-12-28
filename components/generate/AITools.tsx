@@ -59,8 +59,16 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
   const [error, setError] = useState<string | null>(null);
 
   const handleToolClick = (toolId: string) => {
+    // Map tool IDs to match tools page
+    const toolIdMap: Record<string, string> = {
+      'bg-remove': 'remove-bg',
+      'upscale': 'upscale',
+      'face-enhance': 'face-enhance',
+      'colorize': 'colorize'
+    };
+    const mappedToolId = toolIdMap[toolId] || toolId;
     // Redirect to tools page with selected tool
-    router.push(`/tools?tool=${toolId}`);
+    router.push(`/tools?tool=${mappedToolId}`);
   };
 
   const handleApply = async () => {

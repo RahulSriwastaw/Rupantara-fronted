@@ -529,13 +529,14 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-auto min-h-[250px] sm:min-h-[400px] md:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-6 bg-cover bg-center`}
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full sm:w-1/2 h-1/2 sm:h-full' : 'w-full sm:w-2/5 h-[300px] sm:h-auto sm:min-h-[400px] md:min-h-0'} overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-6`}
             style={{ 
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
+              backgroundRepeat: 'no-repeat',
+              minHeight: '300px'
             }}
           >
             {/* Background Pattern Overlay */}
@@ -546,7 +547,7 @@ export function PopupManager() {
             }}></div>
             
             {/* Content Overlay */}
-            <div className="relative z-10 w-full flex flex-col items-center justify-center text-center space-y-2 sm:space-y-3 md:space-y-4 px-2 sm:px-4">
+            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center text-center space-y-2 sm:space-y-3 md:space-y-4 px-2 sm:px-4 py-3 sm:py-4">
               {/* Brand Text */}
               {popup.templateData.leftBrandText && (
                 <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-gray-800 uppercase">

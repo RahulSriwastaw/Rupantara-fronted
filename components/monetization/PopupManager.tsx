@@ -681,21 +681,21 @@ export function PopupManager() {
                     .map((feature: any, idx: number) => {
                       const getBadgeClass = (badgeType: string) => {
                         const badges: Record<string, string> = {
-                          unlimited: 'bg-green-500 text-white',
-                          pro: 'bg-blue-500 text-white',
-                          included: 'bg-purple-500 text-white'
+                          unlimited: 'bg-green-500 text-white', // Medium green
+                          pro: 'bg-green-700 text-white', // Dark green
+                          included: 'bg-yellow-500 text-white' // Golden yellow
                         };
                         return badges[badgeType] || '';
                       };
                       
                       return (
-                        <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
-                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm text-gray-700">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <span className="flex-1 min-w-0">{feature.text}</span>
                           {feature.badgeType && (
-                            <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getBadgeClass(feature.badgeType)}`}>
+                            <span className={`px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-md whitespace-nowrap ${getBadgeClass(feature.badgeType)}`}>
                               {feature.badgeType === 'unlimited' ? 'Unlimited' : feature.badgeType === 'pro' ? 'Pro' : feature.badgeType === 'included' ? 'Included' : feature.badgeType}
                             </span>
                           )}

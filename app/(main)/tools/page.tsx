@@ -51,16 +51,20 @@ function ToolsPageContent() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const { balance } = useWalletStore()
-  const [selectedTool, setSelectedTool] = useState<string | null>(null)
-  const [isInitialized, setIsInitialized] = useState(false)
+  
+  // Initialize from URL params immediately
+  const toolParam = searchParams?.get('tool')
+  const initialTool = toolParam && tools.find(t => t.id === toolParam) ? toolParam : null
+  const [selectedTool, setSelectedTool] = useState<string | null>(initialTool)
 
-  // Get tool from URL params on mount
+  // Update tool when URL params change
   useEffect(() => {
     const toolParam = searchParams?.get('tool')
     if (toolParam && tools.find(t => t.id === toolParam)) {
       setSelectedTool(toolParam)
+    } else if (!toolParam) {
+      setSelectedTool(null)
     }
-    setIsInitialized(true)
   }, [searchParams])
   
   const [image, setImage] = useState<string>('')
@@ -115,70 +119,49 @@ function ToolsPageContent() {
     setError(null)
     setLoading(true)
     setResultUrl('')
+    setPoints(null)
     
     try {
       // Use toolsApi service for consistent API calls
-      let response: any = null;
-      try {
-        if (selectedTool === 'remove-bg') {
-          response = await toolsApi.removeBg(image);
-        } else {
-          // For other tools, use generic API call
-          const token = localStorage.getItem('token')
-          const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-          if (token) headers['Authorization'] = `Bearer ${token}`
-          
-          // Use getApiUrl from config to get correct API URL (already includes /api)
-          const API_URL = getApiUrl()
-          const res = await fetch(`${API_URL}/tools/${selectedTool}`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ imageUrl: image })
-          })
-          
-          if (!res.ok) {
-            let errorData;
-            try {
-              errorData = await res.json();
-            } catch {
-              const errorText = await res.text();
-              errorData = { error: errorText };
-            }
-            throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`)
+      let response;
+      if (selectedTool === 'remove-bg') {
+        response = await toolsApi.removeBg(image);
+      } else {
+        // For other tools, use generic API call
+        const token = localStorage.getItem('token')
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+        if (token) headers['Authorization'] = `Bearer ${token}`
+        
+        // Use getApiUrl from config to get correct API URL (already includes /api)
+        const API_URL = getApiUrl()
+        const res = await fetch(`${API_URL}/tools/${selectedTool}`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ imageUrl: image })
+        })
+        
+        if (!res.ok) {
+          let errorData;
+          try {
+            errorData = await res.json();
+          } catch {
+            const errorText = await res.text();
+            errorData = { error: errorText };
           }
-          response = await res.json()
+          throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`)
         }
-      } catch (apiError: any) {
-        console.error('API Error:', apiError);
-        throw apiError;
+        response = await res.json()
       }
       
-      // Safely handle response - check if response exists
-      if (!response) {
-        throw new Error('No response received from server');
-      }
-      
-      // Safely extract processed URL
-      const processedUrl = response?.result || response?.imageUrl || (typeof response === 'string' ? response : null);
-      if (!processedUrl) {
-        throw new Error('No image URL in response');
-      }
-      
+      const processedUrl = response.result || response.imageUrl || response
       setResultUrl(processedUrl)
       setOriginalResultUrl(processedUrl)
-      
       // Safely get points from response, fallback to balance from wallet store
-      if (response && typeof response === 'object' && typeof response.points === 'number') {
+      if (response && typeof response.points === 'number') {
         setPoints(response.points)
-      } else if (response && typeof response === 'object' && typeof response.balance === 'number') {
-        setPoints(response.balance)
       } else {
         // Use balance from wallet store if response.points is not available
-        // Refresh wallet data first to get latest balance
-        const { fetchWalletData } = useWalletStore.getState();
-        await fetchWalletData();
-        const updatedBalance = useWalletStore.getState().balance;
-        setPoints(updatedBalance !== null && updatedBalance !== undefined ? updatedBalance : 0)
+        setPoints(balance)
       }
       
       toast({
@@ -506,8 +489,8 @@ function ToolsPageContent() {
         </div>
       </div>
 
-      {/* Tool Selection - Only show when no tool is selected and initialized */}
-      {!selectedTool && isInitialized && (
+      {/* Tool Selection - Only show when no tool is selected */}
+      {!selectedTool && (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {tools.map((tool) => {
             const Icon = tool.icon

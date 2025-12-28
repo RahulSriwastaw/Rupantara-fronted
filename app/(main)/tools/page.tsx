@@ -46,7 +46,7 @@ const tools = [
   }
 ]
 
-export default function ToolsPage() {
+function ToolsPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -425,5 +425,17 @@ export default function ToolsPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function ToolsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <ToolsPageContent />
+    </Suspense>
   )
 }

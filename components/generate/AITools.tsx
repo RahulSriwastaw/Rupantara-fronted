@@ -155,30 +155,61 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
   return (
     <>
       <div className="space-y-2 sm:space-y-3">
-        <h3 className="text-sm sm:text-base font-semibold">Quick AI Tools</h3>
+        <h3 className="text-sm sm:text-base font-semibold text-foreground">Quick AI Tools</h3>
         <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
           {tools.map((tool) => {
             const Icon = tool.icon;
+            const isBgRemove = tool.id === "bg-remove";
             return (
               <button
                 key={tool.id}
                 onClick={() => handleToolClick(tool.id)}
                 disabled={!hasPhotos}
-                className="flex flex-col items-center gap-1.5 sm:gap-2 p-2 sm:p-3 rounded-xl border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                className={cn(
+                  "flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3.5 rounded-xl border-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden",
+                  isBgRemove
+                    ? "bg-gradient-to-br from-blue-500/20 via-blue-400/15 to-blue-600/20 border-blue-400/50 hover:border-blue-400 hover:bg-blue-500/30 hover:shadow-lg hover:shadow-blue-500/20 active:scale-95"
+                    : "border-border/60 bg-card/80 hover:bg-accent hover:border-primary/50 hover:shadow-md active:scale-95"
+                )}
               >
+                {/* Shine effect for BG Remove */}
+                {isBgRemove && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                )}
+                
                 <div className={cn(
-                  "rounded-full p-2 sm:p-2.5 bg-primary/10 group-hover:bg-primary/20 transition-colors",
+                  "rounded-full p-2 sm:p-2.5 transition-all duration-200 relative z-10",
+                  isBgRemove
+                    ? "bg-blue-500/20 group-hover:bg-blue-500/30 group-hover:scale-110"
+                    : "bg-primary/10 group-hover:bg-primary/20",
                   !hasPhotos && "opacity-50"
                 )}>
                   <Icon className={cn(
-                    "text-primary",
-                    "h-4 w-4 sm:h-5 sm:w-5"
+                    isBgRemove ? "text-blue-400 group-hover:text-blue-300" : "text-primary",
+                    "h-4 w-4 sm:h-5 sm:w-5 transition-colors"
                   )} />
                 </div>
-                <div className="text-center w-full">
-                  <div className="text-[10px] sm:text-xs font-medium leading-tight">{tool.name}</div>
-                  <div className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">
-                    {tool.cost === 0 ? "FREE" : `${tool.cost}pts`}
+                <div className="text-center w-full relative z-10">
+                  <div className={cn(
+                    "text-[10px] sm:text-xs font-semibold leading-tight transition-colors",
+                    isBgRemove ? "text-blue-300 group-hover:text-blue-200" : "text-foreground"
+                  )}>
+                    {tool.name}
+                  </div>
+                  <div className={cn(
+                    "text-[9px] sm:text-[10px] mt-0.5 font-medium",
+                    isBgRemove
+                      ? "text-blue-400/80 group-hover:text-blue-300"
+                      : "text-muted-foreground"
+                  )}>
+                    {tool.cost === 0 ? (
+                      <span className="inline-flex items-center gap-0.5">
+                        <Sparkles className="h-2.5 w-2.5" />
+                        FREE
+                      </span>
+                    ) : (
+                      `${tool.cost}pts`
+                    )}
                   </div>
                 </div>
               </button>

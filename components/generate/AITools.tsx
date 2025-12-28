@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Scissors, Sparkles, Smile, Maximize2, Palette, Paintbrush } from "lucide-react";
+import { Scissors, Sparkles, Smile, Maximize2, Palette, Paintbrush, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -14,11 +14,8 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-
-interface AIToolsProps {
-  hasPhotos: boolean;
-  onToolApply: (tool: string) => void;
-}
+import { toolsApi } from "@/services/api";
+import { useWalletStore } from "@/store/walletStore";
 
 const tools = [
   {
@@ -44,11 +41,14 @@ const tools = [
   },
 ];
 
-export function AITools({ hasPhotos, onToolApply }: AIToolsProps) {
+export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
   const { toast } = useToast();
+  const { balance, deductPoints } = useWalletStore();
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [intensity, setIntensity] = useState([75]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleToolClick = (toolId: string) => {
     if (!hasPhotos) {
@@ -62,19 +62,83 @@ export function AITools({ hasPhotos, onToolApply }: AIToolsProps) {
     setSelectedTool(toolId);
   };
 
-  const handleApply = () => {
-    if (!selectedTool) return;
+  const handleApply = async () => {
+    if (!selectedTool || !photos.length) return;
 
     setIsProcessing(true);
-    setTimeout(() => {
-      onToolApply(selectedTool);
+    setError(null);
+    setProcessedImage(null);
+
+    try {
+      const currentImage = photos[0]; // Use first uploaded photo
+      const selectedToolData = tools.find(t => t.id === selectedTool);
+
+      if (selectedTool === "bg-remove") {
+        // Call remove background API
+        const response = await toolsApi.removeBg(currentImage);
+        
+        if (response.result || response.imageUrl) {
+          const resultUrl = response.result || response.imageUrl;
+          setProcessedImage(resultUrl);
+          
+          // Deduct points if cost > 0
+          if (selectedToolData && selectedToolData.cost > 0) {
+            deductPoints(selectedToolData.cost);
+          }
+          
+          toast({
+            title: "Background removed!",
+            description: "Your image has been processed successfully",
+          });
+        } else {
+          throw new Error("No result received from API");
+        }
+      } else {
+        // For other tools, use placeholder for now
+        setTimeout(() => {
+          toast({
+            title: "Tool applied!",
+            description: `Successfully applied ${selectedToolData?.name}`,
+          });
+          setSelectedTool(null);
+          setIsProcessing(false);
+        }, 1500);
+      }
+    } catch (err: any) {
+      console.error("Tool processing error:", err);
+      setError(err?.message || "Failed to process image. Please try again.");
       toast({
-        title: "Tool applied!",
-        description: `Successfully applied ${tools.find(t => t.id === selectedTool)?.name}`,
+        title: "Error",
+        description: err?.message || "Failed to process image",
+        variant: "destructive",
       });
-      setSelectedTool(null);
+    } finally {
       setIsProcessing(false);
-    }, 1500);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!processedImage) return;
+    
+    const link = document.createElement('a');
+    link.href = processedImage;
+    link.download = `bg-removed-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Download started",
+      description: "Your image is being downloaded",
+    });
+  };
+
+  const handleUseResult = () => {
+    if (processedImage && selectedTool) {
+      onToolApply(selectedTool, processedImage);
+      setSelectedTool(null);
+      setProcessedImage(null);
+    }
   };
 
   const selectedToolData = tools.find((t) => t.id === selectedTool);
@@ -160,23 +224,92 @@ export function AITools({ hasPhotos, onToolApply }: AIToolsProps) {
               </div>
             )}
 
-            {/* Preview placeholder */}
-            <div className="aspect-video rounded-lg bg-muted flex items-center justify-center">
-              <p className="text-sm text-muted-foreground">Preview will appear here</p>
+            {/* Preview area */}
+            <div className="space-y-3">
+              {selectedTool === "bg-remove" && photos.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Original Image</p>
+                  <div className="aspect-video rounded-lg bg-muted overflow-hidden">
+                    <img
+                      src={photos[0]}
+                      alt="Original"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  {processedImage ? "Processed Result" : "Preview will appear here"}
+                </p>
+                <div className="aspect-video rounded-lg bg-muted overflow-hidden flex items-center justify-center">
+                  {isProcessing ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                      <p className="text-sm text-muted-foreground">Processing...</p>
+                    </div>
+                  ) : processedImage ? (
+                    <img
+                      src={processedImage}
+                      alt="Processed"
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Preview will appear here</p>
+                  )}
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/50 text-destructive px-4 py-2 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => setSelectedTool(null)}
+              onClick={() => {
+                setSelectedTool(null);
+                setProcessedImage(null);
+                setError(null);
+              }}
               disabled={isProcessing}
             >
               Cancel
             </Button>
-            <Button onClick={handleApply} disabled={isProcessing}>
-              {isProcessing ? "Processing..." : "Apply"}
-            </Button>
+            {processedImage && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleDownload}
+                  className="flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Download
+                </Button>
+                <Button
+                  onClick={handleUseResult}
+                >
+                  Use This Image
+                </Button>
+              </>
+            )}
+            {!processedImage && (
+              <Button onClick={handleApply} disabled={isProcessing || !hasPhotos}>
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  "Generate"
+                )}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

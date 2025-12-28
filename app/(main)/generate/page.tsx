@@ -410,11 +410,21 @@ function GenerateContent() {
             <CardContent className="p-2 sm:p-3">
               <AITools
                 hasPhotos={photos.length > 0}
-                onToolApply={(tool) => {
-                  toast({
-                    title: "Tool applied",
-                    description: `${tool} has been applied to your photos`,
-                  });
+                photos={photos}
+                onToolApply={(tool, resultUrl) => {
+                  if (resultUrl && tool === "bg-remove") {
+                    // Replace the first photo with the processed result
+                    setPhotos([resultUrl, ...photos.slice(1)]);
+                    toast({
+                      title: "Background removed!",
+                      description: "Image updated with background removed",
+                    });
+                  } else {
+                    toast({
+                      title: "Tool applied",
+                      description: `${tool} has been applied to your photos`,
+                    });
+                  }
                 }}
               />
             </CardContent>

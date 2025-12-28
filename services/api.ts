@@ -489,7 +489,24 @@ export const generationsApi = {
 
 // Tools API
 export const toolsApi = {
-  removeBg: (imageUrl: string) => api.post('/tools/remove-bg', { imageUrl }),
+  removeBg: async (imageUrl: string) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    
+    const res = await fetch(`${API_URL}/tools/remove-bg`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ imageUrl })
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({ error: await res.text() }));
+      throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`);
+    }
+    
+    return res.json();
+  },
   upscale: (imageUrl: string) => api.post('/tools/upscale', { imageUrl }),
   faceEnhance: (imageUrl: string) => api.post('/tools/face-enhance', { imageUrl }),
   compress: (imageUrl: string) => api.post('/tools/compress', { imageUrl }),

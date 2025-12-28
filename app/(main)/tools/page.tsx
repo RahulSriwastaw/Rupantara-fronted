@@ -10,8 +10,6 @@ import { useWalletStore } from "@/store/walletStore"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
-
 const tools = [
   {
     id: "remove-bg",
@@ -112,42 +110,51 @@ function ToolsPageContent() {
     setPoints(null)
     
     try {
-      const token = localStorage.getItem('token')
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-      if (token) headers['Authorization'] = `Bearer ${token}`
-      
-      const res = await fetch(`${API_URL}/tools/${selectedTool}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ imageUrl: image })
-      })
-      
-      if (!res.ok) {
-        let errorData;
-        try {
-          errorData = await res.json();
-        } catch {
-          const errorText = await res.text();
-          errorData = { error: errorText };
+      // Use toolsApi service for consistent API calls
+      let response;
+      if (selectedTool === 'remove-bg') {
+        response = await toolsApi.removeBg(image);
+      } else {
+        // For other tools, use generic API call
+        const token = localStorage.getItem('token')
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+        if (token) headers['Authorization'] = `Bearer ${token}`
+        
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://new-backend-g2gw.onrender.com'
+        const res = await fetch(`${API_URL}/api/tools/${selectedTool}`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ imageUrl: image })
+        })
+        
+        if (!res.ok) {
+          let errorData;
+          try {
+            errorData = await res.json();
+          } catch {
+            const errorText = await res.text();
+            errorData = { error: errorText };
+          }
+          throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`)
         }
-        throw new Error(errorData.error || errorData.message || `Request failed: ${res.status}`)
+        response = await res.json()
       }
       
-      const data = await res.json()
-      const processedUrl = data.result || data.imageUrl
+      const processedUrl = response.result || response.imageUrl || response
       setResultUrl(processedUrl)
       setOriginalResultUrl(processedUrl)
-      setPoints(data.points)
+      setPoints(response.points)
       
       toast({
         title: "Success!",
         description: "Image processed successfully",
       })
     } catch (err: any) {
-      setError(err?.message || 'Failed to process image')
+      const errorMessage = err?.message || 'Failed to process image'
+      setError(errorMessage)
       toast({
         title: "Error",
-        description: err?.message || "Failed to process image",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {

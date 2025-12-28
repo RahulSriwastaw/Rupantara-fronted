@@ -499,7 +499,7 @@ export const toolsApi = {
     
     try {
       const response = await Promise.race([
-        fetch(`${API_URL}/tools/remove-bg`, {
+        fetch(`${API_URL}/api/tools/remove-bg`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ imageUrl })

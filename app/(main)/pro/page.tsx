@@ -95,16 +95,20 @@ function ProPageContent() {
   useEffect(() => {
     subscriptionApi.getPlans()
       .then((plans) => {
-        const active = (Array.isArray(plans) ? plans : []).filter((x: any) => x.isActive);
+        console.log('Received plans from API:', plans);
+        const active = (Array.isArray(plans) ? plans : []).filter((x: any) => x.isActive !== false);
+        console.log('Active plans after filter:', active);
+        
         // Create plans for each billing cycle
         const allPlans: Plan[] = [];
         active.forEach((plan: any) => {
           ['monthly', 'quarterly', 'yearly'].forEach((cycle: any) => {
-            if (plan.pricing?.[cycle]?.price) {
+            if (plan.pricing?.[cycle]?.price && plan.pricing[cycle].price > 0) {
               allPlans.push(formatPlan(plan, cycle));
             }
           });
         });
+        console.log('Formatted plans:', allPlans);
         setPricingPlans(allPlans);
       })
       .catch((error) => {

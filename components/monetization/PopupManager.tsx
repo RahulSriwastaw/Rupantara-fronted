@@ -635,13 +635,13 @@ export function PopupManager() {
       aria-labelledby="popup-title"
     >
       <div 
-        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
+        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl'} relative overflow-hidden flex flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: popup.popupType === 'full_screen' ? '100%' : 'min(90vw, 700px)',
+          width: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(95vw, 600px)' : 'min(90vw, 700px)',
           height: popup.popupType === 'full_screen' ? '100%' : 'auto',
-          aspectRatio: popup.popupType === 'full_screen' ? 'auto' : (isMobile ? '1 / 1' : '2 / 1'),
-          maxWidth: popup.popupType === 'full_screen' ? '100%' : 'min(90vw, 700px)',
+          aspectRatio: popup.popupType === 'full_screen' ? 'auto' : '2 / 1',
+          maxWidth: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(95vw, 600px)' : 'min(90vw, 700px)',
           maxHeight: popup.popupType === 'full_screen' ? '100%' : '85vh',
           boxSizing: 'border-box',
           margin: 'auto',
@@ -663,10 +663,10 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative w-full sm:w-[50%] overflow-hidden flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 lg:p-5 flex-shrink-0`}
+            className={`relative w-[50%] overflow-hidden flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 lg:p-5 flex-shrink-0`}
             style={{ 
-              width: '100%',
-              maxWidth: '100%',
+              width: '50%',
+              maxWidth: '50%',
               aspectRatio: '1 / 1',
               boxSizing: 'border-box',
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
@@ -748,10 +748,10 @@ export function PopupManager() {
           </div>
         ) : ((popup.image) && (
           <div 
-            className={`relative w-full sm:w-[50%] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center flex-shrink-0`}
+            className={`relative w-[50%] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center flex-shrink-0`}
             style={{
-              width: '100%',
-              maxWidth: '100%',
+              width: '50%',
+              maxWidth: '50%',
               aspectRatio: '1 / 1',
               boxSizing: 'border-box',
               display: 'flex',
@@ -799,12 +799,12 @@ export function PopupManager() {
           </div>
         ))}
         
-        {/* Content Section - Right Side (50% width on desktop, 100% on mobile) */}
+        {/* Content Section - Right Side (50% width always) */}
         <div 
-          className={`w-full sm:w-[50%] flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-3 sm:p-4 md:p-5 lg:p-6'} overflow-y-auto bg-white relative min-h-0`}
+          className={`w-[50%] flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-2 sm:p-3 md:p-4 lg:p-5'} overflow-y-auto bg-white relative min-h-0`}
           style={{
-            width: '100%',
-            maxWidth: '100%',
+            width: '50%',
+            maxWidth: '50%',
             aspectRatio: '1 / 1',
             boxSizing: 'border-box'
           }}

@@ -10,24 +10,56 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useWalletStore } from "@/store/walletStore";
-import { paymentsApi, packagesApi } from "@/services/api";
+import { paymentsApi, subscriptionApi } from "@/services/api";
 
-type Plan = { id: string; name: string; price: string; period: string; points: string; features: string[]; tag: string | null; popular: boolean };
-const formatPlan = (p: any): Plan => ({
-  id: p.id || p._id,
-  name: p.name,
-  price: `₹${p.price}`,
-  period: "/month",
-  points: `${p.points + (p.bonusPoints || 0)} Points`,
-  features: [
-    `${p.points + (p.bonusPoints || 0)} AI Generation Points`,
-    p.isPopular ? "Priority Support" : "Email Support",
-    "Access to Premium Templates",
-    "Basic Analytics"
-  ],
-  tag: p.tag || (p.isPopular ? "Most Popular" : null),
-  popular: !!p.isPopular
-});
+type Plan = { 
+  id: string; 
+  name: string; 
+  price: string; 
+  period: string; 
+  points: string; 
+  features: string[]; 
+  tag: string | null; 
+  popular: boolean;
+  billingCycle: 'monthly' | 'quarterly' | 'yearly';
+  originalPrice?: string;
+};
+
+const formatPlan = (p: any, billingCycle: 'monthly' | 'quarterly' | 'yearly' = 'monthly'): Plan => {
+  const pricing = p.pricing?.[billingCycle] || p.pricing?.monthly || {};
+  const price = pricing.price || 0;
+  const originalPrice = pricing.originalPrice;
+  const discount = pricing.discount || 0;
+  
+  const credits = p.features?.creditsPerMonth || 0;
+  const generations = p.features?.imageGenerationsPerMonth || 0;
+  
+  const periodMap = {
+    monthly: '/month',
+    quarterly: '/quarter',
+    yearly: '/year'
+  };
+  
+  return {
+    id: p._id || p.id,
+    name: p.name,
+    price: `₹${price}`,
+    originalPrice: originalPrice ? `₹${originalPrice}` : undefined,
+    period: periodMap[billingCycle],
+    points: `${credits} Credits`,
+    features: [
+      `${credits.toLocaleString()} Credits per month`,
+      `${generations.toLocaleString()} Image Generations/month`,
+      p.features?.allStylesAndModels ? "All Styles & Models" : "Limited Styles",
+      p.features?.prioritySupport ? "Priority Support" : "Email Support",
+      p.features?.queuePriority === 'Highest' ? "Highest Queue Priority" : p.features?.queuePriority === 'High' ? "High Queue Priority" : "Normal Priority",
+      p.features?.imageVisibility === 'Public' ? "Public Images" : "Private Images"
+    ],
+    tag: p.tag || null,
+    popular: p.tag === 'MOST POPULAR' || p.tag === 'SPECIAL OFFER',
+    billingCycle
+  };
+};
 
 function ProPageContent() {
   const router = useRouter();
@@ -37,6 +69,7 @@ function ProPageContent() {
   const [pricingPlans, setPricingPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly');
 
   useEffect(() => {
     const exists = typeof window !== 'undefined' && (window as any).Razorpay;
@@ -60,12 +93,22 @@ function ProPageContent() {
   }, [toast]);
 
   useEffect(() => {
-    packagesApi.list()
-      .then((list) => {
-        const active = (Array.isArray(list) ? list : []).filter((x: any) => x.isActive);
-        setPricingPlans(active.map(formatPlan));
+    subscriptionApi.getPlans()
+      .then((plans) => {
+        const active = (Array.isArray(plans) ? plans : []).filter((x: any) => x.isActive);
+        // Create plans for each billing cycle
+        const allPlans: Plan[] = [];
+        active.forEach((plan: any) => {
+          ['monthly', 'quarterly', 'yearly'].forEach((cycle: any) => {
+            if (plan.pricing?.[cycle]?.price) {
+              allPlans.push(formatPlan(plan, cycle));
+            }
+          });
+        });
+        setPricingPlans(allPlans);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Error fetching subscription plans:', error);
         setPricingPlans([]);
       });
   }, []);
@@ -107,46 +150,43 @@ function ProPageContent() {
     setIsProcessing(true);
 
     try {
-      // Create Order with active gateway
-      const orderResponse: any = await paymentsApi.createOrder(plan.id, activeGateway as 'razorpay' | 'stripe');
+      // Subscribe to plan using subscription API
+      const subscribeResponse: any = await subscriptionApi.subscribe({
+        planId: plan.id,
+        billingCycle: plan.billingCycle,
+        gateway: activeGateway as 'razorpay' | 'stripe',
+        promoCode: promoCode.trim() || undefined
+      });
 
       // Handle Stripe Redirect
-      if (orderResponse.url) {
-        window.location.href = orderResponse.url;
+      if (subscribeResponse.url || subscribeResponse.checkoutUrl) {
+        window.location.href = subscribeResponse.url || subscribeResponse.checkoutUrl;
         return;
       }
 
       // Handle Razorpay
       const options = {
-        key: orderResponse.key || orderResponse.keyId,
-        amount: orderResponse.amount, // Already in paise from backend
-        currency: orderResponse.currency,
+        key: subscribeResponse.key || subscribeResponse.keyId,
+        amount: subscribeResponse.amount, // Already in paise from backend
+        currency: subscribeResponse.currency || 'INR',
         name: 'Rupantara AI',
-        description: `${plan.name} - ${plan.points}`,
-        order_id: orderResponse.orderId || orderResponse.id || orderResponse.order_id,
+        description: `${plan.name} - ${plan.points} (${plan.billingCycle})`,
+        subscription_id: subscribeResponse.subscriptionId || subscribeResponse.subscription_id,
         handler: async function (response: any) {
           try {
-            // Verify payment
-            const verifyResponse = await paymentsApi.verifyRazorpay({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              packageId: plan.id
+            // Subscription payment is handled via webhook
+            // Just show success message
+            toast({
+              title: "Subscription Successful! 🎉",
+              description: `Your ${plan.name} subscription is now active!`,
             });
-
-            if (verifyResponse.success) {
-              toast({
-                title: "Purchase Successful! 🎉",
-                description: `You've received points. New balance: ${verifyResponse.newBalance}`,
-              });
-              // Refresh wallet data
-              await useWalletStore.getState().fetchWalletData();
-              router.push('/wallet');
-            }
+            // Refresh wallet data
+            await useWalletStore.getState().fetchWalletData();
+            router.push('/wallet');
           } catch (error: any) {
             toast({
-              title: "Verification Failed",
-              description: error.message || "Payment verification failed",
+              title: "Subscription Failed",
+              description: error.message || "Subscription setup failed",
               variant: "destructive",
             });
           } finally {
@@ -204,11 +244,38 @@ function ProPageContent() {
         <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
           Upgrade to a Pro plan and get access to premium features, higher generation limits, and advanced analytics.
         </p>
+        
+        {/* Billing Cycle Selector */}
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <Button
+            variant={billingCycle === 'monthly' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setBillingCycle('monthly')}
+          >
+            Monthly
+          </Button>
+          <Button
+            variant={billingCycle === 'quarterly' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setBillingCycle('quarterly')}
+          >
+            Quarterly
+          </Button>
+          <Button
+            variant={billingCycle === 'yearly' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setBillingCycle('yearly')}
+          >
+            Yearly
+          </Button>
+        </div>
       </div>
 
       {/* Pricing Plans */}
       <div className="grid md:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
-        {pricingPlans.map((plan) => (
+        {pricingPlans
+          .filter((plan) => plan.billingCycle === billingCycle)
+          .map((plan) => (
           <Card
             key={plan.id}
             className={`relative overflow-hidden ${plan.popular
@@ -233,8 +300,15 @@ function ProPageContent() {
             <CardHeader className="text-center pb-6">
               <CardTitle className="text-2xl">{plan.name}</CardTitle>
               <div className="mt-2">
-                <span className="text-4xl font-bold">{plan.price}</span>
-                <span className="text-muted-foreground">{plan.period}</span>
+                {plan.originalPrice && (
+                  <div className="text-sm text-muted-foreground line-through mb-1">
+                    {plan.originalPrice}
+                  </div>
+                )}
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className="text-muted-foreground">{plan.period}</span>
+                </div>
               </div>
               <p className="text-sm text-muted-foreground mt-1">{plan.points}</p>
             </CardHeader>

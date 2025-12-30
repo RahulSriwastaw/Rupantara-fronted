@@ -627,11 +627,11 @@ export function PopupManager() {
         className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl'} relative overflow-hidden flex flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 90vh, 600px)',
-          height: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 90vh, 600px)',
-          aspectRatio: popup.popupType === 'full_screen' ? 'auto' : '1 / 1',
-          maxWidth: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 90vh, 600px)',
-          maxHeight: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 90vh, 600px)',
+          width: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 900px)',
+          height: popup.popupType === 'full_screen' ? '100%' : 'auto',
+          maxHeight: popup.popupType === 'full_screen' ? '100%' : '90vh',
+          aspectRatio: popup.popupType === 'full_screen' ? 'auto' : '16 / 10',
+          maxWidth: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 900px)',
           boxSizing: 'border-box',
           margin: 'auto',
           touchAction: 'pan-y',
@@ -654,8 +654,8 @@ export function PopupManager() {
           <div 
             className={`relative w-[50%] h-full overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-5 lg:p-6 flex-shrink-0`}
             style={{ 
-              width: '100%',
-              maxWidth: '100%',
+              width: '50%',
+              maxWidth: '50%',
               boxSizing: 'border-box',
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
@@ -738,8 +738,8 @@ export function PopupManager() {
           <div 
             className={`relative w-[50%] h-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center flex-shrink-0`}
             style={{
-              width: '100%',
-              maxWidth: '100%',
+              width: '50%',
+              maxWidth: '50%',
               boxSizing: 'border-box',
               display: 'flex',
               justifyContent: 'center',
@@ -752,10 +752,11 @@ export function PopupManager() {
               </div>
             )}
             <div 
-              className="w-full h-full flex items-center justify-center p-4"
+              className="w-full h-full flex items-center justify-center p-2 sm:p-3 md:p-4"
               style={{
                 width: '100%',
                 maxWidth: '100%',
+                height: '100%',
                 overflow: 'hidden',
                 boxSizing: 'border-box'
               }}
@@ -768,8 +769,9 @@ export function PopupManager() {
                   objectFit: 'contain',
                   objectPosition: 'center',
                   maxWidth: '100%',
-                  height: 'auto',
+                  maxHeight: '100%',
                   width: 'auto',
+                  height: 'auto',
                   display: 'block'
                 }}
                 onLoad={() => setImageLoaded(true)}

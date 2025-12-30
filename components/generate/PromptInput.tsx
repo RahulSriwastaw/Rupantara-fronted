@@ -45,6 +45,25 @@ export function PromptInput({
     }
   };
 
+  const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData('text/plain');
+    
+    if (pastedText) {
+      const currentText = prompt || '';
+      const newText = currentText + pastedText;
+      
+      // Limit to 500 characters
+      const limitedText = newText.slice(0, 500);
+      handlePromptChange(limitedText);
+      
+      // If text was truncated, show a visual indication
+      if (newText.length > 500) {
+        // Text was truncated, but we already handled it
+      }
+    }
+  };
+
   const addSuggestion = (suggestion: string) => {
     const newPrompt = prompt ? `${prompt}, ${suggestion}` : suggestion;
     handlePromptChange(newPrompt);
@@ -61,6 +80,7 @@ export function PromptInput({
             id="prompt"
             value={prompt}
             onChange={(e) => handlePromptChange(e.target.value)}
+            onPaste={handlePaste}
             placeholder="Describe what you want to create..."
             className="w-full min-h-[120px] p-3 rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
@@ -112,6 +132,14 @@ export function PromptInput({
                 id="negative-prompt"
                 value={negativePrompt}
                 onChange={(e) => onNegativePromptChange(e.target.value)}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  const pastedText = e.clipboardData.getData('text/plain');
+                  if (pastedText) {
+                    const currentText = negativePrompt || '';
+                    onNegativePromptChange(currentText + pastedText);
+                  }
+                }}
                 placeholder="blurry, low quality, distorted..."
                 className="w-full min-h-[80px] p-3 rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               />

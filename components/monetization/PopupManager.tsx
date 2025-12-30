@@ -638,11 +638,11 @@ export function PopupManager() {
         className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl'} relative overflow-hidden flex flex-col sm:flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(85vw, 320px)' : 'min(90vw, 700px)',
+          width: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(85vw, 320px)' : 'min(95vw, 1000px)',
           height: popup.popupType === 'full_screen' ? '100%' : 'auto',
           aspectRatio: popup.popupType === 'full_screen' ? 'auto' : (isMobile ? '1 / 2' : '2 / 1'),
-          maxWidth: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(85vw, 320px)' : 'min(90vw, 700px)',
-          maxHeight: popup.popupType === 'full_screen' ? '100%' : isMobile ? '85vh' : '85vh',
+          maxWidth: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(85vw, 320px)' : 'min(95vw, 1000px)',
+          maxHeight: popup.popupType === 'full_screen' ? '100%' : isMobile ? '85vh' : '90vh',
           boxSizing: 'border-box',
           margin: 'auto',
           touchAction: 'pan-y',

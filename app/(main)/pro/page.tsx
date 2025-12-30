@@ -168,29 +168,44 @@ function ProPageContent() {
         return;
       }
 
-      // Handle Razorpay
+      // Handle Razorpay (using order-based payment)
       const options = {
         key: subscribeResponse.key || subscribeResponse.keyId,
         amount: subscribeResponse.amount, // Already in paise from backend
         currency: subscribeResponse.currency || 'INR',
         name: 'Rupantara AI',
         description: `${plan.name} - ${plan.points} (${plan.billingCycle})`,
-        subscription_id: subscribeResponse.subscriptionId || subscribeResponse.subscription_id,
+        order_id: subscribeResponse.orderId || subscribeResponse.id || subscribeResponse.order_id,
         handler: async function (response: any) {
           try {
-            // Subscription payment is handled via webhook
-            // Just show success message
-            toast({
-              title: "Subscription Successful! 🎉",
-              description: `Your ${plan.name} subscription is now active!`,
+            // Verify payment with backend
+            const verifyResponse = await subscriptionApi.verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              subscriptionId: subscribeResponse.subscriptionId
             });
-            // Refresh wallet data
-            await useWalletStore.getState().fetchWalletData();
-            router.push('/wallet');
+
+            if (verifyResponse.success) {
+              toast({
+                title: "Subscription Successful! 🎉",
+                description: `Your ${plan.name} subscription is now active!`,
+              });
+              // Refresh wallet data
+              await useWalletStore.getState().fetchWalletData();
+              router.push('/wallet');
+            } else {
+              toast({
+                title: "Payment Verification Failed",
+                description: verifyResponse.error || "Payment verification failed",
+                variant: "destructive",
+              });
+            }
           } catch (error: any) {
+            console.error('Payment verification error:', error);
             toast({
               title: "Subscription Failed",
-              description: error.message || "Subscription setup failed",
+              description: error.message || "Payment verification failed",
               variant: "destructive",
             });
           } finally {

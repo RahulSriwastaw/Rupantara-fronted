@@ -374,6 +374,8 @@ export const subscriptionApi = {
   getCurrent: () => api.get('/subscriptions/current').then(res => res.subscription),
   subscribe: (data: { planId: string; billingCycle: 'monthly' | 'quarterly' | 'yearly'; gateway?: 'razorpay' | 'stripe'; promoCode?: string }) =>
     api.post('/subscriptions/subscribe', data),
+  verifyPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; subscriptionId: string }) =>
+    api.post('/subscriptions/verify-payment', data),
   cancel: () => api.post('/subscriptions/cancel', {}),
   getPaymentHistory: () => api.get('/subscriptions/payment-history').then(res => res.payments || []),
 };

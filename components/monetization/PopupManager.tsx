@@ -635,14 +635,14 @@ export function PopupManager() {
       aria-labelledby="popup-title"
     >
       <div 
-        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl'} relative overflow-hidden flex flex-row shadow-2xl animate-in zoom-in duration-300`}
+        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-xl sm:rounded-2xl'} relative overflow-hidden flex flex-row flex-nowrap shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(95vw, 600px)' : 'min(90vw, 700px)',
+          width: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(95vw, 500px)' : 'min(90vw, 700px)',
           height: popup.popupType === 'full_screen' ? '100%' : 'auto',
           aspectRatio: popup.popupType === 'full_screen' ? 'auto' : '2 / 1',
-          maxWidth: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(95vw, 600px)' : 'min(90vw, 700px)',
-          maxHeight: popup.popupType === 'full_screen' ? '100%' : '85vh',
+          maxWidth: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(95vw, 500px)' : 'min(90vw, 700px)',
+          maxHeight: popup.popupType === 'full_screen' ? '100%' : isMobile ? '90vh' : '85vh',
           boxSizing: 'border-box',
           margin: 'auto',
           touchAction: 'pan-y',
@@ -663,7 +663,7 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative w-[50%] overflow-hidden flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 lg:p-5 flex-shrink-0`}
+            className={`relative w-[50%] overflow-hidden flex flex-col items-center justify-center p-1.5 sm:p-2 md:p-3 lg:p-4 flex-shrink-0`}
             style={{ 
               width: '50%',
               maxWidth: '50%',
@@ -765,7 +765,7 @@ export function PopupManager() {
               </div>
             )}
             <div 
-              className="w-full h-full flex items-center justify-center p-2 sm:p-3 md:p-4"
+              className="w-full h-full flex items-center justify-center p-1 sm:p-2 md:p-3"
               style={{
                 width: '100%',
                 maxWidth: '100%',
@@ -801,7 +801,7 @@ export function PopupManager() {
         
         {/* Content Section - Right Side (50% width always) */}
         <div 
-          className={`w-[50%] flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-2 sm:p-3 md:p-4 lg:p-5'} overflow-y-auto bg-white relative min-h-0`}
+          className={`w-[50%] flex flex-col flex-shrink-0 ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-1.5 sm:p-2 md:p-3 lg:p-4'} overflow-y-auto bg-white relative min-h-0`}
           style={{
             width: '50%',
             maxWidth: '50%',

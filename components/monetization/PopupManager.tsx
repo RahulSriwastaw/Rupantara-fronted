@@ -665,8 +665,6 @@ export function PopupManager() {
           <div 
             className={`relative w-full sm:w-[50%] overflow-hidden flex flex-col items-center justify-center p-1.5 sm:p-2 md:p-3 lg:p-4 flex-shrink-0`}
             style={{ 
-              width: '100%',
-              maxWidth: '100%',
               aspectRatio: '1 / 1',
               boxSizing: 'border-box',
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
@@ -750,8 +748,6 @@ export function PopupManager() {
           <div 
             className={`relative w-full sm:w-[50%] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center flex-shrink-0`}
             style={{
-              width: '100%',
-              maxWidth: '100%',
               aspectRatio: '1 / 1',
               boxSizing: 'border-box',
               display: 'flex',
@@ -803,8 +799,6 @@ export function PopupManager() {
         <div 
           className={`w-full sm:w-[50%] flex flex-col flex-shrink-0 ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-3 sm:p-4 md:p-5 lg:p-6'} overflow-y-auto bg-white relative min-h-0`}
           style={{
-            width: '100%',
-            maxWidth: '100%',
             aspectRatio: '1 / 1',
             boxSizing: 'border-box'
           }}

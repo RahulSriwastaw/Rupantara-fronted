@@ -640,7 +640,7 @@ export function PopupManager() {
         style={{ 
           width: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(95vw, 400px)' : 'min(90vw, 700px)',
           height: popup.popupType === 'full_screen' ? '100%' : 'auto',
-          aspectRatio: popup.popupType === 'full_screen' ? 'auto' : (isMobile ? undefined : '2 / 1'),
+          aspectRatio: popup.popupType === 'full_screen' ? 'auto' : (isMobile ? '1 / 2' : '2 / 1'),
           maxWidth: popup.popupType === 'full_screen' ? '100%' : isMobile ? 'min(95vw, 400px)' : 'min(90vw, 700px)',
           maxHeight: popup.popupType === 'full_screen' ? '100%' : isMobile ? '90vh' : '85vh',
           boxSizing: 'border-box',
@@ -667,7 +667,7 @@ export function PopupManager() {
             style={{ 
               width: '100%',
               maxWidth: '100%',
-              aspectRatio: isMobile ? '4 / 3' : '1 / 1',
+              aspectRatio: '1 / 1',
               boxSizing: 'border-box',
               backgroundColor: popup.templateData.leftBackgroundColor || '#FFA500',
               backgroundImage: popup.templateData.leftImageUrl ? `url(${popup.templateData.leftImageUrl})` : 'none',
@@ -752,7 +752,7 @@ export function PopupManager() {
             style={{
               width: '100%',
               maxWidth: '100%',
-              aspectRatio: isMobile ? '4 / 3' : '1 / 1',
+              aspectRatio: '1 / 1',
               boxSizing: 'border-box',
               display: 'flex',
               justifyContent: 'center',
@@ -805,7 +805,7 @@ export function PopupManager() {
           style={{
             width: '100%',
             maxWidth: '100%',
-            aspectRatio: isMobile ? undefined : '1 / 1',
+            aspectRatio: '1 / 1',
             boxSizing: 'border-box'
           }}
         >

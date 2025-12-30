@@ -624,11 +624,14 @@ export function PopupManager() {
       aria-labelledby="popup-title"
     >
       <div 
-        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl max-h-[90vh]'} relative overflow-hidden flex flex-col lg:flex-row shadow-2xl animate-in zoom-in duration-300`}
+        className={`bg-white ${popup.popupType === 'full_screen' ? 'w-full h-full rounded-none' : 'rounded-2xl'} relative overflow-hidden flex flex-col lg:flex-row shadow-2xl animate-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
         style={{ 
-          width: popup.popupType === 'full_screen' ? '100%' : '100%',
-          maxWidth: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 900px)',
+          width: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 90vh, 600px)',
+          height: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 90vh, 600px)',
+          aspectRatio: popup.popupType === 'full_screen' ? 'auto' : '1 / 1',
+          maxWidth: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 90vh, 600px)',
+          maxHeight: popup.popupType === 'full_screen' ? '100%' : 'min(95vw, 90vh, 600px)',
           boxSizing: 'border-box',
           margin: 'auto',
           touchAction: 'pan-y',
@@ -649,7 +652,7 @@ export function PopupManager() {
         {/* Left Section - Image + Content (for OFFER_SPLIT template) */}
         {popup.templateId === 'OFFER_SPLIT_IMAGE_RIGHT_CONTENT' && popup.templateData ? (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[40%] h-[40vh] lg:h-full' : 'w-full lg:w-[40%] h-[40vh] lg:h-auto lg:min-h-[500px]'} overflow-hidden flex flex-col items-center justify-center p-4 sm:p-5 md:p-6 lg:p-8 flex-shrink-0`}
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[50%] h-[50%] lg:h-full' : 'w-full lg:w-[50%] h-[50%] lg:h-full'} overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 md:p-5 lg:p-6 flex-shrink-0`}
             style={{ 
               width: '100%',
               maxWidth: '100%',
@@ -733,12 +736,11 @@ export function PopupManager() {
           </div>
         ) : ((popup.image) && (
           <div 
-            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[40%] h-[40vh] lg:h-full' : 'w-full lg:w-[40%] h-[40vh] lg:h-auto lg:min-h-[500px]'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center flex-shrink-0`}
+            className={`relative ${popup.popupType === 'full_screen' ? 'w-full lg:w-[50%] h-[50%] lg:h-full' : 'w-full lg:w-[50%] h-[50%] lg:h-full'} overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center flex-shrink-0`}
             style={{
               width: '100%',
               maxWidth: '100%',
               boxSizing: 'border-box',
-              aspectRatio: '1 / 1',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center'
@@ -781,11 +783,12 @@ export function PopupManager() {
         
         {/* Content Section - Bottom on Mobile, Right on Desktop */}
         <div 
-          className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-4 sm:p-5 md:p-6 lg:p-8'} overflow-y-auto bg-white relative min-h-0 lg:w-[60%]`}
+          className={`flex-1 flex flex-col ${popup.popupType === 'full_screen' ? 'p-4 sm:p-5 md:p-6 justify-center' : 'p-3 sm:p-4 md:p-5 lg:p-6'} overflow-y-auto bg-white relative min-h-0 lg:w-[50%] lg:h-full`}
           style={{
             width: '100%',
             maxWidth: '100%',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            height: popup.popupType === 'full_screen' ? 'auto' : undefined
           }}
         >
           {/* Brand Text */}

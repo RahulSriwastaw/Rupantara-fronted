@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -13,6 +13,7 @@ import {
   Minus,
   Search,
   Filter,
+  Crown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import { ReferralLink } from "@/components/social/ReferralLink";
 import { RewardedAdButton } from "@/components/AdMobComponents";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { subscriptionApi } from "@/services/api";
 
 export default function WalletPage() {
   const router = useRouter();
@@ -43,6 +45,9 @@ export default function WalletPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
+  const [loadingSubscription, setLoadingSubscription] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
 
   const thisMonthEarned = transactions
     .filter((t) => {
@@ -68,6 +73,22 @@ export default function WalletPage() {
     })
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      try {
+        setLoadingSubscription(true);
+        const subscription = await subscriptionApi.getCurrent();
+        setCurrentSubscription(subscription);
+      } catch (error) {
+        console.error('Error fetching subscription:', error);
+        setCurrentSubscription(null);
+      } finally {
+        setLoadingSubscription(false);
+      }
+    };
+    fetchSubscription();
+  }, []);
+
   const handleClaimDaily = () => {
     if (!dailyLoginClaimed) {
       claimDailyLogin();
@@ -75,6 +96,31 @@ export default function WalletPage() {
         title: "Daily bonus claimed! 🎉",
         description: "+3 points added to your balance",
       });
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!confirm('Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.')) {
+      return;
+    }
+
+    try {
+      setCancelling(true);
+      await subscriptionApi.cancel();
+      toast({
+        title: "Subscription Cancelled",
+        description: "Your subscription will remain active until the end of the billing period.",
+      });
+      setCurrentSubscription(null);
+      await useWalletStore.getState().fetchWalletData();
+    } catch (error: any) {
+      toast({
+        title: "Cancellation Failed",
+        description: error.message || "Failed to cancel subscription",
+        variant: "destructive",
+      });
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -126,6 +172,79 @@ export default function WalletPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Current Subscription Status */}
+      {!loadingSubscription && currentSubscription && (
+        <Card className="bg-gradient-to-br from-blue-600 to-purple-600 text-white border-0">
+          <CardContent className="p-4 sm:p-5 md:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Crown className="h-5 w-5" />
+                  <h3 className="text-lg sm:text-xl font-bold">Active Subscription</h3>
+                  <Badge variant="secondary" className="bg-green-500 text-white">
+                    {currentSubscription.status?.toUpperCase() || 'ACTIVE'}
+                  </Badge>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xl sm:text-2xl font-semibold">{currentSubscription.planName}</p>
+                  <p className="text-sm text-white/80">
+                    {currentSubscription.billingCycle?.charAt(0).toUpperCase() + currentSubscription.billingCycle?.slice(1)} Plan
+                  </p>
+                  {currentSubscription.endDate && (
+                    <p className="text-xs text-white/70">
+                      {currentSubscription.status === 'active' && currentSubscription.nextBillingDate
+                        ? `Renews on ${new Date(currentSubscription.nextBillingDate).toLocaleDateString()}`
+                        : `Expires on ${new Date(currentSubscription.endDate).toLocaleDateString()}`}
+                    </p>
+                  )}
+                  {currentSubscription.creditsAllocated && (
+                    <p className="text-xs text-white/70">
+                      {currentSubscription.creditsAllocated - (currentSubscription.creditsUsed || 0)} credits remaining
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={() => router.push("/pro")}
+                  variant="secondary"
+                  size="sm"
+                  className="bg-white text-blue-600 hover:bg-white/90"
+                >
+                  Upgrade Plan
+                </Button>
+                {currentSubscription.status === 'active' && (
+                  <Button
+                    onClick={handleCancelSubscription}
+                    variant="outline"
+                    size="sm"
+                    disabled={cancelling}
+                    className="bg-transparent border-white text-white hover:bg-white/10"
+                  >
+                    {cancelling ? "Cancelling..." : "Cancel Subscription"}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!loadingSubscription && !currentSubscription && (
+        <Card className="border-dashed">
+          <CardContent className="p-4 sm:p-5 md:p-6 text-center">
+            <Crown className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+            <h3 className="text-lg font-semibold mb-1">No Active Subscription</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Subscribe to unlock premium features and get monthly credits
+            </p>
+            <Button onClick={() => router.push("/pro")} className="bg-gradient-to-r from-blue-600 to-purple-600">
+              View Plans
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">

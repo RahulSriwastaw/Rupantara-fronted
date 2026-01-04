@@ -70,6 +70,7 @@ function ProPageContent() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly');
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
 
   useEffect(() => {
     const exists = typeof window !== 'undefined' && (window as any).Razorpay;
@@ -114,6 +115,16 @@ function ProPageContent() {
       .catch((error) => {
         console.error('Error fetching subscription plans:', error);
         setPricingPlans([]);
+      });
+
+    // Fetch current subscription
+    subscriptionApi.getCurrent()
+      .then((subscription) => {
+        setCurrentSubscription(subscription);
+      })
+      .catch((error) => {
+        console.error('Error fetching current subscription:', error);
+        setCurrentSubscription(null);
       });
   }, []);
 
@@ -263,6 +274,36 @@ function ProPageContent() {
         <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
           Upgrade to a Pro plan and get access to premium features, higher generation limits, and advanced analytics.
         </p>
+        
+        {/* Current Subscription Alert */}
+        {currentSubscription && currentSubscription.status === 'active' && (
+          <div className="max-w-2xl mx-auto mt-4">
+            <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-semibold text-blue-900 dark:text-blue-100">
+                      You have an active subscription: <span className="text-blue-700 dark:text-blue-300">{currentSubscription.planName}</span>
+                    </p>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                      {currentSubscription.nextBillingDate
+                        ? `Renews on ${new Date(currentSubscription.nextBillingDate).toLocaleDateString()}`
+                        : `Expires on ${new Date(currentSubscription.endDate).toLocaleDateString()}`}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/wallet')}
+                    className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                  >
+                    Manage
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
         
         {/* Billing Cycle Selector */}
         <div className="flex items-center justify-center gap-2 mt-4">

@@ -183,7 +183,7 @@ function ProPageContent() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              subscriptionId: subscribeResponse.subscriptionId || subscribeResponse.id
+              subscriptionId: subscribeResponse.subscriptionId || subscribeResponse.subscription
             });
 
             if (verifyResponse.success) {

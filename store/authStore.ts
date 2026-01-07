@@ -127,6 +127,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'rupantar-auth',
+      skipHydration: true,
     }
   )
 );

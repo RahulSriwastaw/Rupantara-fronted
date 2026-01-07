@@ -29,9 +29,12 @@ export function MainLayout({
   // Wait for Zustand persist hydration to complete
   useEffect(() => {
     const persist = (useAuthStore as any).persist;
-    if (persist?.hasHydrated?.() && !hasHydrated) {
+    if (persist?.hasHydrated && persist.hasHydrated()) {
       setHasHydrated(true);
+    } else if (persist?.rehydrate) {
+      persist.rehydrate();
     }
+
     const unsub = persist?.onFinishHydration?.(() => setHasHydrated(true));
     return () => { if (typeof unsub === "function") unsub(); };
   }, [hasHydrated]);

@@ -125,7 +125,10 @@ export default function LoginPage() {
 
       // Use hard navigation for mobile/capacitor to ensure storage persistence
       if (isCapacitor || (typeof window !== 'undefined' && window.innerWidth < 768)) {
-        window.location.href = "/template";
+        // Add small delay to ensure localStorage is written
+        setTimeout(() => {
+          window.location.href = "/template";
+        }, 300);
       } else {
         router.replace("/template");
       }
@@ -213,7 +216,10 @@ export default function LoginPage() {
 
       // Use hard navigation for mobile/capacitor to ensure storage persistence
       if (isCapacitor || (typeof window !== 'undefined' && window.innerWidth < 768)) {
-        window.location.href = "/template";
+        // Add small delay to ensure localStorage is written
+        setTimeout(() => {
+          window.location.href = "/template";
+        }, 300);
       } else {
         router.replace("/template");
       }

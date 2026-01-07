@@ -491,7 +491,7 @@ export function TemplateCard({
             {/* View Count Display */}
             <div className="flex items-center gap-1 px-2 text-muted-foreground">
               <Eye className="w-4 h-4" />
-              <span className="text-xs font-medium">
+              <span className="text-xs font-medium whitespace-nowrap">
                 {template.usageCount > 1000 ? (template.usageCount / 1000).toFixed(1) + 'k' : template.usageCount}
               </span>
             </div>
@@ -500,9 +500,9 @@ export function TemplateCard({
           {/* Right: Use Template Button */}
           <Button
             onClick={(e) => { e.stopPropagation(); onUse?.(); }}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-full px-5 h-10 text-xs sm:text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-full px-4 sm:px-5 h-9 sm:h-10 text-xs sm:text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
           >
-            Use Template
+            Use <span className="hidden sm:inline ml-1">Template</span>
           </Button>
         </div>
       </CardContent>

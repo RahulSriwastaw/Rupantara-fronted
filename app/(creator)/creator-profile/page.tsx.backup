@@ -1,0 +1,333 @@
+"use client";
+
+import { useState } from "react";
+import { Camera, User, Mail, Phone, MapPin, Calendar, Edit, Save, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthStore } from "@/store/authStore";
+import { useToast } from "@/hooks/use-toast";
+
+export default function CreatorProfilePage() {
+  const { user, updateUser } = useAuthStore();
+  const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: user?.fullName || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    bio: user?.bio || "",
+    location: user?.location || { country: "", state: "", city: "" },
+    socialLinks: {
+      instagram: user?.socialLinks?.instagram || "",
+      youtube: user?.socialLinks?.youtube || "",
+      telegram: user?.socialLinks?.telegram || "",
+    },
+  });
+
+  const handleChange = (field: string, value: string) => {
+    setFormData({
+      ...formData,
+      [field]: value,
+    });
+  };
+
+  const handleLocationChange = (field: string, value: string) => {
+    setFormData({
+      ...formData,
+      location: {
+        ...formData.location,
+        [field]: value,
+      },
+    });
+  };
+
+  const handleSocialLinkChange = (platform: string, value: string) => {
+    setFormData({
+      ...formData,
+      socialLinks: {
+        ...formData.socialLinks,
+        [platform]: value,
+      },
+    });
+  };
+
+  const handleSave = () => {
+    // In a real app, this would call an API to update the user profile
+    updateUser({
+      ...user,
+      ...formData,
+    } as any);
+    
+    toast({
+      title: "Profile Updated!",
+      description: "Your profile has been successfully updated.",
+    });
+    
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      fullName: user?.fullName || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      bio: user?.bio || "",
+      location: user?.location || { country: "", state: "", city: "" },
+      socialLinks: {
+        instagram: user?.socialLinks?.instagram || "",
+        youtube: user?.socialLinks?.youtube || "",
+        telegram: user?.socialLinks?.telegram || "",
+      },
+    });
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Creator Profile</h1>
+        {isEditing ? (
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleCancel}>
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>
+              <Save className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </div>
+        ) : (
+          <Button onClick={() => setIsEditing(true)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit Profile
+          </Button>
+        )}
+      </div>
+
+      {/* Profile Overview Card */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="relative">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={user?.profilePicture} />
+                <AvatarFallback className="text-2xl bg-primary/20">
+                  {user?.fullName?.charAt(0) || "D"}
+                </AvatarFallback>
+              </Avatar>
+              {isEditing && (
+                <Button 
+                  size="icon" 
+                  className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary"
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            <div className="flex-1 space-y-2">
+              <div>
+                <h2 className="text-2xl font-bold">{user?.fullName || "Demo Creator"}</h2>
+                <p className="text-muted-foreground">AI Artist | Template Designer</p>
+              </div>
+              
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span>{user?.email || "demo@example.com"}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>Joined March 2024</span>
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 pt-2">
+                <div className="bg-secondary px-3 py-1 rounded-full text-sm">
+                  <span className="font-medium">42</span> Templates
+                </div>
+                <div className="bg-secondary px-3 py-1 rounded-full text-sm">
+                  <span className="font-medium">₹8,540</span> Earnings
+                </div>
+                <div className="bg-secondary px-3 py-1 rounded-full text-sm">
+                  <span className="font-medium">4.8</span> Rating
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Edit Profile Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              {isEditing ? (
+                <Input
+                  id="fullName"
+                  value={formData.fullName}
+                  onChange={(e) => handleChange("fullName", e.target.value)}
+                />
+              ) : (
+                <p>{user?.fullName || "Demo Creator"}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              {isEditing ? (
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                />
+              ) : (
+                <p>{user?.email || "demo@example.com"}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              {isEditing ? (
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => handleChange("phone", e.target.value)}
+                />
+              ) : (
+                <p>{user?.phone || "+1 (555) 123-4567"}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              {isEditing ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="City"
+                    value={formData.location.city}
+                    onChange={(e) => handleLocationChange("city", e.target.value)}
+                  />
+                  <Input
+                    placeholder="State"
+                    value={formData.location.state}
+                    onChange={(e) => handleLocationChange("state", e.target.value)}
+                  />
+                </div>
+              ) : (
+                <p>
+                  {user?.location?.city && user?.location?.state 
+                    ? `${user.location.city}, ${user.location.state}` 
+                    : "San Francisco, CA"}
+                </p>
+              )}
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio</Label>
+            {isEditing ? (
+              <Textarea
+                id="bio"
+                rows={3}
+                value={formData.bio}
+                onChange={(e) => handleChange("bio", e.target.value)}
+                placeholder="Tell us about yourself..."
+              />
+            ) : (
+              <p>{user?.bio || "Passionate AI artist creating stunning templates for the community."}</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Social Links */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Social Links</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="instagram">Instagram</Label>
+              {isEditing ? (
+                <Input
+                  id="instagram"
+                  placeholder="https://instagram.com/username"
+                  value={formData.socialLinks.instagram}
+                  onChange={(e) => handleSocialLinkChange("instagram", e.target.value)}
+                />
+              ) : (
+                <p className="text-primary">
+                  {user?.socialLinks?.instagram || "Not connected"}
+                </p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="youtube">YouTube</Label>
+              {isEditing ? (
+                <Input
+                  id="youtube"
+                  placeholder="https://youtube.com/@username"
+                  value={formData.socialLinks.youtube}
+                  onChange={(e) => handleSocialLinkChange("youtube", e.target.value)}
+                />
+              ) : (
+                <p className="text-primary">
+                  {user?.socialLinks?.youtube || "Not connected"}
+                </p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="telegram">Telegram</Label>
+              {isEditing ? (
+                <Input
+                  id="telegram"
+                  placeholder="https://t.me/username"
+                  value={formData.socialLinks.telegram}
+                  onChange={(e) => handleSocialLinkChange("telegram", e.target.value)}
+                />
+              ) : (
+                <p className="text-primary">
+                  {user?.socialLinks?.telegram || "Not connected"}
+                </p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Account Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Account Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Button variant="outline" className="w-full justify-between">
+            Change Password
+            <Edit className="h-4 w-4" />
+          </Button>
+          
+          <Button variant="destructive" className="w-full justify-between">
+            Delete Account
+            <X className="h-4 w-4" />
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

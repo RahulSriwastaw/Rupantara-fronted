@@ -1,0 +1,518 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Edit2,
+  Check,
+  X,
+  Sparkles,
+  ImageIcon,
+  Heart,
+  Crown,
+  Settings,
+  HelpCircle,
+  LogOut,
+  Shield,
+  Bell,
+  Moon,
+  Globe,
+  ArrowLeft,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuthStore } from "@/store/authStore";
+import { useGenerationStore } from "@/store/generationStore";
+import { useToast } from "@/hooks/use-toast";
+import { DataExport } from "@/components/backup/DataExport";
+import { PasswordStrength } from "@/components/security/PasswordStrength";
+import { VersionInfo } from "@/components/version/VersionInfo";
+
+export default function ProfilePage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const { user, logout, updateUser } = useAuthStore();
+  const { generations } = useGenerationStore();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [showCreatorModal, setShowCreatorModal] = useState(false);
+  const [editedUser, setEditedUser] = useState(user);
+  const [newPassword, setNewPassword] = useState("");
+
+  const handleSave = () => {
+    if (editedUser) {
+      updateUser(editedUser);
+      setIsEditing(false);
+      toast({
+        title: "Profile updated",
+        description: "Your changes have been saved",
+      });
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/welcome");
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully",
+    });
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="container max-w-5xl py-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-2xl font-bold">Profile</h1>
+      </div>
+
+      {/* Profile Header Card */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col items-center text-center space-y-4">
+            {/* Avatar */}
+            <Avatar className="h-32 w-32 ring-4 ring-primary/20">
+              <AvatarImage src={user.profilePicture} alt={user.fullName} />
+              <AvatarFallback className="text-3xl bg-teal-500/20 text-teal-400">
+                {user.fullName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+
+            {/* User Info */}
+            <div className="space-y-1">
+              <h1 className="text-2xl font-bold">{user.fullName}</h1>
+              <p className="text-muted-foreground">
+                {user.email} | {user.phone}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Member since {new Date(user.memberSince).toLocaleDateString("default", { month: "short", year: "numeric" })}
+              </p>
+            </div>
+
+            {/* Edit Button */}
+            <Button
+              onClick={() => setIsEditing(true)}
+              className="bg-gradient-to-r from-purple-600 to-purple-500"
+            >
+              <Edit2 className="h-4 w-4 mr-2" />
+              Edit Profile
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-1">Total Generations</p>
+            <p className="text-3xl font-bold">{generations.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-1">Points Balance</p>
+            <p className="text-3xl font-bold">5,800</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-1">Templates Used</p>
+            <p className="text-3xl font-bold">85</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-1">Favorites Saved</p>
+            <p className="text-3xl font-bold">112</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Become Creator Card */}
+      {!user.isCreator && (
+        <Card className="relative overflow-hidden border-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 opacity-90" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20" />
+          <CardContent className="p-6 relative z-10">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-white">Become a Creator</h3>
+                <p className="text-white/90">
+                  Start monetizing your unique templates and share your creativity with the world.
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowCreatorModal(true)}
+                className="bg-white text-purple-600 hover:bg-white/90"
+              >
+                Learn More
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Tabs */}
+      <Tabs defaultValue="account" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="preferences">Preferences</TabsTrigger>
+          <TabsTrigger value="support">Support</TabsTrigger>
+        </TabsList>
+
+        {/* Account Tab */}
+        <TabsContent value="account" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Full Name</Label>
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span>{user.fullName}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span>{user.email}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span>{user.phone}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Location</Label>
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span>{user.location?.city || "Not set"}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Security</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Change Password</Label>
+                <Input
+                  type="password"
+                  placeholder="New password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <Input type="password" placeholder="Confirm password" />
+                {newPassword && <PasswordStrength password={newPassword} />}
+              </div>
+              <Button variant="outline" className="w-full justify-start">
+                <Shield className="h-4 w-4 mr-2" />
+                Two-Factor Authentication
+              </Button>
+            </CardContent>
+          </Card>
+
+          <DataExport />
+        </TabsContent>
+
+        {/* Preferences Tab */}
+        <TabsContent value="preferences" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>App Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Dark Mode</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Enable dark theme
+                  </p>
+                </div>
+                <Switch />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Language</Label>
+                <Select defaultValue="en">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="hi">Hindi</SelectItem>
+                    <SelectItem value="mr">Marathi</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Notifications</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Generation Complete</Label>
+                  <p className="text-sm text-muted-foreground">
+                    When your image is ready
+                  </p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Points Earned</Label>
+                  <p className="text-sm text-muted-foreground">
+                    When you earn points
+                  </p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Promotional</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Offers and updates
+                  </p>
+                </div>
+                <Switch />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Support Tab */}
+        <TabsContent value="support" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Help & Support</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start">
+                <HelpCircle className="h-4 w-4 mr-2" />
+                FAQs
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Mail className="h-4 w-4 mr-2" />
+                Contact Support
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Shield className="h-4 w-4 mr-2" />
+                Privacy Policy
+              </Button>
+              <Button variant="outline" className="w-full justify-start">
+                <Shield className="h-4 w-4 mr-2" />
+                Terms of Service
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>About</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Rupantar AI v1.0.0
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Made with ❤️ in India
+              </p>
+              <div className="pt-2">
+                <VersionInfo />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Danger Zone */}
+      <Card className="border-destructive">
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="w-full justify-start text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Delete Account
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Edit Profile Modal */}
+      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Update your personal information
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                value={editedUser?.fullName || ""}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser!, fullName: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={editedUser?.email || ""}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser!, email: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                value={editedUser?.phone || ""}
+                onChange={(e) =>
+                  setEditedUser({ ...editedUser!, phone: e.target.value })
+                }
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Creator Application Modal */}
+      <Dialog open={showCreatorModal} onOpenChange={setShowCreatorModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Become a Creator</DialogTitle>
+            <DialogDescription>
+              Apply to become a creator and start earning from your templates
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Creator Username</Label>
+              <Input id="username" placeholder="@username" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Social Media Links</Label>
+              <Input placeholder="Facebook URL (optional)" />
+              <Input placeholder="Instagram URL (optional)" className="mt-2" />
+              <Input placeholder="YouTube URL (optional)" className="mt-2" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Demo Template 1</Label>
+              <Input type="file" accept="image/*" />
+              <Input placeholder="Prompt used for this template" className="mt-2" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Demo Template 2</Label>
+              <Input type="file" accept="image/*" />
+              <Input placeholder="Prompt used for this template" className="mt-2" />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreatorModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowCreatorModal(false);
+                toast({
+                  title: "Application Submitted!",
+                  description: "We'll review your application within 48 hours",
+                });
+              }}
+            >
+              Submit Application
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+

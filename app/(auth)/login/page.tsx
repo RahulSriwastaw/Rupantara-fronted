@@ -29,9 +29,9 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  
+
   const [isCapacitor, setIsCapacitor] = useState(false);
-  
+
   useEffect(() => {
     const capacitor = typeof window !== 'undefined' && (window as any).Capacitor;
     setIsCapacitor(!!capacitor);
@@ -87,7 +87,7 @@ export default function LoginPage() {
     try {
       setIsGoogleLoading(true);
       const idToken = await googleUser.getIdToken();
-      
+
       const response = await fetch(`${API_URL}/auth/firebase-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -117,12 +117,12 @@ export default function LoginPage() {
       };
 
       login(userData as any);
-      
+
       toast({
         title: "Welcome! 🎉",
         description: `Logged in as ${userData.fullName}`,
       });
-      
+
       router.replace("/template");
     } catch (error: any) {
       console.error("❌ Google sync error:", error);
@@ -143,7 +143,7 @@ export default function LoginPage() {
     try {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const isCapacitorApp = typeof window !== 'undefined' && (window as any).Capacitor;
-      
+
       if (isCapacitorApp || (isMobile && window.innerWidth < 768)) {
         console.log("📱 Using redirect for mobile");
         const provider = new GoogleAuthProvider();
@@ -244,7 +244,7 @@ export default function LoginPage() {
                 placeholder="name@example.com"
                 className="pl-10"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -265,7 +265,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 className="pl-10"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
               />
               <button

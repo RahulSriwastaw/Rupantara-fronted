@@ -41,7 +41,10 @@ export default function LoginPage() {
   useEffect(() => {
     const checkAuth = () => {
       const currentUser = useAuthStore.getState().user;
-      if (currentUser && currentUser.email) {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+
+      // Strict check: User must be in store AND token must be in localStorage
+      if (currentUser && currentUser.email && token) {
         console.log("✅ User already logged in, redirecting...");
         router.replace("/template");
         return true;
@@ -123,7 +126,12 @@ export default function LoginPage() {
         description: `Logged in as ${userData.fullName}`,
       });
 
-      router.replace("/template");
+      // Use hard navigation for mobile/capacitor to ensure storage persistence
+      if (isCapacitor || (typeof window !== 'undefined' && window.innerWidth < 768)) {
+        window.location.href = "/template";
+      } else {
+        router.replace("/template");
+      }
     } catch (error: any) {
       console.error("❌ Google sync error:", error);
       toast({
@@ -204,7 +212,13 @@ export default function LoginPage() {
 
       login(userData as any);
       toast({ title: "Welcome back!", description: `Logged in as ${userData.fullName}` });
-      router.replace("/template");
+
+      // Use hard navigation for mobile/capacitor to ensure storage persistence
+      if (isCapacitor || (typeof window !== 'undefined' && window.innerWidth < 768)) {
+        window.location.href = "/template";
+      } else {
+        router.replace("/template");
+      }
     } catch (error: any) {
       toast({ title: "Login Failed", description: error.message, variant: "destructive" });
     } finally {

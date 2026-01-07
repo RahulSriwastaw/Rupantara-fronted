@@ -36,12 +36,12 @@ export function MainLayout({
     return () => { if (typeof unsub === "function") unsub(); };
   }, [hasHydrated]);
 
-  // Auth guard: run only after hydration; if no user and no token, redirect to login
+  // Auth guard: run only after hydration; if no user, redirect to login
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!hasHydrated) return;
-    const hasToken = !!localStorage.getItem("token");
-    if (!user && !hasToken) {
+    // Removed token check as requested - rely only on user state
+    if (!user) {
       router.replace("/login");
     }
   }, [user, router, hasHydrated]);

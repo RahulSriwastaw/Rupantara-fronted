@@ -43,9 +43,7 @@ export const useAuthStore = create<AuthState>()(
         });
       },
       logout: () => {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('token')
-        }
+        // Token removal skipped as we don't use it
         set({ user: null, isAuthenticated: false, isCreator: false, creatorApplication: null })
       },
       updateUser: (userData) =>

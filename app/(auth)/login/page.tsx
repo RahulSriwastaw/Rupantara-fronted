@@ -41,10 +41,9 @@ export default function LoginPage() {
   useEffect(() => {
     const checkAuth = () => {
       const currentUser = useAuthStore.getState().user;
-      const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
 
-      // Strict check: User must be in store AND token must be in localStorage
-      if (currentUser && currentUser.email && token) {
+      // Check: User must be in store
+      if (currentUser && currentUser.email) {
         console.log("✅ User already logged in, redirecting...");
         router.replace("/template");
         return true;
@@ -103,9 +102,7 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
+      // Token removed from localStorage as requested
 
       const userData = {
         id: String(data.user?.id || data.user?._id || googleUser.uid),
@@ -196,7 +193,8 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
-      localStorage.setItem("token", data.token);
+      // Token removed from localStorage as requested
+
 
       const userData = {
         id: String(data.user.id || data.user._id),

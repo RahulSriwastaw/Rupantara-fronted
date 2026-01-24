@@ -235,24 +235,23 @@ export default function CreateTemplatePage() {
   };
 
   const handleSubmit = async () => {
-    // Validation
+    // Validation - Only Title, Category and Prompt are required
+    // Images are optional and can be added later
     if (!formData.title.trim()) return toast({ title: "Title Required", variant: "destructive" });
-    if (!formData.inputImage) return toast({ title: "Input Image Required", variant: "destructive" });
-    if (!formData.demoImage) return toast({ title: "Template Image Required", variant: "destructive" });
     if (!formData.category) return toast({ title: "Category Required", variant: "destructive" });
     if (!formData.hiddenPrompt.trim()) return toast({ title: "Prompt Required", variant: "destructive" });
 
     setIsUploading(true);
     try {
-      // Upload Images logic (Assuming adminUploadDemo handles base64)
-      let inputImageUrl = formData.inputImage;
-      if (formData.inputImage.startsWith('data:image')) {
+      // Upload Images logic (Only if images are provided)
+      let inputImageUrl = formData.inputImage || '';
+      if (formData.inputImage && formData.inputImage.startsWith('data:image')) {
         const upRes = await templatesApi.adminUploadDemo(formData.inputImage);
         inputImageUrl = upRes?.url || formData.inputImage;
       }
 
-      let demoUrl = formData.demoImage;
-      if (formData.demoImage.startsWith('data:image')) {
+      let demoUrl = formData.demoImage || '';
+      if (formData.demoImage && formData.demoImage.startsWith('data:image')) {
         const upRes = await templatesApi.adminUploadDemo(formData.demoImage);
         demoUrl = upRes?.url || formData.demoImage;
       }

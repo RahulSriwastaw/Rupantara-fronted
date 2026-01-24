@@ -38,10 +38,10 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  
+
   // Check if running in Capacitor (APK)
   const [isCapacitor, setIsCapacitor] = useState(false);
-  
+
   useEffect(() => {
     // Check for Capacitor
     const capacitor = typeof window !== 'undefined' && (window as any).Capacitor;
@@ -202,7 +202,7 @@ export default function RegisterPage() {
 
     } catch (error: any) {
       console.error("❌ Google sync error:", error);
-      
+
       // Better error messages
       let errorMessage = error.message || "Could not complete Google registration";
       if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
@@ -210,7 +210,7 @@ export default function RegisterPage() {
       } else if (error.message?.includes('timeout')) {
         errorMessage = "Request timeout. Please check your connection and try again.";
       }
-      
+
       toast({
         title: "Registration Failed",
         description: errorMessage,
@@ -265,12 +265,12 @@ export default function RegisterPage() {
             error: nativeError.error,
             toString: nativeError.toString(),
           });
-          
+
           // For ANY native plugin error, automatically fallback to redirect
           // This ensures seamless login experience even if native plugin fails
           console.log("⚠️ Native plugin error detected, automatically falling back to redirect method");
           console.log("🔄 Attempting redirect login...");
-          
+
           try {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
@@ -284,7 +284,7 @@ export default function RegisterPage() {
               code: redirectError.code,
               error: redirectError.error,
             });
-            
+
             // Check for specific redirect errors
             if (redirectError.code === 'auth/unauthorized-domain' || redirectError.message?.includes('unauthorized-domain')) {
               throw new Error('Domain not authorized. Please configure Firebase Console settings.');
@@ -302,7 +302,7 @@ export default function RegisterPage() {
 
       // For web/desktop, use Firebase Web SDK
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
+
       if (isMobile && window.innerWidth < 768) {
         // Mobile browser - use redirect
         console.log("📱 Using redirect for mobile browser");
@@ -320,7 +320,7 @@ export default function RegisterPage() {
       });
 
       const result = await signInWithPopup(auth, provider);
-      
+
       // Handle the user immediately
       await handleGoogleUser(result.user);
 
@@ -384,7 +384,7 @@ export default function RegisterPage() {
         // More specific error messages
         let errorTitle = "Google Registration Failed";
         let errorDescription = error.message || "Could not sign in with Google. Please try again.";
-        
+
         if (error.code === 'auth/operation-not-allowed') {
           errorTitle = "Login Not Available";
           errorDescription = "Google login is not enabled. Please contact support.";
@@ -392,7 +392,7 @@ export default function RegisterPage() {
           errorTitle = "Network Error";
           errorDescription = "Unable to connect to Google. Please check your internet connection.";
         }
-        
+
         toast({
           title: errorTitle,
           description: errorDescription,
@@ -540,7 +540,7 @@ export default function RegisterPage() {
       // Better error messages for network issues
       let errorMessage = error.message || "Please try again.";
       let errorTitle = "Registration Failed";
-      
+
       if (error.message === 'Request timeout' || error.message?.includes('timeout')) {
         errorTitle = "Connection Timeout";
         errorMessage = "Request took too long. Please check your internet connection and try again.";

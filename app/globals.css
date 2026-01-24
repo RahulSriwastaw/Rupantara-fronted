@@ -249,3 +249,42 @@
     padding-bottom: 5rem;
   }
 }
+
+/* -------------------
+   PREMIUN UI UTILITIES
+   ------------------- */
+
+/* Ambient Background Animation */
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Premium Glassmorphism */
+.glass-panel {
+  @apply bg-white/70 dark:bg-black/30 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl;
+}
+
+.glass-input {
+  @apply bg-white/50 dark:bg-black/20 border-gray-200 dark:border-white/10 
+         focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all duration-300;
+}
+
+.glass-button {
+  @apply backdrop-blur-sm shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300;
+}
+

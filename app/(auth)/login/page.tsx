@@ -102,7 +102,11 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
-      // Token removed from localStorage as requested
+
+      // Save token for API requests
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       const userData = {
         id: String(data.user?.id || data.user?._id || googleUser.uid),
@@ -196,8 +200,11 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
-      // Token removed from localStorage as requested
 
+      // Save token for API requests
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       const userData = {
         id: String(data.user.id || data.user._id),
@@ -239,28 +246,40 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/90 to-primary/5 p-4 sm:p-6">
-      <Card className="w-full max-w-md p-6 sm:p-8 space-y-6 shadow-xl border-primary/10">
-        <div className="text-center space-y-2">
-          <div className="flex justify-center mb-4">
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-2xl flex items-center justify-center overflow-hidden">
-              <Image src="/logo.png" alt="Rupantar AI" fill className="object-contain p-2" />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 relative overflow-hidden p-4 sm:p-6">
+
+      {/* Animated Background Blobs */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-10%] left-[20%] w-96 h-96 bg-purple-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <Card className="w-full max-w-md p-8 sm:p-10 space-y-8 glass-panel z-10 border-0">
+        <div className="text-center space-y-3">
+          <div className="flex justify-center mb-6">
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-white/50 dark:bg-black/20 rounded-3xl flex items-center justify-center backdrop-blur-md shadow-inner ring-1 ring-white/40">
+              <Image src="/logo.png" alt="Rupantar AI" fill className="object-contain p-3 drop-shadow-md" />
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to continue to Rupantar AI</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            Welcome Back
+          </h1>
+          <p className="text-muted-foreground text-base max-w-sm mx-auto">
+            Enter your credentials to access your creative workspace
+          </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="email" className="text-sm font-medium ml-1">Email Address</Label>
+            <div className="relative group">
+              <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
               <Input
                 id="email"
                 type="email"
                 placeholder="name@example.com"
-                className="pl-10"
+                className="pl-10 h-12 glass-input"
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
@@ -269,19 +288,19 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <Link href="/forgot-password" className="text-xs text-primary hover:underline">
+            <div className="flex items-center justify-between ml-1">
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+              <Link href="/forgot-password" className="text-xs font-medium text-primary hover:text-primary/80 hover:underline transition-colors">
                 Forgot password?
               </Link>
             </div>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <div className="relative group">
+              <Lock className="absolute left-3 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className="pl-10"
+                className="pl-10 h-12 glass-input"
                 value={password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
@@ -289,32 +308,32 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
           </div>
 
-          <Button type="submit" className="w-full h-11 text-base font-medium transition-all hover:scale-[1.01]" disabled={isLoading}>
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
+          <Button type="submit" className="w-full h-12 text-base font-semibold glass-button bg-primary hover:bg-primary/90" disabled={isLoading}>
+            {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Sign In"}
           </Button>
         </form>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-muted" /></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or continue with</span></div>
+        <div className="relative py-2">
+          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-200 dark:border-gray-700" /></div>
+          <div className="relative flex justify-center text-xs uppercase font-medium tracking-wider"><span className="bg-white/50 dark:bg-black/50 px-3 text-muted-foreground backdrop-blur-sm rounded-full">Or continue with</span></div>
         </div>
 
         <Button
           type="button"
           variant="outline"
-          className="w-full h-11 space-x-2 border-primary/20 hover:bg-primary/5 transition-all"
+          className="w-full h-12 space-x-3 bg-white/50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 transition-all font-medium"
           onClick={handleGoogleLogin}
           disabled={isGoogleLoading}
         >
           {isGoogleLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
             <>
               <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -323,14 +342,14 @@ export default function LoginPage() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
-              <span>Google</span>
+              <span className="text-gray-700 dark:text-gray-200">Google</span>
             </>
           )}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="text-primary font-semibold hover:underline">Sign up</Link>
+          <Link href="/register" className="text-primary font-bold hover:text-primary/80 hover:underline transition-colors">Create an account</Link>
         </p>
       </Card>
     </div>

@@ -3,8 +3,8 @@
 
 // Production URLs (hardcoded for mobile builds)
 const PRODUCTION_CONFIG_DEFAULT = {
-  API_BASE_URL: 'https://new-backend-g2gw.onrender.com',
-  API_URL: 'https://new-backend-g2gw.onrender.com/api',
+  API_BASE_URL: 'https://new-backend-o2nu.onrender.com',
+  API_URL: 'https://new-backend-o2nu.onrender.com/api',
   FRONTEND_URL: 'https://rupantara-fronted.vercel.app',
   ADMIN_PANEL_URL: 'https://new-admin-pannel-nine.vercel.app',
 };
@@ -21,7 +21,7 @@ if (typeof window !== 'undefined' && window.location.origin.includes('replit.dev
 export function getApiBaseUrl(): string {
   // Check if we're in a mobile/Capacitor environment
   const isMobile = typeof window !== 'undefined' && (
-    (window as any).Capacitor || 
+    (window as any).Capacitor ||
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   );
 

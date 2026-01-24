@@ -174,7 +174,9 @@ export default function CreateTemplatePage() {
     setIsAiFilling(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tools/unified`, {
+      const { getApiUrl } = await import('@/lib/config');
+      const API_URL = getApiUrl();
+      const res = await fetch(`${API_URL}/tools/unified`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ action: 'ai-quick-fill', prompt: aiPromptInput })
@@ -210,7 +212,9 @@ export default function CreateTemplatePage() {
     setIsGeneratingDemoImage(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tools/unified`, {
+      const { getApiUrl } = await import('@/lib/config');
+      const API_URL = getApiUrl();
+      const res = await fetch(`${API_URL}/tools/unified`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ action: 'creator-image-gen', prompt: aiPromptInput })

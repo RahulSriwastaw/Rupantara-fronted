@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "project": "Rupantar AI Admin Panel",
+    "date": "2026-01-21",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "Rupantar AI Admin Panel is a comprehensive management system designed to give administrators full control over the Rupantar AI platform. It includes user, creator, template, content moderation, wallet & transactions, AI model configuration, system settings, reporting, and support ticket management, enabling streamlined operations, robust moderation, financial oversight, and detailed analytics.",
+  "core_goals": [
+    "Provide administrators with a real-time dashboard overview of platform health, user activity, and revenue.",
+    "Manage user accounts including filtering, editing, banning, and bulk actions efficiently.",
+    "Oversee creator applications, approvals, income, and withdrawals with an intuitive interface.",
+    "Control template approvals, categorization, performance analytics, and enforce quality through automated and manual moderation.",
+    "Implement robust content moderation using AI and manual review to maintain community standards.",
+    "Handle user payments, promo codes, refunds, and creator payouts ensuring secure transactions and compliance.",
+    "Configure and monitor AI generation models to optimize cost, performance, and safety.",
+    "Enable role-based admin management with detailed permission controls and secure authentication.",
+    "Deliver comprehensive reports and analytics covering user, generation, revenue, creator, moderation, and support metrics.",
+    "Support users and creators via a ticketing system with prioritized issue handling and canned responses."
+  ],
+  "key_features": [
+    "Admin Dashboard with real-time stats cards for users, generations, revenue, templates, quick actions, activity feed, system health, charts, and notifications center.",
+    "User Management with advanced filtering, sorting, detailed user profiles, bulk actions, and transaction and activity history.",
+    "Creator Management including pending applications review, detailed profiles, earnings tracking, withdrawal requests, and verification management.",
+    "Template Management featuring status-based views, AI-powered auto quality checks, manual review workflows, categorization, featured/trending management, and analytics.",
+    "Content Moderation with auto-flagging, manual review queues, banned keyword management, strike system, appeals handling, and moderation logs.",
+    "Wallet & Transactions systems supporting multi-gateway payment setup, promo codes, auto points credit, refunds, creator earnings and withdrawals, and financial analytics.",
+    "AI Configuration & Management with multi-model selection, API key management, cost settings, performance monitoring, and detailed analytics.",
+    "Admin & System Settings including admin user roles, two-factor authentication, system configurations, branding, email, notifications, storage, security policies, and compliance.",
+    "Reports & Analytics with customizable dashboards, detailed reports on all platform aspects, export options, and scheduled reporting.",
+    "Support & Tickets system for managing user inquiries, prioritization, canned responses, analytics, and customer satisfaction tracking."
+  ],
+  "user_flow_summary": [
+    "Admin logs in via secure admin URL with email, password, and 2FA.",
+    "Admin accesses the dashboard for an overview of system health and activity.",
+    "Admin manages users: search, filter, edit profiles, adjust points, ban or suspend, view histories, and perform bulk operations.",
+    "Admin reviews pending creator applications with detailed applicant info and auto quality checks; approves or rejects with feedback.",
+    "Admin manages creator profiles and earnings; processes withdrawal requests with bank verification.",
+    "Admin reviews and moderates templates: approve, reject, flag, categorize, and track analytics.",
+    "Admin handles content moderation queues for flagged content and user reports; issues strikes, bans, or approvals.",
+    "Admin configures payment gateways and promotional codes; monitors transaction history and processes refunds.",
+    "Admin manages AI models: tests APIs, sets active models, monitors performance and costs.",
+    "Admin manages sub-admin roles, system settings, branding, email configs, notifications, security policies, backups, and compliance.",
+    "Admin generates, exports, and schedules multiple types of reports.",
+    "Admin manages support tickets: assigns, replies, escalates, closes, and analyzes performance."
+  ],
+  "validation_criteria": [
+    "Admin dashboard displays accurate real-time data and updates every 30 seconds.",
+    "User management filters, searches, sorts, and actions function correctly including bulk operations.",
+    "Creator application review workflow correctly enforces approval/rejection criteria and sends notifications.",
+    "Template management enforces AI quality checks, moderation flags, and status transitions reliably.",
+    "Content moderation triggers auto and manual actions per rule sets and logs all actions.",
+    "Payment gateways process transactions securely and reflect correctly on user accounts with promo codes applied.",
+    "Creator withdrawal requests are properly verified, processed, and communicated.",
+    "AI model configuration changes impact generation as expected, with performance metrics accurately reported.",
+    "Admin user role permissions strictly enforce access controls and two-factor authentication.",
+    "Reports generate accurate metrics, export correctly, and respect filters and date ranges.",
+    "Support ticket system manages tickets with correct statuses, assignments, responses, and satisfaction tracking.",
+    "Security features enforce password policies, IP restrictions, session timeouts, and audit logs consistently."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "Next.js",
+      "Tailwind CSS",
+      "Lucide React",
+      "Framer Motion",
+      "Zustand",
+      "Axios"
+    ],
+    "features": [
+      {
+        "name": "Template System",
+        "description": "Displays image templates with optimized loading and skeleton states.",
+        "files": [
+          "components/template/TemplateCard.tsx",
+          "app/(main)/template/page.tsx"
+        ]
+      },
+      {
+        "name": "AI Image Tools",
+        "description": "Professional AI-powered image editing tools with minimalist UI.",
+        "files": [
+          "app/(main)/tools/page.tsx",
+          "services/api/toolsApi.ts"
+        ]
+      },
+      {
+        "name": "Prompt Interface",
+        "description": "Dashboard for generating images with templates and quick tools.",
+        "files": [
+          "app/(main)/generate/GenerateClient.tsx",
+          "components/generate/AITools.tsx"
+        ]
+      },
+      {
+        "name": "Store & State Management",
+        "description": "Manages user authentication, wallet balance, and template state.",
+        "files": [
+          "store/authStore.ts",
+          "store/walletStore.ts",
+          "store/templateStore.ts"
+        ]
+      }
+    ]
+  }
+}

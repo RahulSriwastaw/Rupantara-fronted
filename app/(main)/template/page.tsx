@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loading } from "@/components/ui/loading";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ImageIcon } from "lucide-react";
-import { TemplateCard } from "@/components/template/TemplateCard";
+import { TemplateCard, TemplateSkeleton } from "@/components/template/TemplateCard";
 import { TemplateFilters } from "@/components/template/TemplateFilters";
 import { TemplateDetailModal } from "@/components/template/TemplateDetailModal";
 import { templatesApi, api } from "@/services/api";
@@ -314,24 +314,33 @@ function TemplateContent() {
               <h2 className="text-lg sm:text-xl font-bold">Trending Now</h2>
             </div>
             <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-2 sm:-mx-0 px-2 sm:px-0">
-              {templates
-                .sort((a, b) => b.usageCount - a.usageCount)
-                .slice(0, 5)
-                .map((template) => (
-                  <div key={template.id} className="flex-shrink-0 w-36 sm:w-44 md:w-52 lg:w-56">
-                    <TemplateCard
-                      template={template}
-                      // Use backend isLiked status as primary source, fallback to store
-                      isLiked={template.isLiked !== undefined ? template.isLiked : likedTemplates.includes(template.id)}
-                      isSaved={savedTemplates.includes(template.id)}
-                      onLike={() => handleLike(template.id)}
-                      onSave={() => handleSave(template.id)}
-                      onUse={() => handleUseTemplate(template.id)}
-                      onClick={() => handleTemplateClick(template)}
-                      compact={true}
-                    />
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <div key={i} className="flex-shrink-0 w-36 sm:w-44 md:w-52 lg:w-56">
+                    <TemplateSkeleton compact={true} />
                   </div>
-                ))}
+                ))
+              ) : (
+                templates
+                  .sort((a, b) => b.usageCount - a.usageCount)
+                  .slice(0, 5)
+                  .map((template, idx) => (
+                    <div key={template.id} className="flex-shrink-0 w-36 sm:w-44 md:w-52 lg:w-56">
+                      <TemplateCard
+                        template={template}
+                        // Use backend isLiked status as primary source, fallback to store
+                        isLiked={template.isLiked !== undefined ? template.isLiked : likedTemplates.includes(template.id)}
+                        isSaved={savedTemplates.includes(template.id)}
+                        onLike={() => handleLike(template.id)}
+                        onSave={() => handleSave(template.id)}
+                        onUse={() => handleUseTemplate(template.id)}
+                        onClick={() => handleTemplateClick(template)}
+                        compact={true}
+                        priority={idx < 5}
+                      />
+                    </div>
+                  ))
+              )}
             </div>
           </div>
         )
@@ -346,12 +355,9 @@ function TemplateContent() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 w-full max-w-full">
             {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-lg bg-muted animate-pulse"
-              />
+              <TemplateSkeleton key={i} />
             ))}
           </div>
         ) : filteredTemplates.length === 0 ? (
@@ -364,7 +370,7 @@ function TemplateContent() {
           />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 w-full max-w-full">
-            {filteredTemplates.map((template) => (
+            {filteredTemplates.map((template, idx) => (
               <TemplateCard
                 key={template.id}
                 template={template}
@@ -375,6 +381,7 @@ function TemplateContent() {
                 onSave={() => handleSave(template.id)}
                 onUse={() => handleUseTemplate(template.id)}
                 onClick={() => handleTemplateClick(template)}
+                priority={idx < 4}
               />
             ))}
           </div>

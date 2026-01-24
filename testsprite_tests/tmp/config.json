@@ -2,5 +2,14 @@
   "status": "commited",
   "type": "frontend",
   "scope": "codebase",
-  "localEndpoint": "http://localhost:3000/template"
+  "localEndpoint": "http://localhost:3005",
+  "executionArgs": {
+    "projectName": "Rupantara-fronted",
+    "projectPath": "c:\\Users\\angel computer\\OneDrive\\Desktop\\Rupantra All Projects\\Rupantara-fronted",
+    "testIds": [],
+    "additionalInstruction": "Verify that image loading is optimized, skeletons are shown during loading, and images have a smooth transition. Ensure Largest Contentful Paint (LCP) is improved.",
+    "envs": {
+      "API_KEY": "sk-user-9ajZ_qgoxxqHBJ2yHLnTQFGGW233MZA8oXF61hTOpeTKFWWVGYI2wOhgJDWkyDicgdbWFjj1jxQDn9ynsmUfRgLzzCDy6jzb9CpLzJedmpzInLKSUtcNUkB7jk4HjHNjujw"
+    }
+  }
 }

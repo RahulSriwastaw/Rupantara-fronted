@@ -6,8 +6,9 @@ const nextConfig = {
     '127.0.0.1',
     'localhost'
   ],
-  // Use static export (Capacitor) only when NOT on Vercel, or allow standard build for Dynamic Metadata support
-  output: process.env.VERCEL ? undefined : 'export',
+  // Only use static export when specifically requested (e.g. for Capacitor builds)
+  // This allows Next.js Image Optimization to work in Dev and on Vercel/Standard Servers
+  output: process.env.NEXT_EXPORT === 'true' ? 'export' : undefined,
   trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
@@ -19,8 +20,9 @@ const nextConfig = {
         hostname: '**',
       },
     ],
-    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   async rewrites() {
     // Use Railway backend URL in production, localhost in development

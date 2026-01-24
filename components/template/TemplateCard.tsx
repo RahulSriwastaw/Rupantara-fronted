@@ -30,6 +30,50 @@ interface TemplateCardProps {
   onUse?: () => void;
   onClick?: () => void;
   compact?: boolean; // For trending/horizontal cards
+  priority?: boolean;
+}
+
+export function TemplateSkeleton({ compact = false }: { compact?: boolean }) {
+  if (compact) {
+    return (
+      <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden rounded-2xl bg-muted animate-pulse">
+        <div className="absolute bottom-0 left-0 w-full p-4 space-y-2">
+          <div className="h-4 bg-foreground/10 rounded w-3/4" />
+          <div className="flex gap-3">
+            <div className="h-3 bg-foreground/10 rounded w-10" />
+            <div className="h-3 bg-foreground/10 rounded w-10" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Card className="overflow-hidden border-0 bg-card rounded-[24px] shadow-md animate-pulse">
+      <div className="relative w-full aspect-[4/5] bg-muted">
+        <div className="absolute top-0 left-0 w-full p-4 flex justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-9 rounded-full bg-foreground/10" />
+            <div className="space-y-1">
+              <div className="h-3 bg-foreground/10 rounded w-20" />
+              <div className="h-2 bg-foreground/10 rounded w-10" />
+            </div>
+          </div>
+          <div className="h-8 w-16 rounded-full bg-foreground/10" />
+        </div>
+      </div>
+      <CardContent className="p-4 space-y-4">
+        <div className="h-5 bg-foreground/10 rounded w-full" />
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2">
+            <div className="h-8 w-8 rounded-full bg-foreground/10" />
+            <div className="h-8 w-8 rounded-full bg-foreground/10" />
+          </div>
+          <div className="h-9 w-20 rounded-full bg-foreground/10" />
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 export function TemplateCard({
@@ -41,7 +85,9 @@ export function TemplateCard({
   onUse,
   onClick,
   compact = false,
+  priority = false,
 }: TemplateCardProps) {
+  const [isImageLoading, setIsImageLoading] = useState(true);
   const { user, followCreator, unfollowCreator } = useAuthStore();
   const { toast } = useToast();
   const { updateLikeStatus, updateSaveStatus } = useTemplateStore();
@@ -321,9 +367,16 @@ export function TemplateCard({
             src={imageSrc}
             alt={template.title}
             fill
-            className="object-cover transition-transform duration-700 group-hover/compact:scale-110"
-            sizes="(max-width: 768px) 50vw, 25vw"
+            className={cn(
+              "object-cover transition-all duration-1000",
+              isImageLoading ? "scale-110 blur-lg" : "scale-100 blur-0"
+            )}
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 20vw"
             style={{ objectPosition: (template as any).demoImagePosition || 'center center' }}
+            onLoad={() => setIsImageLoading(false)}
+            priority={priority}
+            quality={75}
+            loading={priority ? undefined : "lazy"}
           />
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
@@ -373,9 +426,16 @@ export function TemplateCard({
           src={imageSrc}
           alt={template.title}
           fill
-          className="object-cover transition-transform duration-700 group-hover/card:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className={cn(
+            "object-cover transition-all duration-1000",
+            isImageLoading ? "scale-110 blur-xl" : "scale-100 blur-0"
+          )}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           style={{ objectPosition: (template as any).demoImagePosition || 'center center' }}
+          onLoad={() => setIsImageLoading(false)}
+          priority={priority}
+          quality={75}
+          loading={priority ? undefined : "lazy"}
         />
 
         {/* Header Overlay (Creator & Follow) */}

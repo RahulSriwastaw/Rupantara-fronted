@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Scissors, Maximize2, Palette, Smile, ArrowLeft, Upload, Download, Loader2, Image as ImageIcon, X, Palette as PaletteIcon, Sparkles, Search, Wand2 } from "lucide-react"
+import { Eraser, Zap, UserRound, Brush, ArrowLeft, Upload, Download, Loader2, Image as ImageIcon, X, Palette as PaletteIcon, Sparkles, Search, Wand2, Scissors, Maximize2, Palette, Smile } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { toolsApi } from "@/services/api"
@@ -10,39 +10,36 @@ import { useWalletStore } from "@/store/walletStore"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { getApiUrl } from "@/lib/config"
+import { motion, AnimatePresence } from "framer-motion"
 
 const tools = [
   {
     id: "remove-bg",
     name: "BG Remove",
-    icon: Scissors,
+    icon: Eraser,
     cost: 0,
-    description: "Remove background instantly",
-    color: "from-red-500 to-red-600"
+    description: "Remove background instantly"
   },
   {
     id: "upscale",
     name: "Upscale",
-    icon: Maximize2,
+    icon: Zap,
     cost: 10,
-    description: "Increase resolution",
-    color: "from-blue-500 to-blue-600"
+    description: "Increase resolution"
   },
   {
     id: "face-enhance",
     name: "Face Enhance",
-    icon: Smile,
+    icon: UserRound,
     cost: 10,
-    description: "Enhance facial features",
-    color: "from-purple-500 to-purple-600"
+    description: "Enhance facial features"
   },
   {
     id: "colorize",
     name: "Colorize",
-    icon: Palette,
+    icon: Brush,
     cost: 10,
-    description: "B&W to color",
-    color: "from-yellow-500 to-yellow-600"
+    description: "B&W to color"
   }
 ]
 
@@ -51,7 +48,7 @@ function ToolsPageContent() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const { balance, fetchWalletData } = useWalletStore()
-  
+
   // Initialize from URL params immediately
   const toolParam = searchParams?.get('tool')
   const initialTool = toolParam && tools.find(t => t.id === toolParam) ? toolParam : null
@@ -72,7 +69,7 @@ function ToolsPageContent() {
       setSelectedTool(null)
     }
   }, [searchParams])
-  
+
   const [image, setImage] = useState<string>('')
   const [resultUrl, setResultUrl] = useState<string>('')
   const [loading, setLoading] = useState(false)
@@ -94,17 +91,17 @@ function ToolsPageContent() {
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (!f) return
-    
+
     if (!f.type.startsWith('image/')) {
       setError('Please select a valid image file')
       return
     }
-    
+
     if (f.size > 10 * 1024 * 1024) {
       setError('Image size should be less than 10MB')
       return
     }
-    
+
     setError(null)
     const reader = new FileReader()
     reader.onload = () => setImage(String(reader.result))
@@ -116,16 +113,16 @@ function ToolsPageContent() {
       setError('Please upload an image first')
       return
     }
-    
+
     if (!selectedTool) {
       setError('Please select a tool first')
       return
     }
-    
+
     setError(null)
     setLoading(true)
     setResultUrl('')
-    
+
     try {
       // Use toolsApi service for consistent API calls
       let response: any = null;
@@ -137,7 +134,7 @@ function ToolsPageContent() {
           const token = localStorage.getItem('token')
           const headers: Record<string, string> = { 'Content-Type': 'application/json' }
           if (token) headers['Authorization'] = `Bearer ${token}`
-          
+
           // Use getApiUrl from config to get correct API URL (already includes /api)
           const API_URL = getApiUrl()
           const res = await fetch(`${API_URL}/tools/${selectedTool}`, {
@@ -145,7 +142,7 @@ function ToolsPageContent() {
             headers,
             body: JSON.stringify({ imageUrl: image })
           })
-          
+
           if (!res.ok) {
             let errorData;
             try {
@@ -162,21 +159,21 @@ function ToolsPageContent() {
         console.error('API Error:', apiError);
         throw apiError;
       }
-      
+
       // Safely handle response - check if response exists
       if (!response) {
         throw new Error('No response received from server');
       }
-      
+
       // Safely extract processed URL
       const processedUrl = response?.result || response?.imageUrl || (typeof response === 'string' ? response : null);
       if (!processedUrl) {
         throw new Error('No image URL in response');
       }
-      
+
       setResultUrl(processedUrl)
       setOriginalResultUrl(processedUrl)
-      
+
       // Safely get points from response, fallback to balance from wallet store
       if (response && typeof response === 'object' && typeof response.points === 'number') {
         setPoints(response.points)
@@ -190,7 +187,7 @@ function ToolsPageContent() {
         const updatedBalance = useWalletStore.getState().balance;
         setPoints(updatedBalance !== null && updatedBalance !== undefined ? updatedBalance : 0)
       }
-      
+
       toast({
         title: "Success!",
         description: "Image processed successfully",
@@ -210,7 +207,7 @@ function ToolsPageContent() {
 
   const handleDownload = () => {
     if (!resultUrl) return
-    
+
     const link = document.createElement('a')
     link.href = resultUrl
     link.download = `processed-${selectedTool}-${Date.now()}.png`
@@ -253,7 +250,7 @@ function ToolsPageContent() {
   }
 
   const applyBackgroundGradient = async (
-    imageUrl: string, 
+    imageUrl: string,
     type: 'linear' | 'radial',
     direction: number,
     color1: string,
@@ -269,7 +266,7 @@ function ToolsPageContent() {
         const ctx = canvas.getContext('2d')
         if (ctx) {
           let gradient: CanvasGradient
-          
+
           if (type === 'linear') {
             // Convert degrees to radians and calculate gradient coordinates
             const angle = (direction * Math.PI) / 180
@@ -285,10 +282,10 @@ function ToolsPageContent() {
             const radius = Math.max(canvas.width, canvas.height) / 2
             gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius)
           }
-          
+
           gradient.addColorStop(0, color1)
           gradient.addColorStop(1, color2)
-          
+
           ctx.fillStyle = gradient
           ctx.fillRect(0, 0, canvas.width, canvas.height)
           ctx.drawImage(img, 0, 0)
@@ -348,22 +345,22 @@ function ToolsPageContent() {
       foregroundImg.crossOrigin = 'anonymous'
       const backgroundImg = new Image()
       backgroundImg.crossOrigin = 'anonymous'
-      
+
       let foregroundLoaded = false
       let backgroundLoaded = false
-      
+
       const tryCompose = () => {
         if (!foregroundLoaded || !backgroundLoaded) return
-        
+
         const canvas = document.createElement('canvas')
         canvas.width = Math.max(foregroundImg.width, backgroundImg.width)
         canvas.height = Math.max(foregroundImg.height, backgroundImg.height)
         const ctx = canvas.getContext('2d')
-        
+
         if (ctx) {
           const bgAspect = backgroundImg.width / backgroundImg.height
           const canvasAspect = canvas.width / canvas.height
-          
+
           if (bgAspect > canvasAspect) {
             const bgHeight = canvas.height
             const bgWidth = bgHeight * bgAspect
@@ -373,17 +370,17 @@ function ToolsPageContent() {
             const bgHeight = bgWidth / bgAspect
             ctx.drawImage(backgroundImg, 0, (canvas.height - bgHeight) / 2, bgWidth, bgHeight)
           }
-          
+
           const fgX = (canvas.width - foregroundImg.width) / 2
           const fgY = (canvas.height - foregroundImg.height) / 2
           ctx.drawImage(foregroundImg, fgX, fgY)
-          
+
           resolve(canvas.toDataURL('image/png'))
         } else {
           resolve(foregroundUrl)
         }
       }
-      
+
       foregroundImg.onload = () => {
         foregroundLoaded = true
         tryCompose()
@@ -392,10 +389,10 @@ function ToolsPageContent() {
         backgroundLoaded = true
         tryCompose()
       }
-      
+
       foregroundImg.onerror = () => resolve(foregroundUrl)
       backgroundImg.onerror = () => resolve(foregroundUrl)
-      
+
       foregroundImg.src = foregroundUrl
       backgroundImg.src = backgroundUrl
     })
@@ -413,7 +410,7 @@ function ToolsPageContent() {
   const handleCustomBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !originalResultUrl) return
-    
+
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Error",
@@ -422,7 +419,7 @@ function ToolsPageContent() {
       })
       return
     }
-    
+
     const reader = new FileReader()
     reader.onload = async () => {
       const bgUrl = String(reader.result)
@@ -449,7 +446,7 @@ function ToolsPageContent() {
         setBackgroundImages(placeholderImages)
         return
       }
-      
+
       const response = await fetch(
         `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=20&client_id=${UNSPLASH_ACCESS_KEY}`
       )
@@ -480,110 +477,77 @@ function ToolsPageContent() {
     <div className="space-y-4 sm:space-y-6 pb-6">
       {/* Header with Gradient Background */}
       {!selectedTool && (
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-6 sm:p-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-background to-secondary/5 border border-primary/20 p-6 sm:p-10 shadow-2xl shadow-primary/5"
+        >
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.back()}
-                className="text-muted-foreground hover:text-foreground hover:bg-background/50"
-              >
-                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Back</span>
-              </Button>
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                AI Image Tools
+            <div className="mb-0"></div>
+            <div className="max-w-2xl">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4 bg-gradient-to-r from-primary via-purple-500 to-blue-600 bg-clip-text text-transparent">
+                Professional AI Image Tools
               </h1>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Transform your images with powerful AI-powered tools. Professional results in seconds.
+              <p className="text-sm sm:text-lg text-muted-foreground/80 leading-relaxed">
+                Unlock professional-grade image editing in seconds. Our advanced AI models handle the complexity so you can focus on creativity.
               </p>
             </div>
           </div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        </div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
+        </motion.div>
       )}
 
       {/* Selected Tool Header */}
-      {selectedTool && (
-        <div className="flex items-center gap-3 sm:gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setSelectedTool(null)
-              router.push('/tools')
-            }}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Back</span>
-          </Button>
-          <div className="flex items-center gap-3">
-            {selectedToolData && (
-              <div className={cn(
-                "w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg",
-                selectedToolData.color
-              )}>
-                <selectedToolData.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-            )}
-            <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                {selectedToolData?.name}
-              </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{selectedToolData?.description}</p>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Tool Selection - Professional Cards */}
       {!selectedTool && isInitialized && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {tools.map((tool) => {
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {tools.map((tool, index) => {
             const Icon = tool.icon
             return (
-              <Card
+              <motion.div
                 key={tool.id}
-                className="group cursor-pointer hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 bg-card border-border hover:border-primary/30 overflow-hidden relative"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -8, scale: 1.02 }}
                 onClick={() => {
                   setSelectedTool(tool.id)
                   router.push(`/tools?tool=${tool.id}`)
                 }}
+                className="group cursor-pointer"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-primary/3 group-hover:to-primary/0 transition-all duration-300" />
-                <CardContent className="p-5 sm:p-6 flex flex-col items-center gap-4 relative z-10">
-                  <div className={cn(
-                    "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300",
-                    tool.color
-                  )}>
-                    <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                  </div>
-                  <div className="text-center w-full space-y-2">
-                    <h3 className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                      {tool.name}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                      {tool.description}
-                    </p>
-                    <div className="pt-2">
-                      {tool.cost === 0 ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-semibold">
-                          <Sparkles className="h-3.5 w-3.5" />
-                          FREE
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                          💎 {tool.cost} pts
-                        </span>
-                      )}
+                <Card className="h-full bg-card/40 backdrop-blur-xl border-white/10 hover:border-primary/40 transition-all duration-500 shadow-xl hover:shadow-primary/20 overflow-hidden relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <CardContent className="p-4 sm:p-6 flex flex-col items-center text-center gap-4 relative z-10">
+                    <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-2xl group-hover:shadow-primary/40 transition-all duration-500 group-hover:rotate-6">
+                      <Icon className="w-7 h-7 sm:w-10 sm:h-10 text-primary" />
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="space-y-2">
+                      <h3 className="text-lg sm:text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        {tool.name}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed font-medium">
+                        {tool.description}
+                      </p>
+                      <div className="pt-3">
+                        {tool.cost === 0 ? (
+                          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                            <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+                            Free Tier
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] sm:text-xs font-bold">
+                            <span className="text-lg">💎</span> {tool.cost} Credits
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             )
           })}
         </div>
@@ -594,55 +558,74 @@ function ToolsPageContent() {
         <div className="space-y-4 sm:space-y-6">
           {/* Upload Section */}
           {!image && (
-            <Card className="bg-card border-border">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg sm:text-xl font-semibold text-foreground flex items-center gap-2">
-                    {selectedToolData && <selectedToolData.icon className="w-5 h-5" />}
-                    {selectedToolData?.name}
-                  </h2>
-                </div>
-                
-                <label className="flex flex-col items-center justify-center w-full h-48 sm:h-64 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary/50 transition-colors bg-muted/30">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Upload className="w-10 h-10 sm:w-12 sm:h-12 mb-4 text-muted-foreground" />
-                    <p className="mb-2 text-sm font-medium text-foreground">
-                      <span className="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                    <p className="text-xs text-muted-foreground">PNG, JPG, WEBP (MAX. 10MB)</p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              <Card className="bg-card/40 backdrop-blur-xl border-white/10 shadow-2xl overflow-hidden">
+                <CardContent className="p-6 sm:p-10">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+                    <div className="flex items-center gap-4">
+                      <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 shadow-xl">
+                        {selectedToolData && <selectedToolData.icon className="w-8 h-8 text-primary" />}
+                      </div>
+                      <div>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground">
+                          {selectedToolData?.name}
+                        </h2>
+                        <p className="text-muted-foreground font-medium">{selectedToolData?.description}</p>
+                      </div>
+                    </div>
+                    {selectedToolData && selectedToolData.cost > 0 && (
+                      <div className="px-6 py-3 rounded-2xl bg-primary/10 border border-primary/20 backdrop-blur-md">
+                        <span className="text-primary font-bold flex items-center gap-2">
+                          <span className="text-xl">💎</span> {selectedToolData.cost} Credits Required
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={onFile}
-                    className="hidden"
-                  />
-                </label>
 
-                <Button
-                  onClick={runTool}
-                  disabled={!image || loading}
-                  className="w-full mt-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Process Image {selectedToolData && selectedToolData.cost > 0 && `(${selectedToolData.cost} pts)`}
-                    </>
+                  <label className="group relative flex flex-col items-center justify-center w-full h-72 sm:h-96 border-2 border-dashed border-primary/20 rounded-[2rem] cursor-pointer hover:border-primary/60 transition-all duration-500 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 hover:bg-primary/10">
+                    <div className="flex flex-col items-center justify-center p-10 text-center">
+                      <div className="w-20 h-20 mb-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
+                        <Upload className="w-10 h-10 text-primary" />
+                      </div>
+                      <h3 className="mb-2 text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        Ready to transform?
+                      </h3>
+                      <p className="text-muted-foreground/80 max-w-xs mb-6">
+                        Select a high-quality image from your device to see the magic happen.
+                      </p>
+                      <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-xl shadow-primary/30 group-hover:shadow-primary/50 transition-all duration-300">
+                        Select Image
+                      </div>
+                      <p className="mt-6 text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                        PNG • JPG • WEBP (MAX 10MB)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={onFile}
+                      className="hidden"
+                    />
+                  </label>
+
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-6 bg-destructive/10 border border-destructive/20 text-destructive px-6 py-4 rounded-2xl text-sm font-medium flex items-center gap-3"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center flex-shrink-0">
+                        <X className="w-4 h-4" />
+                      </div>
+                      {error}
+                    </motion.div>
                   )}
-                </Button>
-
-                {error && (
-                  <div className="mt-4 bg-destructive/10 border border-destructive/50 text-destructive px-4 py-3 rounded-lg text-sm">
-                    {error}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
 
           {/* Main Interface - BG Remove */}
@@ -667,20 +650,20 @@ function ToolsPageContent() {
                         <Button
                           onClick={runTool}
                           disabled={loading}
-                          size="sm"
-                          className="flex-1 sm:flex-none bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 hover:from-blue-600 hover:via-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300"
+                          size="lg"
+                          className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-700 hover:from-blue-700 hover:via-indigo-700 hover:to-violet-800 text-white shadow-2xl shadow-blue-500/40 hover:shadow-blue-500/60 transition-all duration-500 font-bold border-t border-white/20"
                         >
                           {loading ? (
                             <>
-                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                              <span className="hidden sm:inline">Processing...</span>
+                              <Loader2 className="w-5 h-5 animate-spin mr-3" />
+                              <span className="hidden sm:inline">AI Processing...</span>
                               <span className="sm:hidden">Processing</span>
                             </>
                           ) : (
                             <>
-                              <Scissors className="w-4 h-4 mr-2" />
-                              <span className="hidden sm:inline">Remove Background</span>
-                              <span className="sm:hidden">Remove</span>
+                              <Sparkles className="w-5 h-5 mr-3 animate-pulse" />
+                              <span className="hidden sm:inline">Start AI Magic</span>
+                              <span className="sm:hidden">Start</span>
                             </>
                           )}
                         </Button>
@@ -697,49 +680,51 @@ function ToolsPageContent() {
                   </div>
 
                   {/* Image Display with Enhanced Checkerboard */}
-                  <div 
-                    className="w-full min-h-[250px] sm:min-h-[350px] md:min-h-[450px] lg:min-h-[550px] rounded-xl overflow-hidden relative flex items-center justify-center bg-gradient-to-br from-muted/50 to-muted/30 border-2 border-border/50 shadow-inner"
-                    style={{
-                      backgroundImage: `
-                        linear-gradient(45deg, #e5e5e5 25%, transparent 25%),
-                        linear-gradient(-45deg, #e5e5e5 25%, transparent 25%),
-                        linear-gradient(45deg, transparent 75%, #e5e5e5 75%),
-                        linear-gradient(-45deg, transparent 75%, #e5e5e5 75%)
-                      `,
-                      backgroundSize: '24px 24px',
-                      backgroundPosition: '0 0, 0 12px, 12px -12px, -12px 0px'
-                    }}
+                  <div
+                    className="w-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px] rounded-3xl overflow-hidden relative flex items-center justify-center bg-[#f8fafc] dark:bg-[#0f172a] border border-white/10 shadow-2xl"
                   >
+                    <div className="absolute inset-0 opacity-10"
+                      style={{
+                        backgroundImage: `radial-gradient(#4f46e5 0.5px, transparent 0.5px)`,
+                        backgroundSize: '24px 24px'
+                      }}
+                    />
                     {loading ? (
-                      <div className="flex flex-col items-center gap-4 p-8 bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg">
+                      <div className="relative z-10 flex flex-col items-center gap-6 p-10 bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 shadow-2xl">
                         <div className="relative">
-                          <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 animate-spin text-primary" />
-                          <div className="absolute inset-0 w-12 h-12 sm:w-16 sm:h-16 animate-ping opacity-20">
-                            <Loader2 className="w-full h-full text-primary" />
+                          <div className="w-20 h-20 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Sparkles className="w-8 h-8 text-primary animate-pulse" />
                           </div>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm sm:text-base font-medium text-foreground mb-1">Removing Background</p>
-                          <p className="text-xs text-muted-foreground">This may take a few seconds...</p>
+                          <h3 className="text-xl font-extrabold text-foreground mb-2">Enhancing Your Visual</h3>
+                          <p className="text-sm text-muted-foreground font-medium">Our neural networks are processing your image...</p>
                         </div>
                       </div>
-                    ) : resultUrl ? (
-                      <div className="relative w-full h-full flex items-center justify-center p-4">
-                        <img
-                          src={resultUrl}
-                          alt="Processed"
-                          className="max-w-full max-h-[450px] sm:max-h-[550px] md:max-h-[650px] object-contain drop-shadow-2xl"
-                        />
-                      </div>
-                    ) : image ? (
-                      <div className="relative w-full h-full flex items-center justify-center p-4">
-                        <img
-                          src={image}
-                          alt="Original"
-                          className="max-w-full max-h-[450px] sm:max-h-[550px] md:max-h-[650px] object-contain drop-shadow-lg"
-                        />
-                      </div>
-                    ) : null}
+                    ) : (
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={resultUrl || image}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 1.1 }}
+                          transition={{ duration: 0.4 }}
+                          className="relative w-full h-full flex items-center justify-center p-6 sm:p-10"
+                        >
+                          <img
+                            src={resultUrl || image}
+                            alt="Preview"
+                            className="max-w-full max-h-[500px] sm:max-h-[600px] md:max-h-[700px] object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] transition-all duration-500 rounded-lg"
+                          />
+                          {resultUrl && (
+                            <div className="absolute top-6 right-6 px-4 py-2 rounded-full bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-400 text-xs font-bold uppercase tracking-widest shadow-xl">
+                              Enhanced with AI
+                            </div>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+                    )}
                   </div>
 
                   {/* Action Buttons */}
@@ -788,7 +773,7 @@ function ToolsPageContent() {
                       </div>
                       <h3 className="text-base sm:text-lg font-bold text-foreground">Change Background</h3>
                     </div>
-                    
+
                     {/* Enhanced Tabs */}
                     <div className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 p-1 bg-muted/50 rounded-xl border border-border/50">
                       <button
@@ -1164,7 +1149,7 @@ function ToolsPageContent() {
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
-                  
+
                   <div className="relative">
                     <img
                       src={image}
@@ -1236,18 +1221,7 @@ function ToolsPageContent() {
       )}
 
       {/* Tool Info */}
-      {selectedToolData && (
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="p-4">
-            <h3 className="text-sm font-semibold text-primary mb-2">
-              {selectedToolData.name}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {selectedToolData.description}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+
     </div>
   )
 }

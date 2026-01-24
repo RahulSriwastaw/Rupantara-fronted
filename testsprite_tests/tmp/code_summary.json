@@ -1,0 +1,46 @@
+{
+    "tech_stack": [
+        "TypeScript",
+        "Next.js",
+        "Tailwind CSS",
+        "Lucide React",
+        "Framer Motion",
+        "Zustand",
+        "Axios"
+    ],
+    "features": [
+        {
+            "name": "Template System",
+            "description": "Displays image templates with optimized loading and skeleton states.",
+            "files": [
+                "components/template/TemplateCard.tsx",
+                "app/(main)/template/page.tsx"
+            ]
+        },
+        {
+            "name": "AI Image Tools",
+            "description": "Professional AI-powered image editing tools with minimalist UI.",
+            "files": [
+                "app/(main)/tools/page.tsx",
+                "services/api/toolsApi.ts"
+            ]
+        },
+        {
+            "name": "Prompt Interface",
+            "description": "Dashboard for generating images with templates and quick tools.",
+            "files": [
+                "app/(main)/generate/GenerateClient.tsx",
+                "components/generate/AITools.tsx"
+            ]
+        },
+        {
+            "name": "Store & State Management",
+            "description": "Manages user authentication, wallet balance, and template state.",
+            "files": [
+                "store/authStore.ts",
+                "store/walletStore.ts",
+                "store/templateStore.ts"
+            ]
+        }
+    ]
+}

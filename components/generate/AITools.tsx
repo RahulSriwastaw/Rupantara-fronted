@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Scissors, Sparkles, Smile, Maximize2, Palette, Paintbrush, Download, Loader2 } from "lucide-react";
+import { Eraser, Zap, Brush, UserRound, Sparkles, Smile, Download, Loader2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -28,21 +28,21 @@ const tools = [
   {
     id: "bg-remove",
     name: "BG Remove",
-    icon: Scissors,
+    icon: Eraser,
     cost: 0,
     description: "Remove background instantly",
   },
   {
     id: "upscale",
     name: "Upscale",
-    icon: Maximize2,
+    icon: Zap,
     cost: 10,
     description: "Increase resolution",
   },
   {
     id: "colorize",
     name: "Colorize",
-    icon: Palette,
+    icon: Brush,
     cost: 10,
     description: "B&W to color",
   },
@@ -85,16 +85,16 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
       if (selectedTool === "bg-remove") {
         // Call remove background API
         const response = await toolsApi.removeBg(currentImage);
-        
+
         if (response.result || response.imageUrl) {
           const resultUrl = response.result || response.imageUrl;
           setProcessedImage(resultUrl);
-          
+
           // Deduct points if cost > 0
           if (selectedToolData && selectedToolData.cost > 0) {
             deductPoints(selectedToolData.cost, 'tool_use', `Tool used: ${selectedToolData.name}`);
           }
-          
+
           toast({
             title: "Background removed!",
             description: "Your image has been processed successfully",
@@ -128,14 +128,14 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
 
   const handleDownload = () => {
     if (!processedImage) return;
-    
+
     const link = document.createElement('a');
     link.href = processedImage;
     link.download = `bg-removed-${Date.now()}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     toast({
       title: "Download started",
       description: "Your image is being downloaded",
@@ -155,7 +155,18 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
   return (
     <>
       <div className="space-y-2 sm:space-y-3">
-        <h3 className="text-sm sm:text-base font-semibold text-foreground">Quick AI Tools</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm sm:text-base font-bold text-foreground">Quick AI Tools</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/tools')}
+            className="h-8 px-2 text-primary hover:text-primary/80 hover:bg-primary/5 text-xs font-bold"
+          >
+            More Tools
+            <ChevronRight className="w-3 h-3 ml-1" />
+          </Button>
+        </div>
         <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
           {tools.map((tool) => {
             const Icon = tool.icon;
@@ -175,7 +186,7 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
                 {isBgRemove && (
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 )}
-                
+
                 <div className={cn(
                   "rounded-full p-2 sm:p-2.5 transition-all duration-200 relative z-10",
                   isBgRemove
@@ -276,7 +287,7 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
                   </div>
                 </div>
               )}
-              
+
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">
                   {processedImage ? "Processed Result" : "Preview will appear here"}
@@ -284,7 +295,7 @@ export function AITools({ hasPhotos, photos, onToolApply }: AIToolsProps) {
                 <div className="aspect-video rounded-lg bg-muted overflow-hidden flex items-center justify-center relative">
                   {/* Checkerboard pattern for transparency */}
                   {processedImage && (
-                    <div 
+                    <div
                       className="absolute inset-0 opacity-30"
                       style={{
                         backgroundImage: `

@@ -56,29 +56,29 @@ export const api = {
       ]);
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({
-          error: `API request failed: ${response.status} ${response.statusText}`
-        }));
+        // Check for specific backend messages
+        const errorMessage = error.message || error.error || error.msg || error.details;
 
-        // Handle 404 errors gracefully - return empty array for GET requests to /templates
+        // Handle 404 errors gracefully
         if (response.status === 404) {
-          // For templates endpoint, return empty array instead of throwing error
           if (endpoint === '/templates' || endpoint.startsWith('/templates')) {
             console.warn('Templates endpoint not found, returning empty array');
             return [];
           }
-          if (error.error?.includes('Route not found')) {
-            throw new Error('The requested resource was not found. Please check the URL and try again.');
-          }
-          throw new Error('Resource not found. Please try again.');
+          throw new Error(errorMessage || 'The requested resource was not found.');
+        }
+
+        // Handle 403 Forbidden (CORS or Auth)
+        if (response.status === 403) {
+          throw new Error(errorMessage || 'Access denied (CORS or Permissions).');
         }
 
         // Handle 500 errors
         if (response.status >= 500) {
-          throw new Error('Server error. Please try again later.');
+          throw new Error(errorMessage || 'Server error. Please try again later.');
         }
 
-        throw new Error(error.error || `API request failed: ${response.status}`);
+        throw new Error(errorMessage || `API request failed: ${response.status}`);
       }
       return response.json();
     } catch (error: any) {
@@ -104,38 +104,25 @@ export const api = {
       ]);
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({
-          error: `API request failed: ${response.status} ${response.statusText}`,
-          msg: `API request failed: ${response.status} ${response.statusText}`
-        }));
-
         // Check for specific backend messages
         const errorMessage = error.msg || error.message || error.error || error.details;
 
         // Handle 404 errors with user-friendly messages
         if (response.status === 404) {
-          if (errorMessage?.includes('Route not found')) {
-            throw new Error('The requested resource was not found. Please check the URL and try again.');
-          }
           throw new Error(errorMessage || 'Resource not found. Please try again.');
+        }
+
+        // Handle 403 Forbidden
+        if (response.status === 403) {
+          throw new Error(errorMessage || 'Access denied (CORS or Permissions).');
         }
 
         // Handle 401 Unauthorized
         if (response.status === 401) {
-          // Clear invalid token
           if (typeof window !== 'undefined') {
             localStorage.removeItem('token');
           }
-          throw new Error('Session expired. Please login again.');
-        }
-
-        // Handle 500 errors with better messages
-        if (response.status >= 500) {
-          // For payment errors, show specific message
-          if (endpoint.includes('/payment/')) {
-            throw new Error(errorMessage || 'Payment service error. Please try again later.');
-          }
-          throw new Error(errorMessage || 'Server error. Please try again later.');
+          throw new Error(errorMessage || 'Session expired. Please login again.');
         }
 
         // Handle 400 Bad Request
@@ -143,12 +130,9 @@ export const api = {
           throw new Error(errorMessage || 'Invalid request. Please check your input.');
         }
 
-        // Handle 500 errors but allow specific messages
+        // Handle 500 errors
         if (response.status >= 500) {
-          if (errorMessage && !errorMessage.includes('API request failed')) {
-            throw new Error(errorMessage);
-          }
-          throw new Error('Server error. Please try again later.');
+          throw new Error(errorMessage || 'Server error. Please try again later.');
         }
 
         throw new Error(errorMessage || `API request failed: ${response.status}`);

@@ -1,0 +1,625 @@
+[
+  {
+    "id": "TC001",
+    "title": "Admin Dashboard Real-Time Data Refresh",
+    "description": "Verify that the admin dashboard loads accurate real-time data initially and updates every 30 seconds with fresh system health, user activity, and revenue data.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Admin logs in with valid credentials and 2FA."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the admin dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all stats cards display correct initial data (users, generations, revenue, templates)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify charts render accurate usage and system health data."
+      },
+      {
+        "type": "action",
+        "description": "Wait for 30 seconds."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that dashboard data automatically refreshes to reflect the latest state."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Management - Search, Filter, and Sort",
+    "description": "Ensure the admin can search users by name/email, apply filters (status, activity), and sort user lists correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to user management page."
+      },
+      {
+        "type": "action",
+        "description": "Input partial and full search terms for username and email."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that search results only include users matching the terms."
+      },
+      {
+        "type": "action",
+        "description": "Apply filters such as active, banned, and suspended users."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that user list updates to reflect selected filters."
+      },
+      {
+        "type": "action",
+        "description": "Sort users by registration date, last activity, and points."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify sorting order is correct and stable."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "User Management - Edit Profile and Adjust Points",
+    "description": "Verify that admin can edit user profile details and adjust user points, and changes are saved and reflected correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Select a user from user list."
+      },
+      {
+        "type": "action",
+        "description": "Edit fields such as username, email, and user status."
+      },
+      {
+        "type": "action",
+        "description": "Adjust user points credit/debit with valid values."
+      },
+      {
+        "type": "action",
+        "description": "Save changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify profile updates are reflected in user details."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify points changes are visible in user transaction and activity history."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "User Management - Ban, Suspend, and Bulk Actions",
+    "description": "Test banning and suspending individual users and performing bulk operations with multiple user selections.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Select a single user and ban the user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user status changes to banned and user is prevented from access."
+      },
+      {
+        "type": "action",
+        "description": "Select multiple users using checkboxes."
+      },
+      {
+        "type": "action",
+        "description": "Perform bulk suspension on selected users."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all selected users have updated suspended status."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Creator Applications - Review and Approval Workflow",
+    "description": "Verify admin can review pending creator applications, examine applicant details, receive AI quality checks, approve or reject with feedback, and trigger notifications.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to creator applications page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that all pending applications are listed with summary info."
+      },
+      {
+        "type": "action",
+        "description": "Open detailed view of an application."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify application details, including supplementary info and AI quality check results are present."
+      },
+      {
+        "type": "action",
+        "description": "Approve the application with feedback."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify application status updates accordingly."
+      },
+      {
+        "type": "action",
+        "description": "Verify notification sent to applicant about decision."
+      },
+      {
+        "type": "action",
+        "description": "Reject another application with feedback."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify rejected status and notification sent."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Creator Management - Earnings Tracking and Withdrawal Processing",
+    "description": "Ensure admin can view creator earnings and successfully verify and process withdrawal requests with bank verification steps.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to creator management page."
+      },
+      {
+        "type": "action",
+        "description": "Select a creator and view detailed earnings history."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify displayed earnings match transaction records."
+      },
+      {
+        "type": "action",
+        "description": "Open withdrawal request pending verification."
+      },
+      {
+        "type": "action",
+        "description": "Validate requested bank details and verify supporting documents."
+      },
+      {
+        "type": "action",
+        "description": "Approve withdrawal and trigger payout process."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify withdrawal status updates to processed and creator is notified."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Template Management - Status Views and AI Quality Checks",
+    "description": "Verify template status-based views function correctly and AI-powered auto quality checks enforce proper approval criteria.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to template management page."
+      },
+      {
+        "type": "action",
+        "description": "Switch views between pending, approved, rejected templates."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify templates displayed correspond to selected status filter."
+      },
+      {
+        "type": "action",
+        "description": "Select a pending template and run AI auto quality check."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify AI check returns quality score and flags (if any)."
+      },
+      {
+        "type": "action",
+        "description": "Approve template manually after review."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify template status updates and is included in approved views."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Content Moderation - Auto-Flagging, Manual Review, and Strike Enforcement",
+    "description": "Validate content moderation pipeline where AI auto-flagging adds items to manual review queue, strikes are issued per policy, bans triggered on strike limits, and appeals workflow functions correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Inject content with banned keywords to trigger auto-flagging."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify content appears in manual review queue with correct flags."
+      },
+      {
+        "type": "action",
+        "description": "Moderator reviews flagged content and issues a strike."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify strike is logged and user strike count updated."
+      },
+      {
+        "type": "action",
+        "description": "User accumulates maximum strikes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is automatically banned per policy."
+      },
+      {
+        "type": "action",
+        "description": "User submits appeal for banned content."
+      },
+      {
+        "type": "action",
+        "description": "Moderator reviews appeal and either upholds ban or reinstates user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appeal result is recorded and user notified."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Wallet & Transactions - Multi-Gateway Payments and Promo Code Application",
+    "description": "Ensure multiple payment gateways function correctly, transactions are recorded, promo codes apply discounts accurately, and user wallet balances update accordingly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to payment settings and verify multiple gateway configurations."
+      },
+      {
+        "type": "action",
+        "description": "Perform a user payment using each configured gateway."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify transaction records include accurate gateway info and statuses."
+      },
+      {
+        "type": "action",
+        "description": "Create and apply a valid promo code."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify promo code discount applied to transaction and wallet balance credited."
+      },
+      {
+        "type": "action",
+        "description": "Attempt payment with expired or invalid promo code."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify payment is rejected with appropriate error message."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Wallet & Transactions - Refund Processing and Financial Analytics",
+    "description": "Verify that refunds are processed securely, trigger reversal in user and creator balances, reflect in transaction history, and analytics reports update accordingly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Select a completed transaction eligible for refund."
+      },
+      {
+        "type": "action",
+        "description": "Process a full and partial refund."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user wallet balance reflects refund."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify creator earnings are adjusted if applicable."
+      },
+      {
+        "type": "assertion",
+        "description": "Check updated transaction history for refund record."
+      },
+      {
+        "type": "action",
+        "description": "Access financial analytics dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify financial reports reflect refund impacts."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "AI Configuration - Model Selection, API Key Management, and Cost Settings",
+    "description": "Test admin's ability to switch active AI generation models, add/update/revoke API keys, configure cost parameters, and validate these changes affect performance and reported analytics.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to AI Configuration page."
+      },
+      {
+        "type": "action",
+        "description": "Select a different AI model as active."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify generation requests use the selected model."
+      },
+      {
+        "type": "action",
+        "description": "Add a new API key with valid credentials."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify key is stored securely and displayed masked."
+      },
+      {
+        "type": "action",
+        "description": "Revoke an existing API key."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify revoked key is disabled for API calls."
+      },
+      {
+        "type": "action",
+        "description": "Adjust cost settings (e.g., max budget, cost per generation)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify cost changes reflected in generation cost analytics."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Admin & System Settings - Admin Role Management and 2FA Enforcement",
+    "description": "Validate creation, editing, and deletion of admin user roles with detailed permissions and enforce two-factor authentication during login.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to admin user roles management."
+      },
+      {
+        "type": "action",
+        "description": "Create a new admin role with specific permissions."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify newly created role appears with correct permissions."
+      },
+      {
+        "type": "action",
+        "description": "Assign role to an admin user."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access restricted features with that user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is granted or denied per role permissions."
+      },
+      {
+        "type": "action",
+        "description": "Log in as admin user with 2FA enabled."
+      },
+      {
+        "type": "action",
+        "description": "Provide correct email and password."
+      },
+      {
+        "type": "action",
+        "description": "Enter valid 2FA code."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify successful login and access to system."
+      },
+      {
+        "type": "action",
+        "description": "Attempt login with invalid 2FA code."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is rejected with 2FA error."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Reports & Analytics - Generate, Filter, Export, and Schedule",
+    "description": "Ensure that reports can be generated with customizable filters and date ranges, exported correctly in multiple formats, and scheduled for automated delivery.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to reports & analytics section."
+      },
+      {
+        "type": "action",
+        "description": "Select report type (user, generation, revenue, moderation)."
+      },
+      {
+        "type": "action",
+        "description": "Apply filters such as date range, user segments, template categories."
+      },
+      {
+        "type": "action",
+        "description": "Generate the report."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify report data matches filters and criteria."
+      },
+      {
+        "type": "action",
+        "description": "Export report in PDF and CSV formats."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify exported files contain correct report data and formatting."
+      },
+      {
+        "type": "action",
+        "description": "Schedule a report for daily email delivery."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify scheduled report emails are sent at configured times."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Support & Tickets - Ticket Lifecycle and Prioritization",
+    "description": "Test the full ticket lifecycle including creating tickets, assigning, replying with canned responses, escalating, closing, and tracking customer satisfaction.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to support tickets section."
+      },
+      {
+        "type": "action",
+        "description": "Create a new ticket on behalf of a user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify ticket is created with correct initial status and priority."
+      },
+      {
+        "type": "action",
+        "description": "Assign ticket to a support agent."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify assignment notification sent and ticket status updated."
+      },
+      {
+        "type": "action",
+        "description": "Add replies using canned responses."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify reply is recorded with timestamp and agent info."
+      },
+      {
+        "type": "action",
+        "description": "Escalate ticket to higher support tier."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify escalation changes ticket priority and triggers notification."
+      },
+      {
+        "type": "action",
+        "description": "Close the ticket after resolution."
+      },
+      {
+        "type": "action",
+        "description": "Capture customer satisfaction rating."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify final ticket status is closed and satisfaction rating recorded."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Security - Password Policy, IP Restrictions, Session Timeout, and Audit Logging",
+    "description": "Validate enforcement of password complexity and expiration policies, IP address login restrictions, session timeout due to inactivity, and accurate audit logs for critical admin actions.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to set an admin password that does not meet complexity requirements."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify password change is rejected with appropriate error."
+      },
+      {
+        "type": "action",
+        "description": "Log in from an allowed IP address."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify successful login."
+      },
+      {
+        "type": "action",
+        "description": "Log in from a disallowed IP address."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is blocked with security warning."
+      },
+      {
+        "type": "action",
+        "description": "Remain inactive beyond configured session timeout period."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify session expires and re-login is required."
+      },
+      {
+        "type": "action",
+        "description": "Perform actions like user ban, role change, and payment configuration update."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify audit log captures user, timestamp, action details correctly."
+      }
+    ]
+  }
+]

@@ -3,8 +3,8 @@
 
 // Production URLs (hardcoded for mobile builds)
 const PRODUCTION_CONFIG_DEFAULT = {
-  API_BASE_URL: 'https://new-backend-o2nu.onrender.com',
-  API_URL: 'https://new-backend-o2nu.onrender.com/api',
+  API_BASE_URL: 'https://new-backend-g2gw.onrender.com',
+  API_URL: 'https://new-backend-g2gw.onrender.com/api',
   FRONTEND_URL: 'https://rupantara-fronted.vercel.app',
   ADMIN_PANEL_URL: 'https://new-admin-pannel-nine.vercel.app',
 };

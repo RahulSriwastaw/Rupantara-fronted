@@ -57,6 +57,7 @@ export const api = {
 
       if (!response.ok) {
         // Check for specific backend messages
+        const error = await response.json().catch(() => ({}));
         const errorMessage = error.message || error.error || error.msg || error.details;
 
         // Handle 404 errors gracefully
@@ -105,6 +106,7 @@ export const api = {
 
       if (!response.ok) {
         // Check for specific backend messages
+        const error = await response.json().catch(() => ({}));
         const errorMessage = error.msg || error.message || error.error || error.details;
 
         // Handle 404 errors with user-friendly messages
